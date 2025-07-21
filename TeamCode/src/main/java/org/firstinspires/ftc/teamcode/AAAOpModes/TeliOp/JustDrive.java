@@ -14,7 +14,7 @@ public class JustDrive extends BaseOpMode {
 
     @Override
     public void externalInit () {
-        drive = new FixedDriveTrain();
+        drive = new FixedDriveTrain(new Vector(0,0,0));
     }
 
     @Override

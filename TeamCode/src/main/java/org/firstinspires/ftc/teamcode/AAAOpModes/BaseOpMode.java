@@ -92,8 +92,11 @@ public abstract class BaseOpMode extends LinearOpMode {
     @Override
     public void runOpMode(){
 
+
+
         initializeUtilities();
         externalInit();
+
 
         do{
             //update sensors
@@ -104,6 +107,7 @@ public abstract class BaseOpMode extends LinearOpMode {
 
         }while (opModeInInit());
 
+        Signal.startALl();
         externalStart();
 
         while (opModeIsActive()){
@@ -112,6 +116,7 @@ public abstract class BaseOpMode extends LinearOpMode {
             isActive = true;
         }
         externalStop();
+        Signal.signals.clear();
     }
 
     private void initializeUtilities(){
@@ -120,12 +125,12 @@ public abstract class BaseOpMode extends LinearOpMode {
         Motor.resetMotorList();
         MotorEncoder.resetEncoderList();
         Gyro.resetGyroList();*/
-        Signal.startALl();
+
         setOpMode(this);
     }
 
     private void updateUtilities(){
-        Signal.updateAll();
+        if (isActive()) Signal.updateAll();
         //update telemetry
         updateTelemetry();
         //lastly command powers
