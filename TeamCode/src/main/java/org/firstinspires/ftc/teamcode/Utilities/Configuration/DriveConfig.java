@@ -2,7 +2,10 @@ package org.firstinspires.ftc.teamcode.Utilities.Configuration;
 
 import com.acmerobotics.dashboard.config.Config;
 
+import org.firstinspires.ftc.teamcode.Motion.Controllers.PID;
+import org.firstinspires.ftc.teamcode.Motion.Controllers.PIDCoefficients;
 import org.firstinspires.ftc.teamcode.Motion.Drivetrains.DriveWheel;
+import org.firstinspires.ftc.teamcode.Motion.Drivetrains.FixedDriveTrain;
 import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Vector;
 
 
@@ -11,8 +14,8 @@ public class DriveConfig {
 
 
     /*  Drive wheel Parameterization
-        Each wheel is specified as a 3D Vector, units are (Motor power unit)/(m/s). I.e, how much power is needed to go x m/s.
-        The h is not m/s, but rather radians/s. Yes, this works, because you're dotting it with a m/s, m/s, rad/s vector.
+        Each wheel is specified as a unitless 3D Vector, characterizing what direction the wheel moves in.
+        Heading is included in the vector.
         See https://files.andymark.com/2008CON-Omni-Baker-McKenzie.pdf for details on math.
 
         Note that the Motor power unit is 1/(Battery level) of a volt. This could be useful for battery correction in the future.
@@ -23,35 +26,37 @@ public class DriveConfig {
     */
     @Config
     public static class DriveWheels {
-        @Config
         public static class FL {
             public static double x = -1.25;
             public static double y = -1;
             public static double h = -1;
 
         }
-        @Config
         public static class FR {
             public static double x = -1.25;
             public static double y = 1;
             public static double h = -1;
 
         }
-        @Config
         public static class BL {
             public static double x = 1.25;
             public static double y = -1;
             public static double h = -1;
 
         }
-        @Config
         public static class BR {
             public static double x = 1.25;
             public static double y = 1;
             public static double h = -1;
 
         }
+        public static PIDCoefficients driveConstants = new PIDCoefficients(0, 0, 0, 0, 0);
+        public static double driveAcceleration = 10;
     }
+
+
+
+
 
     // The drivewheels put into an array so the FixedDriveTrain class can access them easily.
     public static DriveWheel[] driveWheels= new DriveWheel[]{
@@ -59,5 +64,7 @@ public class DriveConfig {
             new DriveWheel(Hardware.leftFront,  new Vector(DriveWheels.FL.x, DriveWheels.FL.y, DriveWheels.FL.h)),
             new DriveWheel(Hardware.rightBack,  new Vector(DriveWheels.BR.x, DriveWheels.BR.y, DriveWheels.BR.h)),
             new DriveWheel(Hardware.leftBack,   new Vector(DriveWheels.BL.x, DriveWheels.BL.y, DriveWheels.BL.h))};
+
+
 
 }
