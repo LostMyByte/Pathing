@@ -18,7 +18,6 @@ public class FastPathMotionProfile extends Signal {
     public FastPathMotionProfile(Path targetPath, double speed) {
         super(3);
         this.targetPath = targetPath;
-        this.startPosition = targetPath.getPosition(0);
         this.time = 0;
         this.scalar = speed;
         this.speed = speed;
@@ -26,15 +25,21 @@ public class FastPathMotionProfile extends Signal {
 
     @Override
     protected void update() {
+
+        if (time > 1) time = 1;
         Vector velocityVector = targetPath.getVelocity(time);
         Vector accelerationVector = targetPath.getAcceleration(time);
-        scalar = FixedDriveTrain.getPowerScalar(accelerationVector.normalized()) * DriveConfig.DriveWheels.driveAcceleration /accelerationVector.magnitude() * speed;
+        double maxAcceleration = FixedDriveTrain.getPowerScalar(accelerationVector.normalized()) * DriveConfig.DriveWheels.driveAcceleration;
+        scalar = maxAcceleration/accelerationVector.magnitude() * speed;
 
         this.data = velocityVector.multiplied(scalar);
-        BaseOpMode.addData("Target Velocity X", data.getData()[0]);
-        BaseOpMode.addData("Target Velocity Y", data.getData()[1]);
-        BaseOpMode.addData("Target Velocity H", data.getData()[2]);
+        if (this.data.magnitude() > DriveConfig.DriveWheels.maxVelocity) {
+            scalar *= DriveConfig.DriveWheels.maxVelocity/this.data.magnitude();
+            this.data = velocityVector.multiplied(scalar);
+        };
+
         time += deltaTime * scalar;
+
     }
 
     @Override
@@ -44,11 +49,28 @@ public class FastPathMotionProfile extends Signal {
 
     @Override
     public Vector getIntegralVector() {
-        return targetPath.getPosition(time).subtracted(startPosition);
+        return targetPath.getPosition(time);
     }
 
     @Override
     public void resetIntegral() {
         this.startPosition = targetPath.getPosition(time);
     }
+
+    @Override
+    public void telemetry() {
+        BaseOpMode.addData("Target Velocity X", data.getData()[0]);
+        BaseOpMode.addData("Target Velocity Y", data.getData()[1]);
+        BaseOpMode.addData("Target Velocity H", data.getData()[2]);
+        BaseOpMode.addData("Target Acceleration (mag)", this.targetPath.getAcceleration(time).multiplied(scalar).magnitude());
+
+        BaseOpMode.addData("Profile Time", time);
+        BaseOpMode.addData("Profile Scalar", scalar);
+
+        BaseOpMode.addData("Target X", getIntegralVector().get(0));
+        BaseOpMode.addData("Target Y", getIntegralVector().get(1));
+        BaseOpMode.addData("Target H", getIntegralVector().get(2));
+    }
+
+
 }

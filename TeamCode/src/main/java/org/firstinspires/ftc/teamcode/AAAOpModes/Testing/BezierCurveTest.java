@@ -26,6 +26,7 @@ public class BezierCurveTest extends BaseOpMode {
         public static double targetVX = 0;
         public static double targetVY = 0;
         public static double targetVH = 0;
+        public static double speed = 0.9;
     }
 
     @Override
@@ -39,8 +40,8 @@ public class BezierCurveTest extends BaseOpMode {
             Vector start = drive.loc.getPosition();
             Vector end = new Vector(Pathsetup.targetX, Pathsetup.targetY, Pathsetup.targetH);
             Vector endV = new Vector(Pathsetup.targetVX, Pathsetup.targetVY, Pathsetup.targetVH);
-            Vector startV = drive.loc.getGradient();
-            drive.followPath(new BezierPath(start, end, startV, endV));
+            Vector startV = drive.loc.getDataVector();
+            drive.followPath(new BezierPath(start, end, startV, endV), Pathsetup.speed);
         }
     }
 }

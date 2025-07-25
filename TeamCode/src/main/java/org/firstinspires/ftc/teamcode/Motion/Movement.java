@@ -15,14 +15,16 @@ public abstract class Movement extends Subsystem {
 
     public Path activePath;
     public Controller correctionSignal;
+    public Signal profile;
 
     public Location loc;
 
-    public void followPath(Path path) {
+    public void followPath(Path path, double speed) {
         if (activePath != path) {
             activePath = path;
             if (path != null) {
-                correctionSignal = new PID(new FastPathMotionProfile(activePath, 0.9), loc, DriveConfig.DriveWheels.driveConstants);
+                profile = new FastPathMotionProfile(activePath, speed);
+                correctionSignal = new PID(profile, loc, DriveConfig.DriveWheels.driveConstants);
             }
         }
     }
@@ -32,7 +34,8 @@ public abstract class Movement extends Subsystem {
     @Override
     public void update() {
         if (activePath != null) {
-            if (activePath.getTarget().subtracted(loc.getDataVector()).magnitude()<0.5 && loc.getGradient().magnitude() < 0.2) {
+            if (activePath.getTarget().subtracted(loc.getPosition()).magnitude()<0.5) {
+                Signal.signals.remove(profile);
                 activePath = null;
                 move(new Vector(0,0,0));
             }

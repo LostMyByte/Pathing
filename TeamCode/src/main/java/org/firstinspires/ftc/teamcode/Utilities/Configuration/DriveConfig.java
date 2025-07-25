@@ -26,6 +26,8 @@ public class DriveConfig {
     */
     @Config
     public static class DriveWheels {
+        public static double maxVelocity = 50;
+
         public static class FL {
             public static double x = -1.25;
             public static double y = -1;
@@ -50,8 +52,8 @@ public class DriveConfig {
             public static double h = -1;
 
         }
-        public static PIDCoefficients driveConstants = new PIDCoefficients(0, 0, 0, 0, 0);
-        public static double driveAcceleration = 10;
+        public static PIDCoefficients driveConstants = new PIDCoefficients(0.03, 0.01, 0, 0.03, 0.01);
+        public static double driveAcceleration = 20;
     }
 
 

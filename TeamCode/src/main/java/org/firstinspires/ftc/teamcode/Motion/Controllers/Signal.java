@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Motion.Controllers;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Vector;
 
 import java.util.ArrayList;
@@ -30,9 +31,11 @@ public abstract class Signal {
     public static void updateAll() {
         deltaTime = timer.seconds();
         timer.reset();
+        BaseOpMode.addData("DeltaTime", deltaTime);
         for (Signal source : signals) {
             if (source.active) {
-                source.oldData = source.getDataVector();
+                source.telemetry();
+                source.oldData = source.data;
                 source.addIntegral();
                 source.update();
                 assert source.data != null;
@@ -41,7 +44,7 @@ public abstract class Signal {
     }
 
     // Add to integral using trapezoidal approximation
-    private void addIntegral() {
+    protected void addIntegral() {
         this.integralSum.add(getDataVector().added(oldData).multiplied(0.5).multiplied(deltaTime));
     }
 
@@ -65,7 +68,7 @@ public abstract class Signal {
     }
 
     public Vector getGradient() {
-        return getDataVector().subtracted(oldData).multiplied(1/timer.seconds());
+        return data.subtracted(oldData).multiplied(1/timer.seconds());
     }
 
     public double[] getDerivatives() {
@@ -95,6 +98,8 @@ public abstract class Signal {
     public void resetIntegral() {
         this.integralSum = Vector.length(data.length());
     }
+
+    public abstract void telemetry();
 
 
 }

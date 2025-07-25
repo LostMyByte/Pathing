@@ -49,17 +49,27 @@ public class Location extends Signal {
     public void update() {
         odoPods.update();
         Pose2D pose = odoPods.getVelocity();
-        data = new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), pose.getHeading(AngleUnit.RADIANS));
-        BaseOpMode.addData("Velocity X", data.getData()[0]);
-        BaseOpMode.addData("Velocity Y", data.getData()[1]);
-        BaseOpMode.addData("Velocity H", data.getData()[2]);
-
-        BaseOpMode.addData("Position", getIntegralVector().toString());
+        this.data = new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), pose.getHeading(AngleUnit.RADIANS));
     }
 
     @Override
     public Vector getIntegralVector() {
         Pose2D pose = odoPods.getPosition();
         return new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), pose.getHeading(AngleUnit.RADIANS));
+    }
+
+    // Don't worry about the integration because we have a better source
+    @Override
+    protected void addIntegral() {}
+
+    @Override
+    public void telemetry() {
+        BaseOpMode.addData("Velocity X", data.getData()[0]);
+        BaseOpMode.addData("Velocity Y", data.getData()[1]);
+        BaseOpMode.addData("Velocity H", data.getData()[2]);
+
+        BaseOpMode.addData("Position X", getIntegralVector().get(0));
+        BaseOpMode.addData("Position Y", getIntegralVector().get(1));
+        BaseOpMode.addData("Position H", getIntegralVector().get(2));
     }
 }
