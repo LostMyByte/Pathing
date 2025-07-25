@@ -32,7 +32,7 @@ public class BezierPath extends Path {
         Vector result = Vector.length(start.length());
         result.add(startCurve.subtracted(start).multiplied(3*(1-t)*(1-t)));
         result.add(endCurve.subtracted(startCurve).multiplied(6*t*(1-t)));
-        result.add(destination.subtracted(start).multiplied(3*t*t));
+        result.add(destination.subtracted(endCurve).multiplied(3*t*t));
         return result;
     }
 

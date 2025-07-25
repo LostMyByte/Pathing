@@ -116,13 +116,15 @@ public abstract class BaseOpMode extends LinearOpMode {
             isActive = true;
         }
         externalStop();
-        Signal.signals.clear();
+
     }
 
     private void initializeUtilities(){
+        Signal.signals.clear();
         Subsystem.resetSubsystemList();
-        /*Servo.resetServoList();
         Motor.resetMotorList();
+        /*Servo.resetServoList();
+
         MotorEncoder.resetEncoderList();
         Gyro.resetGyroList();*/
 
