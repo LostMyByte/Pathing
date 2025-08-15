@@ -30,13 +30,14 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra;
+package org.firstinspires.ftc.teamcode.Utilities.Math;
 
 import android.annotation.SuppressLint;
 
 import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.robotcore.external.NonConst;
 
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -330,6 +331,14 @@ public class Vector
         for (int i = 0; i < size; i++) {
             values[i] = rand.nextDouble() * (max-min) + min;
         }
+
+        return new Vector(values);
+    }
+
+    public static Vector withValue(double value, int size) {
+        double[] values = new double[size];
+
+        Arrays.fill(values, value);
 
         return new Vector(values);
     }

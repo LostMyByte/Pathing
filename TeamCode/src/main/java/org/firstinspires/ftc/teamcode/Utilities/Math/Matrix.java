@@ -30,7 +30,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra;
+package org.firstinspires.ftc.teamcode.Utilities.Math;
 
 import android.annotation.SuppressLint;
 
@@ -39,7 +39,6 @@ import org.firstinspires.ftc.robotcore.external.NonConst;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import java.util.Arrays;
 
@@ -653,6 +652,7 @@ public abstract class Matrix
 
     /**
      * Returns a matrix which is the matrix-multiplication inverse of the receiver.
+     * WARNING: Destructive to current matrix Data
      * @return a matrix which is the matrix-multiplication inverse of the receiver
      */
     @Const public Matrix inverted()
@@ -769,7 +769,47 @@ public abstract class Matrix
             return result;
         }
 
-        throw dimensionsError(); // really NYI: we haven't bothered to code other cases
+
+        throw dimensionsError();
+        /*
+        // Otherwise, solve with Gauss-Jordan elimination
+
+        Matrix inverse = identityMatrix(numRows);
+        // Cannot invert if there is a zero along the diagonal
+        for (int i = 0; i < numCols; i++) {
+            double pivot = get(i,i);
+            if (pivot == 0) {
+                throw dimensionsError();
+            }
+
+            // For every column, set (j, i) to zero
+            for (int j = 0; j < numRows; j++) {
+                if (j == i) continue;
+
+                double scale = get(j, i)/pivot;
+
+                for (int k =0 ; k < numCols; k++) {
+                }
+            }
+        }
+        */
+
+
+
+
+
+    }
+
+    public static Matrix fromEJML(org.ejml.simple.SimpleMatrix source) {
+        Matrix result = new GeneralMatrix(source.getNumRows(), source.getNumCols());
+
+        for (int i = 0; i < result.numRows; i++) {
+            for (int j = 0; j < result.numCols; j++) {
+                result.put(i, j, source.get(i, j));
+            }
+        }
+
+        return result;
     }
 
 }

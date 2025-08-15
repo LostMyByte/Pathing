@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.Motion.Paths;
 
-import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 public abstract class Path {
 

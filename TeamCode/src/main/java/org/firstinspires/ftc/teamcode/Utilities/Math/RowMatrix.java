@@ -30,28 +30,33 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra;
+package org.firstinspires.ftc.teamcode.Utilities.Math;
 
 /**
- * A {@link RowMajorMatrix} is a dense matrix whose entries are arranged in
- * row-major order.
- * @see <a href="https://en.wikipedia.org/wiki/Row-major_order">Row Major Order</a>
+ * A {@link ColumnMatrix} is a matrix that converts a VectorF into a 1xn matrix
  */
-public abstract class RowMajorMatrix extends DenseMatrix
+public class RowMatrix extends Matrix
 {
-    public RowMajorMatrix(int nRows, int nCols)
+    Vector vector;
+
+    public RowMatrix(Vector vector)
     {
-        super(nRows, nCols);
+        super(1, vector.length());
+        this.vector = vector;
     }
 
-    @Override
-    protected int indexFromRowCol(int row, int col)
+    @Override public double get(int row, int col)
     {
-        return row * numCols + col;
+        return this.vector.get(col);
     }
 
-    @Override public Vector toVector()
+    @Override public void put(int row, int col, double value)
     {
-        return new Vector(this.getData());
+        this.vector.put(col, value);
+    }
+
+    @Override public Matrix emptyMatrix(int numRows, int numCols)
+    {
+        return new GeneralMatrix(numRows, numCols);
     }
 }

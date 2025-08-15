@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Motion.Controllers;
 
 import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 public class PID extends Controller {
 
@@ -26,7 +26,7 @@ public class PID extends Controller {
         return correction;
     }
 
-    public PID(Signal referenceSignal, Signal dataSignal, PIDCoefficients coefficients) {
+    public PID(ReferenceSignal referenceSignal, Signal dataSignal, PIDCoefficients coefficients) {
         super(referenceSignal, dataSignal);
         this.coeffs = coefficients;
     }

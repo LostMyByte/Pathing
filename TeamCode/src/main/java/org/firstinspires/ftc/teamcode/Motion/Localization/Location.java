@@ -8,7 +8,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.Signal;
 import org.firstinspires.ftc.teamcode.Utilities.Configuration.Hardware;
-import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 public class Location extends Signal {
     // A Velocity-based Location class

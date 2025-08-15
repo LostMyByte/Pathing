@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.Motion.Drivetrains.FixedDriveTrain;
 import org.firstinspires.ftc.teamcode.Motion.Movement;
 import org.firstinspires.ftc.teamcode.Motion.Paths.BezierPath;
-import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 @TeleOp(name = "Bezier Curve Test", group = "Testing")
 public class BezierCurveTest extends BaseOpMode {

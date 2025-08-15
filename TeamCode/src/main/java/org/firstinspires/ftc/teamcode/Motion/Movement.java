@@ -1,21 +1,21 @@
 package org.firstinspires.ftc.teamcode.Motion;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.Controller;
-import org.firstinspires.ftc.teamcode.Motion.Controllers.FastPathMotionProfile;
+import org.firstinspires.ftc.teamcode.Motion.Controllers.MotionProfile;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.PID;
+import org.firstinspires.ftc.teamcode.Motion.Controllers.ReferenceSignal;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.Signal;
 import org.firstinspires.ftc.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.Motion.Paths.Path;
 import org.firstinspires.ftc.teamcode.Subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.Utilities.Configuration.DriveConfig;
-import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 public abstract class Movement extends Subsystem {
 
     public Path activePath;
     public Controller correctionSignal;
-    public Signal profile;
+    public ReferenceSignal profile;
 
     public Location loc;
 
@@ -23,13 +23,16 @@ public abstract class Movement extends Subsystem {
         if (activePath != path) {
             activePath = path;
             if (path != null) {
-                profile = new FastPathMotionProfile(activePath, speed);
+                profile = new MotionProfile(activePath, speed);
                 correctionSignal = new PID(profile, loc, DriveConfig.DriveWheels.driveConstants);
             }
         }
     }
 
     public abstract void move(Vector target);
+
+
+    public abstract void moveRaw(Vector motorPowers);
 
     @Override
     public void update() {
