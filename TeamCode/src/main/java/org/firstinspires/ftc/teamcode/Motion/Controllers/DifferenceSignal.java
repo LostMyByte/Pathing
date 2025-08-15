@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Motion.Controllers;
 
 import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 public class DifferenceSignal extends Signal {
 

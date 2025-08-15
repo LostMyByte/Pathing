@@ -2,9 +2,7 @@ package org.firstinspires.ftc.teamcode.Motion.Drivetrains;
 
 import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.Motion.Movement;
-import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.GeneralMatrix;
-import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Matrix;
-import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 import org.firstinspires.ftc.teamcode.Utilities.Configuration.DriveConfig;
 
@@ -52,18 +50,10 @@ public class FixedDriveTrain extends Movement {
         move(new Vector(drive, strafe, turn).multiplied(speed));
     }
 
-    public static double getPowerScalar(Vector direction) {
+    public void moveRaw(Vector powers) {
 
-        double power;
-        double maxPower = 0;
-
-        // Get power of each wheel with dot product
-        for (int i = 0; i < DriveConfig.driveWheels.length; i++) {
-            power = DriveConfig.driveWheels[i].MovementVector.dotProduct(direction);
-
-            if (Math.abs(power) > maxPower) maxPower = Math.abs(power);
+        for (int i =0; i < DriveConfig.driveWheels.length; i++) {
+            DriveConfig.driveWheels[i].setPower(powers.get(i));
         }
-
-        return 1/maxPower;
     }
 }

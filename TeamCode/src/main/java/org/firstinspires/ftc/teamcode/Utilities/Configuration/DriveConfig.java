@@ -2,11 +2,9 @@ package org.firstinspires.ftc.teamcode.Utilities.Configuration;
 
 import com.acmerobotics.dashboard.config.Config;
 
-import org.firstinspires.ftc.teamcode.Motion.Controllers.PID;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.PIDCoefficients;
 import org.firstinspires.ftc.teamcode.Motion.Drivetrains.DriveWheel;
-import org.firstinspires.ftc.teamcode.Motion.Drivetrains.FixedDriveTrain;
-import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 
 public class DriveConfig {

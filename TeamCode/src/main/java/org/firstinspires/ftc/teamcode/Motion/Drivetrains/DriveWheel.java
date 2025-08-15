@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.Motion.Drivetrains;
 
 
 import org.firstinspires.ftc.teamcode.Utilities.HardwareDevives.Motor;
-import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 public class DriveWheel extends Motor {
 

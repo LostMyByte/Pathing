@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.Motion.Controllers;
 
-import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 // Should these be matricies?
 public class PIDCoefficients {

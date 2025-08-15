@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.Motion.Drivetrains.FixedDriveTrain;
 import org.firstinspires.ftc.teamcode.Utilities.Configuration.DriveConfig;
-import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 @TeleOp(name = "Just Drive")
 public class JustDrive extends BaseOpMode {

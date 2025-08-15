@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.Motion.Controllers;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 import java.util.ArrayList;
 
@@ -100,6 +100,5 @@ public abstract class Signal {
     }
 
     public abstract void telemetry();
-
 
 }

@@ -14,9 +14,11 @@ dependencies {
     implementation 'org.firstinspires.ftc:Vision:11.0.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
 
+    implementation 'com.acmerobotics.dashboard:dashboard:0.4.16'
+    implementation 'org.ejml:ejml-all:0.44.0'
 
-    implementation 'com.acmerobotics.dashboard:dashboard:0.4.15'
 
     implementation 'org.ftclib.ftclib:core:2.1.1' // core
 }
+
 
