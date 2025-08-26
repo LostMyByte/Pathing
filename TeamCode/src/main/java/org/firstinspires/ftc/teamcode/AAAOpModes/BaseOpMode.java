@@ -122,7 +122,7 @@ public abstract class BaseOpMode extends LinearOpMode {
     private void initializeUtilities(){
         Signal.signals.clear();
         Subsystem.resetSubsystemList();
-        Motor.resetMotorList();
+        Motor.initializeAll();
         /*Servo.resetServoList();
 
         MotorEncoder.resetEncoderList();

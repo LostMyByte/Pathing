@@ -25,6 +25,14 @@ public class DriveConfig {
     @Config
     public static class DriveWheels {
         public static double maxVelocity = 50;
+        // BackEMF constants
+        public static double Ex = 0;
+        public static double Ey = 0;
+        public static double Eh = 0;
+        // Loopback constants
+        public static double Lx = 0;
+        public static double Ly = 0;
+        public static double Lh = 0;
 
         public static class FL {
             public static double x = -1.25;

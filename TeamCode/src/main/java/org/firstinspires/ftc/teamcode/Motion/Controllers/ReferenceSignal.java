@@ -16,6 +16,7 @@ public abstract class ReferenceSignal extends Signal {
     public abstract Vector predict(double time);
 
     public abstract Vector target();
+
     
 
 }

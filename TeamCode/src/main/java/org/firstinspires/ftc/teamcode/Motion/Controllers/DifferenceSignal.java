@@ -15,7 +15,9 @@ public class DifferenceSignal extends Signal {
 
     public DifferenceSignal(Signal signalA, Signal signalB) {
         super(signalA.size);
-        assert signalA.size == signalB.size;
+        if (signalA.size != signalB.size) {
+            throw new RuntimeException("Cannot do difference signal of different lengths!");
+        };
 
         this.signalA = signalA;
         this.signalB = signalB;

@@ -1,52 +1,43 @@
 package org.firstinspires.ftc.teamcode.Motion;
 
 
-import com.acmerobotics.dashboard.config.Config;
-
 import org.firstinspires.ftc.teamcode.Utilities.Configuration.DriveConfig;
 import org.firstinspires.ftc.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.Utilities.Math.TrigAngle;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
-@Config
 public class DriveModel {
-
-    // BackEMF constants
-    public static double Ex = 0;
-    public static double Ey = 0;
-    public static double Eh = 0;
-
-    // Loopback constants
-    public static double Lx = 0;
-    public static double Ly = 0;
-    public static double Lh = 0;
 
     private static Matrix A = new GeneralMatrix(6, 6, new double[] {
             0 ,0, 0, 1, 0, 0,
             0 ,0, 0, 0, 1, 0,
             0 ,0, 0, 0, 0, 1,
-            0 ,0, 0, Ex, 0, 0,
-            0 ,0, 0, 1, Ey, 0,
-            0 ,0, 0, 1, 0, Eh,
+            0 ,0, 0, DriveConfig.DriveWheels.Ex, 0, 0,
+            0 ,0, 0, 1, DriveConfig.DriveWheels.Ey, 0,
+            0 ,0, 0, 1, 0, DriveConfig.DriveWheels.Eh,
     });
 
     private static Matrix B = new GeneralMatrix(6, 4, new double[] {
             0 ,0, 0, 0,
             0 ,0, 0, 0,
             0 ,0, 0, 0,
-            DriveConfig.DriveWheels.BR.x, DriveConfig.DriveWheels.FR.x, DriveConfig.DriveWheels.BL.x, DriveConfig.DriveWheels.FL.x,
-            DriveConfig.DriveWheels.BR.y, DriveConfig.DriveWheels.FR.y, DriveConfig.DriveWheels.BL.y, DriveConfig.DriveWheels.FL.y,
-            DriveConfig.DriveWheels.BR.h, DriveConfig.DriveWheels.FR.h, DriveConfig.DriveWheels.BL.h, DriveConfig.DriveWheels.FL.h,
+            DriveConfig.DriveWheels.FR.x, DriveConfig.DriveWheels.FL.x, DriveConfig.DriveWheels.BR.x, DriveConfig.DriveWheels.BL.x,
+            DriveConfig.DriveWheels.FR.y, DriveConfig.DriveWheels.FL.y, DriveConfig.DriveWheels.BR.y, DriveConfig.DriveWheels.BL.y,
+            DriveConfig.DriveWheels.FR.h, DriveConfig.DriveWheels.FL.h, DriveConfig.DriveWheels.BR.h, DriveConfig.DriveWheels.BL.h,
     }).multiplied(DriveConfig.DriveWheels.driveAcceleration);
+
+    public static Matrix getBLeftInverse(Vector state) {
+        return B.transposed().multiplied(h(state).inverted());
+    }
 
     private static Vector Ff = new Vector(new double[] {
             0,
             0,
             0,
-            Lx,
-            Ly,
-            Lh
+            DriveConfig.DriveWheels.Lx,
+            DriveConfig.DriveWheels.Ly,
+            DriveConfig.DriveWheels.Lh
     });
 
 
@@ -138,6 +129,10 @@ public class DriveModel {
     }
 
     public static Vector stateTransitionFunction(Vector currentState, Vector control, double deltatime) {
+
+        for (int i = 0; i < control.length(); i++) {
+            if (Math.abs(control.get(i)) > 1) control.put(i, Math.signum(control.get(i)));
+        }
         return h(currentState).multiplied(linearModel(control, currentState)).multiplied(deltatime);
     }
 
@@ -156,12 +151,12 @@ public class DriveModel {
      * @return The result of the operation
      */
     public static Matrix VdF2dXdU(Vector state, Vector V, double deltaTime) {
-        Matrix result = new GeneralMatrix(6, 6);
+        Matrix result = new GeneralMatrix(4, 6);
 
-        Vector row2 = dhdtheta(state.get(2)).multiplied(B).multiplied(V);
+        Vector col2 = dhdtheta(state.get(2)).multiplied(B).transposed().multiplied(V);
 
-        for (int k = 0; k < 6; k++) {
-                result.put(2, k, row2.get(k));
+        for (int k = 0; k < 4; k++) {
+                result.put(k, 2, col2.get(k));
         }
         result.multiply(deltaTime);
         return result;

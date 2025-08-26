@@ -11,7 +11,7 @@ public abstract class Signal {
 
     private static ElapsedTime timer;
     public static ArrayList<Signal> signals = new ArrayList<>();
-    public static double deltaTime;
+    public static double deltaTime = 0.1;
 
     int size;
 
@@ -38,7 +38,6 @@ public abstract class Signal {
                 source.oldData = source.data;
                 source.addIntegral();
                 source.update();
-                assert source.data != null;
             }
         }
     }
