@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.AAAOpModes.Testing;
 
+import static org.firstinspires.ftc.teamcode.AAAOpModes.Testing.MPCTest.MPCParams.*;
+
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.ConstantSignal;
@@ -13,36 +16,43 @@ import org.firstinspires.ftc.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 import org.opencv.core.Mat;
 
-@Config
+@TeleOp(name = "MPC Testing")
 public class MPCTest extends BaseOpMode {
 
-    public static double QX = 10;
-    public static double QY = 10;
-    public static double QH = 10;
-    public static double QHV = 0;
-    public static double QXV = 0;
-    public static double QYV = 0;
+    @Config
+    public static class MPCParams {
+        public static double QX = 10;
+        public static double QY = 10;
+        public static double QH = 10;
+        public static double QHV = 0;
+        public static double QXV = 0;
+        public static double QYV = 0;
 
-    public static double QFX = 20;
-    public static double QFY = 20;
-    public static double QFH = 20;
-    public static double QFHV = 10;
-    public static double QFXV = 10;
-    public static double QFYV = 10;
+        public static double QFX = 20;
+        public static double QFY = 20;
+        public static double QFH = 20;
+        public static double QFHV = 10;
+        public static double QFXV = 10;
+        public static double QFYV = 10;
 
-    public static double R = 0.1;
+        public static double R = 0.1;
 
-    public static int N = 10;
-    public static double threshold = 0.5;
+        public static int N = 40;
+        public static double threshold = 0.01;
+        public static double lr = 1.01;
+        public static double max_lambda = 1000;
+        public static double max_vxx = 1000000;
 
-    public static double TX = 0;
-    public static double TY = 0;
-    public static double TH = 0;
-    public static double TXV = 0 ;
-    public static double TYV = 0;
-    public static double THV = 0;
+        public static double TX = 0;
+        public static double TY = 10;
+        public static double TH = 0;
+        public static double TXV = 0;
+        public static double TYV = 0;
+        public static double THV = 0;
 
-    Matrix Q = new GeneralMatrix(6, 6, new double[] {
+    }
+
+    private Matrix Q = new GeneralMatrix(6, 6, new double[] {
             QX, 0, 0, 0, 0, 0,
             0, QY, 0, 0, 0, 0,
             0, 0, QH, 0, 0, 0,
@@ -51,7 +61,7 @@ public class MPCTest extends BaseOpMode {
             0, 0, 0, 0, 0, QHV,
     });
 
-    Matrix QF = new GeneralMatrix(6, 6, new double[] {
+    private Matrix QF = new GeneralMatrix(6, 6, new double[] {
             QFX, 0, 0, 0, 0, 0,
             0, QFY, 0, 0, 0, 0,
             0, 0, QFH, 0, 0, 0,
@@ -60,17 +70,15 @@ public class MPCTest extends BaseOpMode {
             0, 0, 0, 0, 0, QFHV,
     });
 
-    Matrix RM = Matrix.identityMatrix(4).multiplied(R);
+    private Matrix RM = Matrix.identityMatrix(4).multiplied(R);
 
-    MPC test;
-    Location loc;
-    Movement drive;
+    private MPC test;
+    private Movement drive;
 
     @Override
     public void externalInit() {
-        loc = new Location(0, 0, 0);
         drive = new FixedDriveTrain(new Vector(0, 0, 0));
-        test = new MPC(new ConstantSignal(new Vector(new double[] {TX, TY, TH, TXV, TYV, THV})), loc, new Vector(new double[6]), Q, RM, QF, N, threshold);
+        test = new MPC(new ConstantSignal(new Vector(new double[] {TX, TY, TH, TXV, TYV, THV})), drive.loc, new Vector(new double[6]), Q, RM, QF, N, threshold, lr, max_lambda, max_vxx);
     }
 
     @Override
@@ -78,7 +86,11 @@ public class MPCTest extends BaseOpMode {
 
         Vector correction = test.getCorrection();
 
-
-
+        if (gamepad1.square) {
+            drive.moveRaw(correction);
+        }
+        else {
+            drive.moveRaw(new Vector(0,0,0,0));
+        }
     }
 }

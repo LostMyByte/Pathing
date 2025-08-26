@@ -34,6 +34,7 @@ package org.firstinspires.ftc.teamcode.Utilities.Math;
 
 import android.annotation.SuppressLint;
 
+import org.ejml.simple.SimpleMatrix;
 import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.robotcore.external.NonConst;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -398,7 +399,8 @@ public abstract class Matrix
      */
     @Const public Matrix multiplied(double scale)
     {
-        Matrix result = this.emptyMatrix(this.numCols, this.numRows);
+        // This, once upon a time, had rows and columns inverted. Thanks REV.
+        Matrix result = this.emptyMatrix(this.numRows, this.numCols);
         for (int i = 0; i < result.numRows; i++)
         {
             for (int j = 0; j < result.numCols; j++)
@@ -657,6 +659,18 @@ public abstract class Matrix
      */
     @Const public Matrix inverted()
     {
+        SimpleMatrix m = new SimpleMatrix(this.numRows, this.numCols);
+
+        for (int r = 0; r < numRows; r++) {
+            for (int c = 0; c < numCols; c++) {
+                m.set(r, c, get(r, c));
+            }
+        }
+
+        m.invert();
+
+        return new GeneralMatrix(numRows, numCols, m.getDDRM().data);
+        /*
         // Algorithms were generated with the help of Mathematica: general nxn matrices with symbolic
         // (instead of numeric) entries were defined, their inverse symbolically computed, then
         // automatically transcribed to Java.
@@ -798,18 +812,6 @@ public abstract class Matrix
 
 
 
-    }
-
-    public static Matrix fromEJML(org.ejml.simple.SimpleMatrix source) {
-        Matrix result = new GeneralMatrix(source.getNumRows(), source.getNumCols());
-
-        for (int i = 0; i < result.numRows; i++) {
-            for (int j = 0; j < result.numCols; j++) {
-                result.put(i, j, source.get(i, j));
-            }
-        }
-
-        return result;
     }
 
 }

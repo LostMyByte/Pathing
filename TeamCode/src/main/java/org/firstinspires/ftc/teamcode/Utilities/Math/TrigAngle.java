@@ -6,25 +6,31 @@ public class TrigAngle {
     public double sin;
     public double angle;
 
-    private static TrigAngle recent = new TrigAngle(0);
+    private static double recent = 0;
+    private static double recentcos = 1;
+    private static double recentsin = 0;
 
     /**
      * Constructs a new TrigAngle
      * @param angle Angle Measure (Radians)
      */
     public TrigAngle(double angle) {
-        if (angle == recent.angle) {
+        this.angle = angle;
+        this.cos = Math.cos(angle);
+        this.sin = Math.sin(angle);
+        /*
+        if (angle == recent) {
             this.angle = angle;
-            this.cos = recent.cos;
-            this.sin = recent.sin;
+            this.cos = recentcos;
+            this.sin = recentsin;
         }
 
         else {
-            this.angle = angle;
-            this.cos = Math.cos(angle);
-            this.sin = Math.sin(angle);
-            recent = this;
-        }
+
+            recentcos = this.cos;
+            recentsin = this.sin;
+            recent = angle;
+        }*/
 
     }
 }
