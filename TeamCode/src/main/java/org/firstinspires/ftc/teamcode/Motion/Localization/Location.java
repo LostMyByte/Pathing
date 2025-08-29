@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Motion.Localization;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Motion.Controllers.Signal;
 import org.firstinspires.ftc.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
+@Config
 public class Location extends Signal {
     // A Velocity-based Location class
     // Uses Velocity as that is the level upon which the Motion Profile/PIDs work
@@ -17,6 +19,8 @@ public class Location extends Signal {
 
     GoBildaPinpointDriver odoPods;
     IMU imu;
+
+    public static double alpha = 0.1;
 
     private void initialize() {
         this.imu = BaseOpMode.getHardwareMap().get(IMU.class, Hardware.imu);
@@ -45,11 +49,16 @@ public class Location extends Signal {
         return getIntegralVector();
     }
 
+    Vector oldData = new Vector(0, 0, 0);
     @Override
     public void update() {
         odoPods.update();
-        Pose2D pose = odoPods.getVelocity();
-        this.data = new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), pose.getHeading(AngleUnit.RADIANS));
+
+        Pose2D pose = odoPods.getPosition();
+        Vector newData = new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), pose.getHeading(AngleUnit.RADIANS));
+
+        this.data.add((newData.subtracted(oldData).multiplied(1/deltaTime)).subtracted(this.data).multiplied(alpha));
+        this.oldData = newData;
     }
 
     @Override

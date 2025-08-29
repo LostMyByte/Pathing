@@ -2,12 +2,15 @@ package org.firstinspires.ftc.teamcode.AAAOpModes.Testing;
 
 import static org.firstinspires.ftc.teamcode.AAAOpModes.Testing.MPCTest.MPCParams.*;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.ConstantSignal;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.MPC;
+import org.firstinspires.ftc.teamcode.Motion.Controllers.Signal;
+import org.firstinspires.ftc.teamcode.Motion.DriveModel;
 import org.firstinspires.ftc.teamcode.Motion.Drivetrains.FixedDriveTrain;
 import org.firstinspires.ftc.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.Motion.Movement;
@@ -21,12 +24,12 @@ public class MPCTest extends BaseOpMode {
 
     @Config
     public static class MPCParams {
-        public static double QX = 10;
-        public static double QY = 10;
-        public static double QH = 10;
-        public static double QHV = 0;
-        public static double QXV = 0;
-        public static double QYV = 0;
+        public static double QX = 100;
+        public static double QY = 100;
+        public static double QH = 100;
+        public static double QHV = 10;
+        public static double QXV = 10;
+        public static double QYV = 10;
 
         public static double QFX = 20;
         public static double QFY = 20;
@@ -35,10 +38,11 @@ public class MPCTest extends BaseOpMode {
         public static double QFXV = 10;
         public static double QFYV = 10;
 
-        public static double R = 0.1;
+        public static double R = 50;
 
         public static int N = 40;
-        public static double threshold = 0.01;
+        public static int Horizon = 5;
+        public static double threshold = 0.0001;
         public static double lr = 1.01;
         public static double max_lambda = 1000;
         public static double max_vxx = 1000000;
@@ -70,27 +74,48 @@ public class MPCTest extends BaseOpMode {
             0, 0, 0, 0, 0, QFHV,
     });
 
-    private Matrix RM = Matrix.identityMatrix(4).multiplied(R);
+    private Matrix RM = Matrix.identityMatrix(3).multiplied(R);
 
     private MPC test;
     private Movement drive;
 
     @Override
     public void externalInit() {
+
+        DriveModel.reInit();
+
         drive = new FixedDriveTrain(new Vector(0, 0, 0));
-        test = new MPC(new ConstantSignal(new Vector(new double[] {TX, TY, TH, TXV, TYV, THV})), drive.loc, new Vector(new double[6]), Q, RM, QF, N, threshold, lr, max_lambda, max_vxx);
+        test = new MPC(new ConstantSignal(new Vector(new double[] {TX, TY, TH, TXV, TYV, THV})), drive.loc, new Vector(new double[6]), Q, RM, QF, N, Horizon, threshold, lr, max_lambda, max_vxx);
+    }
+
+    @Override
+    public void externalInitLoop() {
+        test.start();
+        Vector correction = test.getCorrection();
+
+        BaseOpMode.addData("Correction X", correction.get(0));
+        BaseOpMode.addData("Correction Y", correction.get(1));
+        BaseOpMode.addData("Correction H", correction.get(2));
+
     }
 
     @Override
     public void externalLoop() {
 
+
         Vector correction = test.getCorrection();
 
+        BaseOpMode.addData("Correction X", correction.get(0));
+        BaseOpMode.addData("Correction Y", correction.get(1));
+        BaseOpMode.addData("Correction H", correction.get(2));
+
+
         if (gamepad1.square) {
-            drive.moveRaw(correction);
+            drive.move(correction);
         }
         else {
             drive.moveRaw(new Vector(0,0,0,0));
         }
+
     }
 }

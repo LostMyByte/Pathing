@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Motion.Controllers;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.ejml.data.DMatrixRMaj;
 import org.ejml.data.SingularMatrixException;
@@ -30,7 +31,9 @@ public class MPC {
 
     private double max_vxx;
 
-    public Vector[] currentControls;
+    private Vector[] currentControls;
+    public Vector[] k;
+    public Matrix[] K;
     public Vector[] currentTrajectory;
 
     public ReferenceSignal referenceSignal;
@@ -40,15 +43,20 @@ public class MPC {
     private int numControls;
 
     private int N;
+    private double horizon;
+    private double dt;
+
+    private ElapsedTime timer;
 
 
-    public MPC(ReferenceSignal referenceSignal, Signal dataSignal, Vector start, Matrix Q, Matrix R, Matrix QF, int N, double threshold, double lr, double lambda_max, double max_vxx) {
+    public MPC(ReferenceSignal referenceSignal, Signal dataSignal, Vector start, Matrix Q, Matrix R, Matrix QF, int N, double time, double threshold, double lr, double lambda_max, double max_vxx) {
         this.referenceSignal = referenceSignal;
         this.sensorSignal = dataSignal;
 
         this.lambda_max = lambda_max;
         this.dimensions = referenceSignal.getLength();
-        this.numControls = 4;
+        this.numControls = 3;
+        this.horizon = time;
 
         this.lr = lr;
 
@@ -59,6 +67,7 @@ public class MPC {
         this.N = N;
         this.max_vxx = max_vxx;
 
+        this.dt = horizon/N;
         initializeControls(N, start);
 
         this.threshold = threshold;
@@ -76,7 +85,7 @@ public class MPC {
             currentTrajectory[i] = currentState;
 
             // Simulate Linearized dynamics
-            currentState = DriveModel.stateTransitionFunction(currentState, currentControls[i], Signal.deltaTime);
+            currentState = DriveModel.stateTransitionFunction(currentState, currentControls[i], dt);
         }
     }
 
@@ -86,7 +95,7 @@ public class MPC {
         for (int i =0; i < N; i++) {
             // Add to cost function
             // TODO: Handle non-constant reference signals
-            currentCost += costFunction(currentTrajectory[i], referenceSignal.target(), currentControls[i], Signal.deltaTime);
+            currentCost += costFunction(currentTrajectory[i], referenceSignal.target(), currentControls[i], dt);
         }
 
         // Add terminal cost
@@ -131,16 +140,14 @@ public class MPC {
         return R.multiplied(2 * time);
     }
 
-
+    public void start() {
+        this.timer = new ElapsedTime();
+    }
 
     public Vector getCorrection() {
-        for (int i = 0; i < N-1; i++) {
-            currentControls[i] = currentControls[i+1];
-            currentTrajectory[i] = currentTrajectory[i+1];
-        }
 
-        if (N > 1) currentTrajectory[N-1] = DriveModel.stateTransitionFunction(currentTrajectory[N-2], currentControls[N-2], Signal.deltaTime);
-         
+        if (timer == null) start();
+        double time = timer.time();
 
         int numDim = this.sensorSignal.getLength();
         Vector sensorData = Vector.length(numDim * 2);
@@ -149,10 +156,17 @@ public class MPC {
             sensorData.put(i, sensorSignal.getIntegralVector().get(i));
             sensorData.put(i+numDim, sensorSignal.getDataVector().get(i));
         }
+        Vector target = getInterpolatedX(time);
+        BaseOpMode.addData("TX", target.get(0));
+        BaseOpMode.addData("TY", target.get(1));
+        BaseOpMode.addData("TH", target.get(2));
+        BaseOpMode.addData("TVX", target.get(3));
+        BaseOpMode.addData("TVY", target.get(4));
+        BaseOpMode.addData("TVH", target.get(5));
 
-        iterate(2, sensorData);
-
-        return currentControls[0];
+        sensorData.subtract(target);
+        Vector correction = getInterpolatedU(time);
+        return correction.added(getInterpolatedK(time).multiplied(sensorData));
     }
 
 
@@ -160,26 +174,74 @@ public class MPC {
         this.currentControls = new Vector[N];
         this.currentTrajectory = new Vector[N];
         this.currentTrajectory[0] = start;
+        this.k = new Vector[N];
+        this.K = new Matrix[N];
         for (int i = 0; i < N; i++) {
-            Vector error = referenceSignal.target().subtracted(currentTrajectory[i]).multiplied(1/((N-i) * Signal.deltaTime));
+            Vector error = referenceSignal.target().subtracted(currentTrajectory[i]).multiplied(1/((N-i) * dt));
 
             currentControls[i] = Vector.withValue(0, numControls);//DriveModel.getBLeftInverse(currentTrajectory[i]).multiplied(error);
 
             if (i != N-1) {
-                currentTrajectory[i+1] = DriveModel.stateTransitionFunction(currentTrajectory[i], currentControls[i], Signal.deltaTime);
+                currentTrajectory[i+1] = DriveModel.stateTransitionFunction(currentTrajectory[i], currentControls[i], dt);
             }
         }
 
     }
 
-    private void updateControls(Vector currentState) {
+    private Vector getInterpolatedk(double time) {
+        return getInterpolatedk(time, horizon);
+    }
+    private Vector getInterpolatedU(double time) {
+        return getInterpolatedU(time, horizon);
+    }
+    private Vector getInterpolatedX(double time) {
+        return getInterpolatedX(time, horizon);
+    }
+    private Matrix getInterpolatedK(double time) {
+        return getInterpolatedK(time, horizon);
+    }
 
-        double dt = Signal.deltaTime;
+    private Vector getInterpolatedk(double time, double horizon) {
+        if (time >= (horizon-dt)) return k[N-1];
+        double position = (time/horizon) * N;
+        int index = (int) position;
+        double alpha = position - index;
+
+        return (k[index].multiplied(1 - alpha).added(k[index + 1].multiplied(alpha)));
+    }
+
+    private Matrix getInterpolatedK(double time, double horizon) {
+        if (time >= (horizon-dt)) return K[N-1];
+        double position = (time/horizon) * N;
+        int index = (int) position;
+        double alpha = position - index;
+
+        return (K[index].multiplied(1 - alpha).added(K[index + 1].multiplied(alpha)));
+    }
+
+    private Vector getInterpolatedX(double time, double horizon) {
+        if (time >= (horizon-dt)) return currentTrajectory[N-1];
+        double position = (time/horizon) * N;
+        int index = (int) position;
+        double alpha = position - index;
+
+        return (currentTrajectory[index].multiplied(1 - alpha).added(currentTrajectory[index + 1].multiplied(alpha)));
+    }
+    private Vector getInterpolatedU(double time, double horizon) {
+        if (time >= (horizon-dt)) return currentControls[N-1];
+        double position = (time/horizon) * N;
+        int index = (int) position;
+        double alpha = position - index;
+
+        return (currentControls[index].multiplied(1 - alpha).added(currentControls[index + 1].multiplied(alpha)));
+    }
+
+    private void updateControls(Vector currentState) {
 
         Matrix vxx = dCFdX2();
         Vector vx = dCFdX(currentTrajectory[N-1], referenceSignal.target());
-        Vector[] k = new Vector[N];
-        Matrix[] K = new Matrix[N];
+        k = new Vector[N];
+        K = new Matrix[N];
 
         for (int i = N-1; i >= 0; i--) {
             Vector control = currentControls[i];
@@ -205,7 +267,9 @@ public class MPC {
             DMatrixRMaj EVals = EigenOps_DDRM.createMatrixD(eigs);
 
             for (int eign = 0; eign < EVals.numRows; eign++) {
-                if (EVals.get(eign, eign) < 0) EVals.set(eign, eign, 0);
+                if (EVals.get(eign, eign) < 0) {
+                    EVals.set(eign, eign, 0);
+                }
                 EVals.add(eign, eign, lambda);
                 EVals.set(eign, eign, 1/EVals.get(eign, eign));
             }
@@ -216,25 +280,30 @@ public class MPC {
             CommonOps_DDRM.invert(EVecs);
             CommonOps_DDRM.mult(temp, EVecs, Quu2_inv);
 
+            //CommonOps_DDRM.invert(Quu2, Quu2_inv);
+
+
             Matrix Quu_inv = new GeneralMatrix(this.numControls, this.numControls, Quu2_inv.getData());
 
             k[i] = Quu_inv.multiplied(Qu).multiplied(-1);
             K[i] = Quu_inv.multiplied(Qux).multiplied(-1);
 
-            for (int c = 0; c< numControls; c++) {
+            /*for (int c = 0; c< numControls; c++) {
                 if (Math.abs(k[i].get(c) + control.get(c)) > 1) {
                     k[i].put(c, (1 - Math.abs(control.get(c))) * Math.signum(control.get(c)));
                 }
-            }
+            }*/
 
             vx = Qx.subtracted(K[i].transposed().multiplied(k[i]));
             vxx = Qxx.subtracted(K[i].transposed().multiplied(K[i]));
 
-            for (int r = 0; r < dimensions; r++) {
+            /*for (int r = 0; r < dimensions; r++) {
                 for (int c = 0; c < dimensions; c++) {
-                    if (Math.abs(vxx.get(r, c)) > max_vxx) vxx.put(r, c, max_vxx * Math.signum(vxx.get(r, c)));
+                    if (Math.abs(vxx.get(r, c)) > max_vxx) {
+                        vxx.put(r, c, max_vxx * Math.signum(vxx.get(r, c)));
+                    }
                 }
-            }
+            }*/
         }
 
         Vector oldstate = currentTrajectory[0];
@@ -244,13 +313,9 @@ public class MPC {
             currentControls[i] = currentControls[i].added(k[i]);
             currentControls[i].add(K[i].multiplied(currentTrajectory[i].subtracted(oldstate)));
 
-            for (int c = 0; c < numControls; c++) {
-                if (Math.abs(currentControls[i].get(c)) > 1) currentControls[i].put(c, Math.signum(currentControls[i].get(c)));
-            }
-
             if (i != N-1) {
                 oldstate = currentTrajectory[i + 1];
-                currentTrajectory[i + 1] = DriveModel.stateTransitionFunction(currentTrajectory[i], currentControls[i], Signal.deltaTime);
+                currentTrajectory[i + 1] = DriveModel.stateTransitionFunction(currentTrajectory[i], currentControls[i], dt);
 
                 // TODO: Make this better at not-drivetrains
                 // See if it has gone past target
@@ -258,14 +323,25 @@ public class MPC {
                 Vector positionError = targetPosition.subtracted(new Vector(currentTrajectory[i].get(0), currentTrajectory[i].get(1)));
                 Vector nextPositionError = targetPosition.subtracted(new Vector(currentTrajectory[i+1].get(0), currentTrajectory[i+1].get(1)));
 
-                if (Math.signum(positionError.dotProduct(nextPositionError)) <=0) {
-                    N = i +1;
-                    BaseOpMode.addData("Setting N to", N);
+                if (Math.signum(positionError.dotProduct(nextPositionError)) <=0 && (referenceSignal.target().get(3) != 0 || referenceSignal.target().get(4) != 0 || referenceSignal.target().get(5) != 0)) {
+                    double newhorizon = (i+1)*dt;
+                    double newdt = newhorizon/N;
+                    BaseOpMode.addData("Setting horizon to", newhorizon);
+
+                    for (int j = 0; j < N; j++) {
+                        double t = newdt * j;
+                        currentControls[j] = getInterpolatedU(t, newhorizon);
+                        currentTrajectory[j] = getInterpolatedX(t, newhorizon);
+                        k[j] = getInterpolatedk(t, newhorizon);
+                        K[j] = getInterpolatedK(t, newhorizon);
+                    }
+
+                    this.dt = newdt;
+                    this.horizon = newhorizon;
                 }
             }
         }
 
-        BaseOpMode.addData("Horizon Time", Signal.deltaTime * N);
 
     }
 
@@ -276,10 +352,10 @@ public class MPC {
         double oldcost = getTotalCost();
         BaseOpMode.addData("MPC: Initial Cost", oldcost);
 
-        Vector[] xold = new Vector[N];
-        Vector[] uold = new Vector[N];
-        System.arraycopy(currentTrajectory, 0, xold, 0, N);
-        System.arraycopy(currentControls, 0, uold, 0, N);
+        Vector[] xold = currentTrajectory.clone();
+        Vector[] uold = currentControls.clone();
+        Vector[] kold = k.clone();
+        Matrix[] Kold = K.clone();
 
         updateControls(start);
         BaseOpMode.addData("MPC", "Controls updated");
@@ -298,8 +374,10 @@ public class MPC {
                 BaseOpMode.addData("MPC: Landing H", currentTrajectory[N-1].get(2));
 
                 lambda /= lr;
-                System.arraycopy(currentTrajectory, 0, xold, 0, N);
-                System.arraycopy(currentControls, 0, uold, 0, N);
+                xold = currentTrajectory.clone();
+                uold = currentControls.clone();
+                kold = k.clone();
+                Kold = K.clone();
 
                 if (Math.abs(cost-oldcost)/cost < threshold) {
                     break;
@@ -307,10 +385,15 @@ public class MPC {
                 oldcost = cost;
             }
             else {
-                System.arraycopy(xold, 0, currentTrajectory, 0, N);
-                System.arraycopy(uold, 0, currentControls, 0, N);
                 lambda *= lr;
-                if (lambda > lambda_max) break;
+
+                currentTrajectory = xold.clone();
+                currentControls = uold.clone();
+                k = kold.clone();
+                K = Kold.clone();
+                if (lambda > lambda_max) {
+                    break;
+                }
             }
 
 

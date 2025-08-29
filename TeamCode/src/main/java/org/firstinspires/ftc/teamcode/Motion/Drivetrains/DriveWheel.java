@@ -10,7 +10,7 @@ public class DriveWheel extends Motor {
     public Vector MovementVector;
 
     public DriveWheel(String name, Vector movementVector) {
-        super(name, false);
+        super(name, false, true);
         this.MovementVector = movementVector;
     }
 }

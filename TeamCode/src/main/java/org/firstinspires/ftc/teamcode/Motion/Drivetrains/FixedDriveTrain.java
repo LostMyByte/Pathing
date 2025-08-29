@@ -21,27 +21,31 @@ public class FixedDriveTrain extends Movement {
     // Sets drivetrain power to a target power vector
     public void move(Vector target, boolean useFullPower) {
 
-        double[] powers = new double[DriveConfig.driveWheels.length];
+        double[] powers = new double[driveWheels.length];
         double maxPower = 0;
 
+        target.put(0, target.get(0) + DriveConfig.DriveWheels.Lxk*Math.signum(target.get(0)));
+
         // Get power of each wheel with dot product
-        for (int i = 0; i < DriveConfig.driveWheels.length; i++) {
-            powers[i] = DriveConfig.driveWheels[i].MovementVector.dotProduct(target);
+        for (int i = 0; i < driveWheels.length; i++) {
+            powers[i] = driveWheels[i].MovementVector.dotProduct(target);
+
+            powers[i] += DriveConfig.DriveWheels.Lmk*Math.signum(driveWheels[i].encoder.getVelocity());
 
             if (Math.abs(powers[i]) > maxPower) maxPower = Math.abs(powers[i]);
         }
 
         // Make sure that the speed is capped so that it doesn't go in the wrong direction
         if (maxPower > 1 || useFullPower) {
-            for (int i = 0; i < DriveConfig.driveWheels.length; i++) {
+            for (int i = 0; i < driveWheels.length; i++) {
                 powers[i] /= maxPower;
             }
         }
 
         BaseOpMode.addData("Max Power", maxPower);
         // Command motor powers
-        for (int i = 0; i < DriveConfig.driveWheels.length; i++) {
-            DriveConfig.driveWheels[i].setPower(powers[i]);
+        for (int i = 0; i < driveWheels.length; i++) {
+            driveWheels[i].setPower(powers[i]);
             BaseOpMode.addData(String.format("Setting Motor %d to Power", i), powers[i]);
         }
     }
@@ -52,8 +56,8 @@ public class FixedDriveTrain extends Movement {
 
     public void moveRaw(Vector powers) {
 
-        for (int i =0; i < DriveConfig.driveWheels.length; i++) {
-            DriveConfig.driveWheels[i].setPower(powers.get(i));
+        for (int i =0; i < driveWheels.length; i++) {
+            driveWheels[i].setPower(powers.get(i));
         }
     }
 }

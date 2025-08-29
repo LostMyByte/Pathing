@@ -26,52 +26,56 @@ public class DriveConfig {
     public static class DriveWheels {
         public static double maxVelocity = 50;
         // BackEMF constants
-        public static double Ex = 0;
-        public static double Ey = 0;
+        public static double Ex = 0.8;
+        public static double Ey = 0.5;
         public static double Eh = 0;
         // Loopback constants
-        public static double Lx = 0;
-        public static double Ly = 0;
-        public static double Lh = 0;
+        public static double Lxk = 80;
+        public static double Lyk = 50;
+        public static double Lhk = 0;
+        public static double Lxs = 90;
+        public static double Lys = 60;
+        public static double Lhs = 0;
+        public static double Lmk = -0.07;
+        public static double regimeChangeThreshold = 0.01;
 
+        @Config
         public static class FL {
-            public static double x = -1.25;
+            public static double x = -1;
             public static double y = -1;
             public static double h = -1;
 
         }
+        @Config
         public static class FR {
-            public static double x = -1.25;
+            public static double x = -1;
             public static double y = 1;
             public static double h = -1;
 
         }
+        @Config
         public static class BL {
-            public static double x = 1.25;
+            public static double x = 1;
             public static double y = -1;
             public static double h = -1;
 
         }
+        @Config
         public static class BR {
-            public static double x = 1.25;
+            public static double x = 1;
             public static double y = 1;
             public static double h = -1;
 
         }
         public static PIDCoefficients driveConstants = new PIDCoefficients(0.03, 0.01, 0, 0.03, 0.01);
-        public static double driveAcceleration = 20;
+        public static double driveAcceleration = 150;
     }
 
 
 
 
 
-    // The drivewheels put into an array so the FixedDriveTrain class can access them easily.
-    public static DriveWheel[] driveWheels= new DriveWheel[]{
-            new DriveWheel(Hardware.rightFront, new Vector(DriveWheels.FR.x, DriveWheels.FR.y, DriveWheels.FR.h)),
-            new DriveWheel(Hardware.leftFront,  new Vector(DriveWheels.FL.x, DriveWheels.FL.y, DriveWheels.FL.h)),
-            new DriveWheel(Hardware.rightBack,  new Vector(DriveWheels.BR.x, DriveWheels.BR.y, DriveWheels.BR.h)),
-            new DriveWheel(Hardware.leftBack,   new Vector(DriveWheels.BL.x, DriveWheels.BL.y, DriveWheels.BL.h))};
+
 
 
 
