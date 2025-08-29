@@ -667,9 +667,8 @@ public abstract class Matrix
             }
         }
 
-        m.invert();
 
-        return new GeneralMatrix(numRows, numCols, m.getDDRM().data);
+        return new GeneralMatrix(numRows, numCols, m.invert().getDDRM().data);
         /*
         // Algorithms were generated with the help of Mathematica: general nxn matrices with symbolic
         // (instead of numeric) entries were defined, their inverse symbolically computed, then

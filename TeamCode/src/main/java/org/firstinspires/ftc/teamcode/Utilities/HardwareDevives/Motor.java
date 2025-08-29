@@ -13,17 +13,12 @@ import java.util.ArrayList;
 public class Motor {
 
     public static ArrayList<Motor> motors = new ArrayList<>();
-    private DcMotorImplEx motor;
-    private double maximumCurrent;
-    private double tickMultiplier;
-    private boolean reversed;
-    private boolean encoderEnabled;
-    private boolean brake;
+    private final DcMotorImplEx motor;
     public MotorEncoder encoder;
 
     public String motorName;
     private final double currentOverloadBuffer = 300;
-    private double powerScalar;
+    private final double powerScalar;
     private final ElapsedTime currentOverloadTimer = new ElapsedTime();
     private final ArrayList<Motor> pairedMotors = new ArrayList<>();
     private double power = 0;
@@ -77,7 +72,6 @@ public class Motor {
      * @param name           - hardware device name
      * @param reversed       - whether the motor should run backwards
      * @param encoder        - if the motor has an attached encoder
-     * @param brake          - if the motor should brake when power = 0
      * @param maximumCurrent - maximum current in milli-amps before the motor will disable
      * @param powerScalar    - if the motor powers need to be scaled down to match other motors
      */
@@ -94,32 +88,20 @@ public class Motor {
 
         motors.add(this);
         motorName = name;
+        motor = (DcMotorImplEx) BaseOpMode.hardware.dcMotor.get(name);
 
-        this.brake = brake;
-        this.reversed = reversed;
-        this.powerScalar = powerScalar;
-        this.tickMultiplier = tickMultiplier;
-        this.maximumCurrent = maximumCurrent;
-        this.encoderEnabled = encoder;
-    }
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setDirection(DcMotorSimple.Direction.FORWARD);
 
-    public static void initializeAll() {
-        for (Motor m : motors) {
-            m.motor = (DcMotorImplEx) BaseOpMode.hardware.dcMotor.get(m.motorName);
+        if (brake) motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        else motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-            m.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            m.motor.setDirection(DcMotorSimple.Direction.FORWARD);
+        if (reversed) this.powerScalar = -Math.abs(powerScalar);
+        else this.powerScalar = Math.abs(powerScalar);
 
-            if (m.brake) m.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            else m.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        if (encoder) this.encoder = new MotorEncoder(name, tickMultiplier);
 
-            if (m.reversed) m.powerScalar = -Math.abs(m.powerScalar);
-            else m.powerScalar = Math.abs(m.powerScalar);
-
-            if (m.encoderEnabled) m.encoder = new MotorEncoder(m.motorName, m.tickMultiplier);
-
-            m.motor.setCurrentAlert(m.maximumCurrent, CurrentUnit.MILLIAMPS);
-        }
+        motor.setCurrentAlert(maximumCurrent, CurrentUnit.MILLIAMPS);
     }
 
     public Motor(String name, boolean reversed, boolean encoder, double tickMultiplier, boolean brake) {
@@ -161,6 +143,8 @@ public class Motor {
 
     private void commandPower() {
         double setPower = power * powerScalar;
+//        BaseOpMode.addData("Motor " + motorName + " set Power", setPower);
+//        BaseOpMode.addData("Motor " + motorName + " direction", motor.getDirection());
 
         motor.setPower(setPower);
     }

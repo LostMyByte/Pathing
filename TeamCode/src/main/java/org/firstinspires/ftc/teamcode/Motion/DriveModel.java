@@ -13,34 +13,78 @@ public class DriveModel {
             0 ,0, 0, 1, 0, 0,
             0 ,0, 0, 0, 1, 0,
             0 ,0, 0, 0, 0, 1,
-            0 ,0, 0, DriveConfig.DriveWheels.Ex, 0, 0,
-            0 ,0, 0, 1, DriveConfig.DriveWheels.Ey, 0,
-            0 ,0, 0, 1, 0, DriveConfig.DriveWheels.Eh,
+            0 ,0, 0, 1- DriveConfig.DriveWheels.Ex, 0, 0,
+            0 ,0, 0, 0, 1- DriveConfig.DriveWheels.Ey, 0,
+            0 ,0, 0, 0, 0, 1- DriveConfig.DriveWheels.Eh,
     });
 
-    private static Matrix B = new GeneralMatrix(6, 4, new double[] {
-            0 ,0, 0, 0,
-            0 ,0, 0, 0,
-            0 ,0, 0, 0,
-            DriveConfig.DriveWheels.FR.x, DriveConfig.DriveWheels.FL.x, DriveConfig.DriveWheels.BR.x, DriveConfig.DriveWheels.BL.x,
-            DriveConfig.DriveWheels.FR.y, DriveConfig.DriveWheels.FL.y, DriveConfig.DriveWheels.BR.y, DriveConfig.DriveWheels.BL.y,
-            DriveConfig.DriveWheels.FR.h, DriveConfig.DriveWheels.FL.h, DriveConfig.DriveWheels.BR.h, DriveConfig.DriveWheels.BL.h,
+    private static Matrix B = new GeneralMatrix(6, 3, new double[] {
+            0 ,0, 0,
+            0 ,0, 0,
+            0 ,0, 0,
+            1, 0, 0,
+            0, 1, 0,
+            0, 0, 1,
     }).multiplied(DriveConfig.DriveWheels.driveAcceleration);
 
-    public static Matrix getBLeftInverse(Vector state) {
-        return B.transposed().multiplied(h(state).inverted());
-    }
-
-    private static Vector Ff = new Vector(new double[] {
+    private static Vector Ffk = new Vector(new double[] {
             0,
             0,
             0,
-            DriveConfig.DriveWheels.Lx,
-            DriveConfig.DriveWheels.Ly,
-            DriveConfig.DriveWheels.Lh
+            DriveConfig.DriveWheels.Lxk,
+            DriveConfig.DriveWheels.Lyk,
+            DriveConfig.DriveWheels.Lhk
+    });
+    private static Vector Ffs = new Vector(new double[] {
+            0,
+            0,
+            0,
+            DriveConfig.DriveWheels.Lxs,
+            DriveConfig.DriveWheels.Lys,
+            DriveConfig.DriveWheels.Lhs
     });
 
+    public static void reInit() {
+        A = new GeneralMatrix(6, 6, new double[] {
+                0 ,0, 0, 1, 0, 0,
+                0 ,0, 0, 0, 1, 0,
+                0 ,0, 0, 0, 0, 1,
+                0 ,0, 0, 1- DriveConfig.DriveWheels.Ex, 0, 0,
+                0 ,0, 0, 0, 1- DriveConfig.DriveWheels.Ey, 0,
+                0 ,0, 0, 0, 0, 1- DriveConfig.DriveWheels.Eh,
+        });
 
+        B = new GeneralMatrix(6, 3, new double[] {
+                0 ,0, 0,
+                0 ,0, 0,
+                0 ,0, 0,
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1,
+        }).multiplied(DriveConfig.DriveWheels.driveAcceleration);
+
+        Ffk = new Vector(new double[] {
+                0,
+                0,
+                0,
+                DriveConfig.DriveWheels.Lxk,
+                DriveConfig.DriveWheels.Lyk,
+                DriveConfig.DriveWheels.Lhk
+        });
+
+        Ffs = new Vector(new double[] {
+                0,
+                0,
+                0,
+                DriveConfig.DriveWheels.Lxs,
+                DriveConfig.DriveWheels.Lys,
+                DriveConfig.DriveWheels.Lhs
+        });
+    }
+
+    public static Matrix getBLeftInverse(Vector state) {
+        return B.transposed().multiplied(1/(DriveConfig.DriveWheels.driveAcceleration * DriveConfig.DriveWheels.driveAcceleration)).multiplied(h(state).inverted());
+    }
 
     public static Matrix h(TrigAngle angle) {
         return new GeneralMatrix(6, 6, new double[] {
@@ -85,27 +129,37 @@ public class DriveModel {
     }
 
     public static Vector instantaneousModel(Vector x, Vector u) {
-        Vector linearModel = Vector.length(6);
-        linearModel.add(A.multiplied(x));
-        linearModel.add(B.multiplied(u));
-        linearModel.add(Ff);
-        return h(x).multiplied(linearModel);
+
+        return h(x).multiplied(linearModel(u, x));
 
     }
     public static Matrix getAMatrix(Vector state) {
-        return GeneralMatrix.diagonalMatrix(6, 1);
+        return h(state).multiplied(A);
     }
 
     public static Matrix getBMatrix(Vector state) {
-        return new GeneralMatrix(6, 3);
+        return h(state).multiplied(B);
+    }
+
+    public static Vector getKFriction(Vector state) {
+        Vector Friction = Vector.length(6);
+
+        for (int i = 3; i < 6; i++) {
+            Friction.put(i, Ffk.get(i) * Math.signum(state.get(i)));
+        }
+        return Friction;
     }
 
     private static Vector linearModel(Vector control, Vector state) {
+
+        boolean isKinetic = state.get(3) + state.get(4) + state.get(5) > DriveConfig.DriveWheels.regimeChangeThreshold;
+
+        Vector acceleration = B.multiplied(control);
+        //if (Math.abs(acceleration.get(3)) > Ffs.get(3) || Math.abs(acceleration.get(4)) > Ffs.get(4) || Math.abs(acceleration.get(5)) > Ffs.get(5)) isKinetic = true;
         Vector linearModel = Vector.length(6);
         linearModel.add(A.multiplied(state));
-        linearModel.add(B.multiplied(control));
-        linearModel.add(Ff);
-
+        linearModel.add(acceleration);
+        //if (isKinetic) { linearModel.add(getKFriction(state));  linearModel.add(acceleration);};
         return linearModel;
     }
 
@@ -130,10 +184,11 @@ public class DriveModel {
 
     public static Vector stateTransitionFunction(Vector currentState, Vector control, double deltatime) {
 
+        control = new Vector(control.getData().clone());
         for (int i = 0; i < control.length(); i++) {
             if (Math.abs(control.get(i)) > 1) control.put(i, Math.signum(control.get(i)));
         }
-        return h(currentState).multiplied(linearModel(control, currentState)).multiplied(deltatime);
+        return currentState.added(h(currentState).multiplied(linearModel(control, currentState)).multiplied(deltatime));
     }
 
     public static Matrix dFdU(Vector state, Vector _control, double deltaTime) {
@@ -151,11 +206,11 @@ public class DriveModel {
      * @return The result of the operation
      */
     public static Matrix VdF2dXdU(Vector state, Vector V, double deltaTime) {
-        Matrix result = new GeneralMatrix(4, 6);
+        Matrix result = new GeneralMatrix(3, 6);
 
         Vector col2 = dhdtheta(state.get(2)).multiplied(B).transposed().multiplied(V);
 
-        for (int k = 0; k < 4; k++) {
+        for (int k = 0; k < 3; k++) {
                 result.put(k, 2, col2.get(k));
         }
         result.multiply(deltaTime);

@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.Motion.Drivetrains.FixedDriveTrain;
 import org.firstinspires.ftc.teamcode.Utilities.Configuration.DriveConfig;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
+import org.firstinspires.ftc.teamcode.Motion.Movement;
 
 @TeleOp(name = "Just Drive")
 public class JustDrive extends BaseOpMode {
@@ -32,10 +33,10 @@ public class JustDrive extends BaseOpMode {
 
         if (gamepad1.square) {
             BaseOpMode.addLine("Adjusted Drivewheel Powers");
-            DriveConfig.driveWheels[0].MovementVector = new Vector(DriveConfig.DriveWheels.FR.x, DriveConfig.DriveWheels.FR.y, DriveConfig.DriveWheels.FR.h);
+            /*Movement.driveWheels[0].MovementVector = new Vector(DriveConfig.DriveWheels.FR.x, DriveConfig.DriveWheels.FR.y, DriveConfig.DriveWheels.FR.h);
             DriveConfig.driveWheels[1].MovementVector = new Vector(DriveConfig.DriveWheels.FL.x, DriveConfig.DriveWheels.FL.y, DriveConfig.DriveWheels.FL.h);
             DriveConfig.driveWheels[2].MovementVector = new Vector(DriveConfig.DriveWheels.BR.x, DriveConfig.DriveWheels.BR.y, DriveConfig.DriveWheels.BR.h);
-            DriveConfig.driveWheels[3].MovementVector = new Vector(DriveConfig.DriveWheels.BL.x, DriveConfig.DriveWheels.BL.y, DriveConfig.DriveWheels.BL.h);
+            DriveConfig.driveWheels[3].MovementVector = new Vector(DriveConfig.DriveWheels.BL.x, DriveConfig.DriveWheels.BL.y, DriveConfig.DriveWheels.BL.h);*/
 
         }
 

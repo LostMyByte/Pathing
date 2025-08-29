@@ -97,6 +97,8 @@ public abstract class BaseOpMode extends LinearOpMode {
         initializeUtilities();
         externalInit();
 
+        Signal.startALl();
+
 
         do{
             //update sensors
@@ -107,7 +109,7 @@ public abstract class BaseOpMode extends LinearOpMode {
 
         }while (opModeInInit());
 
-        Signal.startALl();
+
         externalStart();
 
         while (opModeIsActive()){
@@ -122,7 +124,7 @@ public abstract class BaseOpMode extends LinearOpMode {
     private void initializeUtilities(){
         Signal.signals.clear();
         Subsystem.resetSubsystemList();
-        Motor.initializeAll();
+        Motor.resetMotorList();
         /*Servo.resetServoList();
 
         MotorEncoder.resetEncoderList();
@@ -132,7 +134,7 @@ public abstract class BaseOpMode extends LinearOpMode {
     }
 
     private void updateUtilities(){
-        if (isActive()) Signal.updateAll();
+        Signal.updateAll();
         //update telemetry
         updateTelemetry();
         //lastly command powers
