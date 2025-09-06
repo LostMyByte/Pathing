@@ -1,0 +1,82 @@
+package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
+public class Constants {
+    public static double fieldSizeY = 141.5;
+    public static double fieldSizeX = 141.5;
+    public static double backWallY = 0;
+
+    public static double tag16x = fieldSizeX-22.25;
+    public static double tag11x = 23.25;
+    public static double tag12y = 70.25;
+    public static double tag13x = 23.25;
+    public static double tag14x = fieldSizeX - 24.25;
+    public static double tag15y = 70.25;
+
+
+    public static double robotSizeX = 16;
+    //The Size of the robot in the direction the wheels are facing
+    public static double halfRobotSizeX = robotSizeX / 2;
+    public static double robotSizeY = 17.75;
+    //The size of the robot in the direction the wheels are not facing
+    public static double halfRobotSizeY = robotSizeY / 2;
+
+    public static double tagCamOffsetX;
+    public static double tagCamOffsetY;
+
+    public static double startAngle = Double.NaN;
+    public static double armLength = 17;
+    public static double slidesStartHeightConstant = 16.25;
+    public static double specimenClawStartHeightConstant = 0;
+    public static double ticksToVSlidesInchesConstant = (38-slidesStartHeightConstant)/1724;
+    public static Team team;
+    public static double HSlidesMaxLengthInches = 17.625;
+    public static double HSlidesMaxLengthTicks = 727;
+    public static double ticksToHSlidesInchesConstant = HSlidesMaxLengthTicks/HSlidesMaxLengthInches;
+    //maxes out at 729
+    //17.625
+
+    //PID Constants
+
+    public static double HSlidesP, HSlidesI, HslidesD;
+    public static double VSlidesP, VSlidesI, VSlidesD, VSlidesF;
+    public static double VSlidesDeadzone, VSlidesLowerLimit;
+
+
+    //For length of slides in inches
+    public static double A = 8.887165;
+    public static double B = 0.00415547;
+    public static double C = 1.50989;
+    public static double D = 8.887165;
+    public static double[][] obstacles = {{1,22},{2, 3}};
+    public static double camOffsetX = 0;
+    public static double camOffsetY = 0;
+    public static boolean intakeReady = false;
+    public static boolean depositorReady = false;
+    public static final double fx = 905.527;
+    public static final double cy = 421.638;
+    public static final double fy = 905.527;
+    public static final double cx = 662.777;
+
+    public static final double focalLengthMM = 3.67;
+    public static double inchesToPixels = fx/(focalLengthMM/DistanceUnit.mmPerInch);
+    public static double lengthOfIntakeIN=6.5;
+    //very approximate
+
+
+    public static double g = 9.8;
+
+
+    public void setEndAngle(double angle){
+        startAngle = angle;
+    }
+
+    public enum Team {
+        RED,
+        BLUE,
+
+
+
+    }
+}
