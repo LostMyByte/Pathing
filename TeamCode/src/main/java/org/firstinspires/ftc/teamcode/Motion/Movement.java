@@ -5,12 +5,12 @@ import org.firstinspires.ftc.teamcode.Motion.Controllers.MotionProfile;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.PID;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.ReferenceSignal;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.Signal;
-import org.firstinspires.ftc.teamcode.Motion.Drivetrains.DriveWheel;
 import org.firstinspires.ftc.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.Motion.Paths.Path;
 import org.firstinspires.ftc.teamcode.Subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.Utilities.Configuration.DriveConfig;
 import org.firstinspires.ftc.teamcode.Utilities.Configuration.Hardware;
+import org.firstinspires.ftc.teamcode.Utilities.HardwareDevives.Motor;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 public abstract class Movement extends Subsystem {
@@ -21,7 +21,7 @@ public abstract class Movement extends Subsystem {
 
     public Location loc;
 
-    protected DriveWheel[] driveWheels;
+    protected Motor[] driveWheels;
 
     public void followPath(Path path, double speed) {
         if (activePath != path) {
@@ -57,10 +57,11 @@ public abstract class Movement extends Subsystem {
 
     public Movement(Vector startState) {
         loc = new Location(startState);
-        driveWheels = new DriveWheel[]{
-                new DriveWheel(Hardware.rightFront, new Vector(DriveConfig.DriveWheels.FR.x, DriveConfig.DriveWheels.FR.y, DriveConfig.DriveWheels.FR.h)),
-                new DriveWheel(Hardware.leftFront,  new Vector(DriveConfig.DriveWheels.FL.x, DriveConfig.DriveWheels.FL.y, DriveConfig.DriveWheels.FL.h)),
-                new DriveWheel(Hardware.rightBack,  new Vector(DriveConfig.DriveWheels.BR.x, DriveConfig.DriveWheels.BR.y, DriveConfig.DriveWheels.BR.h)),
-                new DriveWheel(Hardware.leftBack,   new Vector(DriveConfig.DriveWheels.BL.x, DriveConfig.DriveWheels.BL.y, DriveConfig.DriveWheels.BL.h))};
+        driveWheels = new Motor[]{
+                new Motor(Hardware.rightFront, false),
+                new Motor(Hardware.leftFront, false),
+                new Motor(Hardware.rightBack, false),
+                new Motor(Hardware.leftBack, false),
+        };
     }
 }

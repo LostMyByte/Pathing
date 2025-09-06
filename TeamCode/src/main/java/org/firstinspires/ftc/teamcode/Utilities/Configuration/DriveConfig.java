@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.Utilities.Configuration;
 import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.teamcode.Motion.Controllers.PIDCoefficients;
-import org.firstinspires.ftc.teamcode.Motion.Drivetrains.DriveWheel;
-import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 
 public class DriveConfig {
@@ -27,17 +25,11 @@ public class DriveConfig {
         public static double maxVelocity = 50;
         // BackEMF constants
         public static double Ex = 0.8;
-        public static double Ey = 0.5;
+        public static double Ey = 0.7;
         public static double Eh = 0;
         // Loopback constants
-        public static double Lxk = 80;
-        public static double Lyk = 50;
-        public static double Lhk = 0;
-        public static double Lxs = 90;
-        public static double Lys = 60;
-        public static double Lhs = 0;
-        public static double Lmk = -0.07;
-        public static double regimeChangeThreshold = 0.01;
+        public static double Lxk = 0.3;
+        public static double Lmk = 0.17;
 
         @Config
         public static class FL {
