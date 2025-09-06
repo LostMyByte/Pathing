@@ -17,15 +17,18 @@ public class Location extends Signal {
     // Uses Velocity as that is the level upon which the Motion Profile/PIDs work
     // Has convenience methods for x, y, etc. access. I'm not trying to give Dylan a headache.
 
-    GoBildaPinpointDriver odoPods;
-    IMU imu;
+    public GoBildaPinpointDriver odoPods;
+
+    public static double xOffset = -172;
+    public static double yOffset = -41.25;
+
 
     public static double alpha = 0.1;
 
     private void initialize() {
-        this.imu = BaseOpMode.getHardwareMap().get(IMU.class, Hardware.imu);
+
         odoPods = BaseOpMode.getHardwareMap().get(GoBildaPinpointDriver.class, Hardware.odoWheels);
-        odoPods.setOffsets(-175,41.25);
+        odoPods.setOffsets(xOffset,yOffset);
         odoPods.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odoPods.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
         odoPods.recalibrateIMU();
@@ -80,5 +83,9 @@ public class Location extends Signal {
         BaseOpMode.addData("Position X", getIntegralVector().get(0));
         BaseOpMode.addData("Position Y", getIntegralVector().get(1));
         BaseOpMode.addData("Position H", getIntegralVector().get(2));
+    }
+
+    public void setPosition(Vector pos) {
+        odoPods.setPosition(new Pose2D(DistanceUnit.CM, pos.get(0), pos.get(1), AngleUnit.RADIANS, pos.get(2)));
     }
 }

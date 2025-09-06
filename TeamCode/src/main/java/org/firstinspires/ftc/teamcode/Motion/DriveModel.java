@@ -27,22 +27,7 @@ public class DriveModel {
             0, 0, 1,
     }).multiplied(DriveConfig.DriveWheels.driveAcceleration);
 
-    private static Vector Ffk = new Vector(new double[] {
-            0,
-            0,
-            0,
-            DriveConfig.DriveWheels.Lxk,
-            DriveConfig.DriveWheels.Lyk,
-            DriveConfig.DriveWheels.Lhk
-    });
-    private static Vector Ffs = new Vector(new double[] {
-            0,
-            0,
-            0,
-            DriveConfig.DriveWheels.Lxs,
-            DriveConfig.DriveWheels.Lys,
-            DriveConfig.DriveWheels.Lhs
-    });
+
 
     public static void reInit() {
         A = new GeneralMatrix(6, 6, new double[] {
@@ -62,24 +47,6 @@ public class DriveModel {
                 0, 1, 0,
                 0, 0, 1,
         }).multiplied(DriveConfig.DriveWheels.driveAcceleration);
-
-        Ffk = new Vector(new double[] {
-                0,
-                0,
-                0,
-                DriveConfig.DriveWheels.Lxk,
-                DriveConfig.DriveWheels.Lyk,
-                DriveConfig.DriveWheels.Lhk
-        });
-
-        Ffs = new Vector(new double[] {
-                0,
-                0,
-                0,
-                DriveConfig.DriveWheels.Lxs,
-                DriveConfig.DriveWheels.Lys,
-                DriveConfig.DriveWheels.Lhs
-        });
     }
 
     public static Matrix getBLeftInverse(Vector state) {
@@ -141,25 +108,14 @@ public class DriveModel {
         return h(state).multiplied(B);
     }
 
-    public static Vector getKFriction(Vector state) {
-        Vector Friction = Vector.length(6);
-
-        for (int i = 3; i < 6; i++) {
-            Friction.put(i, Ffk.get(i) * Math.signum(state.get(i)));
-        }
-        return Friction;
-    }
-
     private static Vector linearModel(Vector control, Vector state) {
 
-        boolean isKinetic = state.get(3) + state.get(4) + state.get(5) > DriveConfig.DriveWheels.regimeChangeThreshold;
+
 
         Vector acceleration = B.multiplied(control);
-        //if (Math.abs(acceleration.get(3)) > Ffs.get(3) || Math.abs(acceleration.get(4)) > Ffs.get(4) || Math.abs(acceleration.get(5)) > Ffs.get(5)) isKinetic = true;
         Vector linearModel = Vector.length(6);
         linearModel.add(A.multiplied(state));
         linearModel.add(acceleration);
-        //if (isKinetic) { linearModel.add(getKFriction(state));  linearModel.add(acceleration);};
         return linearModel;
     }
 
