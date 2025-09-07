@@ -19,7 +19,6 @@ import org.ejml.simple.SimpleMatrix;
 
 public class MPC {
 
-
     public Matrix Q; // Distance cost
     public Matrix R; // Control cost
     public Matrix QF; // Terminal Distance Cost
@@ -29,9 +28,9 @@ public class MPC {
     private double lambda_max = 1000;
     private double threshold;
 
-    private double max_vxx;
 
-    private Vector[] currentControls;
+
+    public Vector[] currentControls;
     public Vector[] k;
     public Matrix[] K;
     public Vector[] currentTrajectory;
@@ -39,17 +38,17 @@ public class MPC {
     public ReferenceSignal referenceSignal;
     public Signal sensorSignal;
 
-    private int dimensions;
-    private int numControls;
+    public int dimensions;
+    public int numControls;
 
-    private int N;
+    public int N;
     private double horizon;
     private double dt;
 
     private ElapsedTime timer;
 
 
-    public MPC(ReferenceSignal referenceSignal, Signal dataSignal, Vector start, Matrix Q, Matrix R, Matrix QF, int N, double time, double threshold, double lr, double lambda_max, double max_vxx) {
+    public MPC(ReferenceSignal referenceSignal, Signal dataSignal, Vector start, Matrix Q, Matrix R, Matrix QF, int N, double time, double threshold, double lr, double lambda_max) {
         this.referenceSignal = referenceSignal;
         this.sensorSignal = dataSignal;
 
@@ -65,16 +64,16 @@ public class MPC {
         this.QF = QF;
 
         this.N = N;
-        this.max_vxx = max_vxx;
+
 
         this.dt = horizon/N;
         initializeControls(N, start);
 
         this.threshold = threshold;
 
-        iterate(3000, start);
-
     }
+
+
 
     public void generateTrajectory(Vector startState) {
 
@@ -140,36 +139,6 @@ public class MPC {
         return R.multiplied(2 * time);
     }
 
-    public void start() {
-        this.timer = new ElapsedTime();
-    }
-
-    public Vector getCorrection() {
-
-        if (timer == null) start();
-        double time = timer.time();
-
-        int numDim = this.sensorSignal.getLength();
-        Vector sensorData = Vector.length(numDim * 2);
-
-        for (int i = 0; i < numDim; i++) {
-            sensorData.put(i, sensorSignal.getIntegralVector().get(i));
-            sensorData.put(i+numDim, sensorSignal.getDataVector().get(i));
-        }
-        Vector target = getInterpolatedX(time);
-        BaseOpMode.addData("TX", target.get(0));
-        BaseOpMode.addData("TY", target.get(1));
-        BaseOpMode.addData("TH", target.get(2));
-        BaseOpMode.addData("TVX", target.get(3));
-        BaseOpMode.addData("TVY", target.get(4));
-        BaseOpMode.addData("TVH", target.get(5));
-
-        sensorData.subtract(target);
-        Vector correction = getInterpolatedU(time);
-        return correction.added(getInterpolatedK(time).multiplied(sensorData));
-    }
-
-
     private void initializeControls(int N, Vector start) {
         this.currentControls = new Vector[N];
         this.currentTrajectory = new Vector[N];
@@ -188,20 +157,20 @@ public class MPC {
 
     }
 
-    private Vector getInterpolatedk(double time) {
+    public Vector getInterpolatedk(double time) {
         return getInterpolatedk(time, horizon);
     }
-    private Vector getInterpolatedU(double time) {
+    public Vector getInterpolatedU(double time) {
         return getInterpolatedU(time, horizon);
     }
-    private Vector getInterpolatedX(double time) {
+    public Vector getInterpolatedX(double time) {
         return getInterpolatedX(time, horizon);
     }
-    private Matrix getInterpolatedK(double time) {
+    public Matrix getInterpolatedK(double time) {
         return getInterpolatedK(time, horizon);
     }
 
-    private Vector getInterpolatedk(double time, double horizon) {
+    public Vector getInterpolatedk(double time, double horizon) {
         if (time >= (horizon-dt)) return k[N-1];
         double position = (time/horizon) * N;
         int index = (int) position;
@@ -210,7 +179,7 @@ public class MPC {
         return (k[index].multiplied(1 - alpha).added(k[index + 1].multiplied(alpha)));
     }
 
-    private Matrix getInterpolatedK(double time, double horizon) {
+    public Matrix getInterpolatedK(double time, double horizon) {
         if (time >= (horizon-dt)) return K[N-1];
         double position = (time/horizon) * N;
         int index = (int) position;
@@ -219,7 +188,7 @@ public class MPC {
         return (K[index].multiplied(1 - alpha).added(K[index + 1].multiplied(alpha)));
     }
 
-    private Vector getInterpolatedX(double time, double horizon) {
+    public Vector getInterpolatedX(double time, double horizon) {
         if (time >= (horizon-dt)) return currentTrajectory[N-1];
         double position = (time/horizon) * N;
         int index = (int) position;
@@ -227,7 +196,7 @@ public class MPC {
 
         return (currentTrajectory[index].multiplied(1 - alpha).added(currentTrajectory[index + 1].multiplied(alpha)));
     }
-    private Vector getInterpolatedU(double time, double horizon) {
+    public Vector getInterpolatedU(double time, double horizon) {
         if (time >= (horizon-dt)) return currentControls[N-1];
         double position = (time/horizon) * N;
         int index = (int) position;
@@ -345,7 +314,15 @@ public class MPC {
 
     }
 
-    private void iterate(int maxIter, Vector start) {
+
+    public void loadFromArray(Vector[] x, Vector[] u, Vector[] k, Matrix[] K) {
+        this.currentTrajectory = x;
+        this.currentControls = u;
+        this.k = k;
+        this.K = K;
+    }
+
+    public void iterate(int maxIter, Vector start) {
 
         this.lambda = 1;
 

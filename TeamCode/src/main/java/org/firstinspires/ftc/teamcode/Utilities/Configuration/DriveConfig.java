@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Utilities.Configuration;
 
 import com.acmerobotics.dashboard.config.Config;
 
+import org.firstinspires.ftc.teamcode.Motion.Controllers.MPCPath;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.PIDCoefficients;
 
 
@@ -61,6 +62,9 @@ public class DriveConfig {
         }
         public static PIDCoefficients driveConstants = new PIDCoefficients(0.03, 0.01, 0, 0.03, 0.01);
         public static double driveAcceleration = 150;
+
+        public static MPCPath.MPCParams defaultParams = new MPCPath.MPCParams();
+
     }
 
 
