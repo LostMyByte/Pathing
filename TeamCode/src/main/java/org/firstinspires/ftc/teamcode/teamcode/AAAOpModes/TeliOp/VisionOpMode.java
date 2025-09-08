@@ -42,6 +42,7 @@ public class VisionOpMode extends BaseOpMode {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.setPollRateHz(100); // make number higher to get more data
         limelight.start();
+        limelight.reloadPipeline();
 
 // we can use this so the limelight gives better data
        // double robotYaw = imu.getAngularOrientation().firstAngle;
@@ -61,16 +62,19 @@ public class VisionOpMode extends BaseOpMode {
     @Override
     public void externalLoop() {
         LLResult result = limelight.getLatestResult();
-        if (result != null && result.isValid()) {
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
             for (LLResultTypes.FiducialResult fiducial : fiducials) {
                 int id = fiducial.getFiducialId(); // The ID number of the fiducial
-                double distToApriltagX = fiducial.getTargetXDegrees();
-                //fiducial.getCameraPoseTargetSpace();
-                telemetry.addData("id: " + id + "dist: ", distToApriltagX);
-            }
-            }
+                double degreesXtoApriltag = fiducial.getTargetXDegrees();
+                //Pose3D distance = fiducial.getCameraPoseTargetSpace();
+                double xDistance = (fiducial.getRobotPoseTargetSpace().getPosition().x)*100;
+                multTelemetry.addData("id",id);
+                multTelemetry.addData("degrees", degreesXtoApriltag);
+                multTelemetry.addData("dist across", xDistance);
+                multTelemetry.addData("dist away", (fiducial.getRobotPoseTargetSpace().getPosition().y)*100);
 
+            }
+        telemetry.addData("gjfdjgfv", limelight.isRunning());
 
 
     }
