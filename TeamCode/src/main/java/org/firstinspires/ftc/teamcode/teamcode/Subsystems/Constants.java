@@ -31,6 +31,7 @@ public class Constants {
     public static double specimenClawStartHeightConstant = 0;
     public static double ticksToVSlidesInchesConstant = (38-slidesStartHeightConstant)/1724;
     public static Team team;
+    public static Motif motif;
     public static double HSlidesMaxLengthInches = 17.625;
     public static double HSlidesMaxLengthTicks = 727;
     public static double ticksToHSlidesInchesConstant = HSlidesMaxLengthTicks/HSlidesMaxLengthInches;
@@ -78,5 +79,11 @@ public class Constants {
 
 
 
+    }
+
+    public enum Motif{
+        PPG,
+        PGP,
+        GPP,
     }
 }

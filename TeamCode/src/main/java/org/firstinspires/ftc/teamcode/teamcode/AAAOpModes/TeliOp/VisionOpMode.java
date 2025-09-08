@@ -68,6 +68,15 @@ public class VisionOpMode extends BaseOpMode {
                 double degreesXtoApriltag = fiducial.getTargetXDegrees();
                 //Pose3D distance = fiducial.getCameraPoseTargetSpace();
                 double xDistance = (fiducial.getRobotPoseTargetSpace().getPosition().x)*100;
+
+                if(id==21){
+                    Constants.motif = Constants.Motif.GPP;
+                } else if (id==22){
+                    Constants.motif = Constants.Motif.PGP;
+                } else if (id==23){
+                    Constants.motif = Constants.Motif.PPG;
+                }
+
                 multTelemetry.addData("id",id);
                 multTelemetry.addData("degrees", degreesXtoApriltag);
                 multTelemetry.addData("dist across", xDistance);
@@ -75,6 +84,7 @@ public class VisionOpMode extends BaseOpMode {
 
             }
         telemetry.addData("gjfdjgfv", limelight.isRunning());
+
 
 
     }
