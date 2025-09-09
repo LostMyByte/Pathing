@@ -142,6 +142,8 @@ public class Servos {
         public void retracted(){this.setPosition(1);}
         public void extended(){this.setPosition(0.6);}
     }
+
+
     /*
     public static class IntakeTurret extends Servo{
         public IntakeTurret(){

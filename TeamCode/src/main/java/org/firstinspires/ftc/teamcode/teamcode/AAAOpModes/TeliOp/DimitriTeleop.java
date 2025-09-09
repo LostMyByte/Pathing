@@ -23,7 +23,6 @@ import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.Movement;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring;
 
 @TeleOp(name="Dimitri Teleop")
 public class DimitriTeleop extends BaseOpMode{
