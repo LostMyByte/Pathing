@@ -30,12 +30,14 @@ public class MPCPath {
         public double QY = 100;
         public double QH = 100;
         public double QHV = 10;
-        public double QV = 10;
+        public double QVX = 10;
+        public double QVY = 10;
 
         public double QFX = 20;
         public double QFY = 20;
         public double QFH = 20;
-        public double QFV = 10;
+        public double QFVX = 10;
+        public double QFVY= 10;
         public double QFHV = 10;
 
         public double R = 50;
@@ -71,12 +73,12 @@ public class MPCPath {
         this.start = previous.referenceSignal.target();
     }
 
-    public void setTarget(double x, double y, double h, double v, double vh) {
-        this.referenceSignal = new ConstantSignal(new Vector(new double[] {x, y, h, v, vh}));
+    public void setTarget(double x, double y, double h, double vx, double vy, double vh) {
+        this.referenceSignal = new ConstantSignal(new Vector(new double[] {x, y, h, vx, vy, vh}));
     }
 
-    public void setStart(double x, double y, double h, double v, double vh) {
-        this.start = new Vector(new double[] {x, y, h, v, vh});
+    public void setStart(double x, double y, double h, double vx, double vy, double vh) {
+        this.start = new Vector(new double[] {x, y, h, vx, vy, vh});
     }
 
     public void setMoveTime(double time) {
@@ -92,23 +94,25 @@ public class MPCPath {
     }
 
     public void build() {
-        Matrix Q = new GeneralMatrix(5, 5, new double[] {
-                params.QX, 0, 0, 0, 0,
-                0, params.QY, 0, 0, 0,
-                0, 0, params.QH, 0, 0,
-                0, 0, 0, params.QV, 0,
-                0, 0, 0, 0, 0, params.QHV,
+        Matrix Q = new GeneralMatrix(6, 6, new double[] {
+                params.QX, 0, 0, 0, 0, 0,
+                0, params.QY, 0, 0, 0, 0,
+                0, 0, params.QH, 0, 0, 0,
+                0, 0, 0, params.QVX, 0, 0,
+                0, 0, 0, 0, params.QVY, 0,
+                0, 0, 0, 0, 0, 0, params.QHV,
         });
 
-        Matrix QF = new GeneralMatrix(5, 5, new double[] {
-                params.QFX, 0, 0, 0, 0,
-                0, params.QFY, 0, 0, 0,
-                0, 0, params.QFH, 0, 0,
-                0, 0, 0, params.QFV, 0,
-                0, 0, 0, 0, 0, params.QFHV,
+        Matrix QF = new GeneralMatrix(6, 6, new double[] {
+                params.QFX, 0, 0, 0, 0, 0,
+                0, params.QFY, 0, 0, 0, 0,
+                0, 0, params.QFH, 0, 0, 0,
+                0, 0, 0, params.QFVX, 0, 0,
+                0, 0, 0, 0, params.QFVY, 0,
+                0, 0, 0, 0, 0, 0, params.QFHV,
         });
 
-        Matrix R = Matrix.identityMatrix(4).multiplied(params.R);
+        Matrix R = Matrix.identityMatrix(3).multiplied(params.R);
 
         controller = new MPC(referenceSignal, sensorSignal, start, Q, R, QF, (int) (resolution*horizonTime), horizonTime, threshold, params.lr,  params.lambdaMax);
     }

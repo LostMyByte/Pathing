@@ -32,7 +32,8 @@ public class MPCTest extends BaseOpMode {
         public static double TX = 0;
         public static double TY = 10;
         public static double TH = 0;
-        public static double TV = 0;
+        public static double TVX = 0;
+        public static double TVY = 0;
         public static double THV = 0;
 
     }
@@ -51,8 +52,8 @@ public class MPCTest extends BaseOpMode {
         test.setMoveTime(TestMPCParams.Horizon);
         test.setResolution(((double) TestMPCParams.N)/TestMPCParams.Horizon);
         test.setParams(DriveConfig.DriveWheels.defaultParams);
-        test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
-        test.setStart(0, 0, 0, 0, 0);
+        test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TVX, TestMPCParams.TVY, TestMPCParams.THV);
+        test.setStart(0, 0, 0, 0, 0, 0);
         try {
             test.load("Test Path.json");
         } catch (RuntimeException e) {
