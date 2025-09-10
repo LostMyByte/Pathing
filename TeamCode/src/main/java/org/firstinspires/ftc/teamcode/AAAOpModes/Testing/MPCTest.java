@@ -46,7 +46,7 @@ public class MPCTest extends BaseOpMode {
 
         DriveModel.reInit();
 
-        drive = new FixedDriveTrain(new Vector(0, 0, 0));
+
         test = new MPCPath();
         test.setAccuracy(TestMPCParams.threshold);
         test.setMoveTime(TestMPCParams.Horizon);

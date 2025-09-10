@@ -93,6 +93,10 @@ public class MPCPath {
         this.resolution = resolution;
     }
 
+    public void setDataSource(Signal source) {
+        this.sensorSignal = source;
+    }
+
     public void build() {
         Matrix Q = new GeneralMatrix(6, 6, new double[] {
                 params.QX, 0, 0, 0, 0, 0,
