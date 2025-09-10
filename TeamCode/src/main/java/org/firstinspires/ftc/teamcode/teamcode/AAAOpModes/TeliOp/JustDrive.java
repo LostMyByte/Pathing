@@ -3,18 +3,20 @@ package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.teamcode.KCP.DriveClasses.TankDrivetrain;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake;
 
 @TeleOp(name="Just Drive")
 public class JustDrive extends BaseOpMode {
 
-    //Drivetrain drivetrain;
-    //Scoring scoring;
-    MainIntake intake;
+    TankDrivetrain drive;
+
 
 
     @Override
     public void externalInit() {
+        drive = new TankDrivetrain();
 
         //drivetrain = new Drivetrain();
         //scoring = new Scoring();
@@ -23,27 +25,12 @@ public class JustDrive extends BaseOpMode {
 
     @Override
     public void externalLoop() {
-        double drive = driver1.leftStick.Y();
-        double strafe = -driver1.leftStick.X();
+        double d = driver1.leftStick.Y();
+
         double turn = driver1.rightStick.X();
         double speed = 1;
 
-        //drivetrain.drive(drive,strafe,turn,speed);
-        BaseOpMode.addData("slidesLength", intake.getSlidesLength());
-        if (driver1.dpad_up.isTapped()) {
-            intake.increaseSlidesLengthInches(1);
-        } else if (driver1.dpad_down.isTapped()) {
-            intake.increaseSlidesLengthInches(-1);
-        }
-        if (driver1.cross.isPressed()) {
-            intake.runIntake();
-        } else if (driver1.circle.isPressed()){
-            intake.reverseIntake();
-        } else {
-            intake.stopIntake();
-        }
-        BaseOpMode.addData("slidesLengthInches",intake.getSlidesLengthInches());
-        BaseOpMode.addData("IntakeColor",intake.getIntakeColor());
+        drive.move(d, turn, speed);
 
     }
 }
