@@ -8,6 +8,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
 
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain;
 
 import java.util.List;
 
@@ -26,11 +28,7 @@ public class VisionOpMode extends BaseOpMode {
 
     Limelight3A limelight;
 
-
-
-
-
-
+    Drivetrain drivetrain;
 
 
 
@@ -39,14 +37,15 @@ public class VisionOpMode extends BaseOpMode {
     public void externalInit() {
 
         Constants.team = Constants.Team.BLUE;
+        drivetrain = new Drivetrain(hardwareMap,0);
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.setPollRateHz(100); // make number higher to get more data
         limelight.start();
         limelight.reloadPipeline();
 
 // we can use this so the limelight gives better data
-       // double robotYaw = imu.getAngularOrientation().firstAngle;
-       // limelight.updateRobotOrientation(robotYaw);
+        // double robotYaw = imu.getAngularOrientation().firstAngle;
+        // limelight.updateRobotOrientation(robotYaw);
 
 
 
@@ -62,27 +61,31 @@ public class VisionOpMode extends BaseOpMode {
     @Override
     public void externalLoop() {
         LLResult result = limelight.getLatestResult();
-            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-            for (LLResultTypes.FiducialResult fiducial : fiducials) {
-                int id = fiducial.getFiducialId(); // The ID number of the fiducial
-                double degreesXtoApriltag = fiducial.getTargetXDegrees();
-                //Pose3D distance = fiducial.getCameraPoseTargetSpace();
-                double xDistance = (fiducial.getRobotPoseTargetSpace().getPosition().x)*100;
+        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+        for (LLResultTypes.FiducialResult fiducial : fiducials) {
+            int id = fiducial.getFiducialId(); // The ID number of the fiducial
+            double degreesXtoApriltag = fiducial.getTargetXDegrees();
+            //Pose3D distance = fiducial.getCameraPoseTargetSpace();
+            double xDistance = (fiducial.getRobotPoseTargetSpace().getPosition().x)*100;
+            double yDistance = (fiducial.getRobotPoseTargetSpace().getPosition().y)*100;
 
-                if(id==21){
+
+
+               /* if(id==21){
                     Constants.motif = Constants.Motif.GPP;
                 } else if (id==22){
                     Constants.motif = Constants.Motif.PGP;
                 } else if (id==23){
                     Constants.motif = Constants.Motif.PPG;
                 }
+*/
+            multTelemetry.addData("id",id);
+            multTelemetry.addData("degrees", degreesXtoApriltag);
+            multTelemetry.addData("dist across", xDistance);
+            multTelemetry.addData("dist away", yDistance);
 
-                multTelemetry.addData("id",id);
-                multTelemetry.addData("degrees", degreesXtoApriltag);
-                multTelemetry.addData("dist across", xDistance);
-                multTelemetry.addData("dist away", (fiducial.getRobotPoseTargetSpace().getPosition().y)*100);
-
-            }
+        }
+        drivetrain.nonDriverOrientedDrive(driver1.leftStick.Y(), -driver1.leftStick.X(), driver1.rightStick.X());
         telemetry.addData("gjfdjgfv", limelight.isRunning());
 
 

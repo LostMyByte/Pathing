@@ -80,6 +80,10 @@ public class Drivetrain extends Subsystem {
     }
 
 
+    public void nonDriverOrientedDrive (double drive, double strafe, double turn){
+        driveWheels.veryDirectDrive((drive + strafe - turn),-(drive - strafe + turn),(drive - strafe - turn),-(drive + strafe + turn));
+    }
+
     public void drive(double drive, double strafe, double turn, double speed, boolean lockHeading) {
         gyro.update();
         strafe = -strafe;
