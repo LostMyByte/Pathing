@@ -9,15 +9,15 @@ public class TankDrivetrain {
 
     @Config
     public static class TankDriveConfig {
-        public static String L1 = "";
-        public static String L2 = "";
-        public static String R1 = "";
-        public static String R2 = "";
+        public static String L1 = "fl";
+        public static String L2 = "bl";
+        public static String R1 = "fr";
+        public static String R2 = "br";
 
         public static boolean L1Reversed = false;
         public static boolean L2Reversed = false;
-        public static boolean R1Reversed = false;
-        public static boolean R2Reversed = false;
+        public static boolean R1Reversed = true;
+        public static boolean R2Reversed = true;
     }
 
     Motor L1;
