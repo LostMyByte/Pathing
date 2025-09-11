@@ -20,8 +20,6 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.LimelightBlockDetection;
 
 public class MainIntake extends Subsystem{
-
-    //will finish updating later
     Motor hSlides;
     CRServo intakeLeft;
     CRServo intakeRight;
@@ -87,7 +85,7 @@ public class MainIntake extends Subsystem{
     public SearchMode activeMode = SearchMode.SlidesYDriveX;
 
     public MainIntake(HardwareMap hardwareMap){
-//hSlides = new Motor(Hardware.extendo, false,true);
+        hSlides = new Motor(Hardware.extendo, false,true);
         hSlidesPID = new PID(0,0,0);
         intakeLeft = new com.arcrobotics.ftclib.hardware.motors.CRServo(hardwareMap,Hardware.intakeLeft);
         intakeRight = new com.arcrobotics.ftclib.hardware.motors.CRServo(hardwareMap,Hardware.intakeRight);

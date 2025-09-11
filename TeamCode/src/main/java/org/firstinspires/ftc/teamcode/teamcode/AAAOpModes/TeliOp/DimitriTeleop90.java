@@ -24,6 +24,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring;
 
 @TeleOp(name="Dimitri Teleop 90")
 @Disabled

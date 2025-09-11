@@ -36,6 +36,7 @@ import org.firstinspires.ftc.teamcode.teamcode.KCP.Localization.TwoWheelOdometry
 import org.firstinspires.ftc.teamcode.teamcode.KCP.Movement;
 
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring;
 
 @Autonomous(name = "SpecimenAuto6")
 public class SpecimenAuto extends BaseOpMode {

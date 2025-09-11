@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.teamcode.KCP.Localization.GoBildaPinpointD
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring;
 
 @Autonomous(name = "Reset Stufsf")
 public class ResetOffsetsAuto extends BaseOpMode {
