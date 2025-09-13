@@ -37,7 +37,6 @@ import org.firstinspires.ftc.teamcode.teamcode.KCP.Localization.TwoWheelOdometry
 import org.firstinspires.ftc.teamcode.teamcode.KCP.Movement;
 
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 @Autonomous(name = "BLUEFARBucketAuto")

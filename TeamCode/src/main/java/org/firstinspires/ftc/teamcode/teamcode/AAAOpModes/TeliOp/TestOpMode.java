@@ -12,9 +12,7 @@ import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.Localization.AprilTagOdometrySource;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.Localization.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.Movement;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.DiffyBoxtube;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.DashPositions;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
@@ -33,7 +31,7 @@ public class TestOpMode extends BaseOpMode {
 
     ElapsedTime timeWaste = new ElapsedTime();
     WebcamName webcam;
-    Scoring scoring;
+
     //Servos.BottomSweeper sweeper;
     //Servos.DifferentialLeft differentialLeft;
     //Servos.DifferentialRight differentialRight;
@@ -52,7 +50,7 @@ public class TestOpMode extends BaseOpMode {
     MainIntake intake;
     Movement movement;
     TouchSensor limitSwitch;
-    DiffyBoxtube boxtube;
+
     Motor motor;
 
     @Override
@@ -100,7 +98,6 @@ public class TestOpMode extends BaseOpMode {
         //scoring = new Scoring(hardwareMap);
         //intake = new MainIntake(hardwareMap);
         //limitSwitch = hardwareMap.get(TouchSensor.class, "magnetSensor");
-        boxtube = new DiffyBoxtube(hardwareMap);
 
         //motor = new Motor("motorR", false, true);
     }
@@ -108,10 +105,6 @@ public class TestOpMode extends BaseOpMode {
     @Override
     public void externalLoop() {
 
-        BaseOpMode.addData("angle", boxtube.getCurrentAngle());
-        BaseOpMode.addData("extension", boxtube.getExtensionM());
-
-        boxtube.setTargetPosition(DashPositions.servoTest, DashPositions.dashboardPositionSlides);
 
         //motor.setPower(1);
         //BaseOpMode.addData("motorRPM", motor.encoder.getVelocity());
