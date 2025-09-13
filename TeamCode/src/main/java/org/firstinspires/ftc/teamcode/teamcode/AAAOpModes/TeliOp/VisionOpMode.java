@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp;
 
 
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.BLUE;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.RED;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.team;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -8,7 +12,9 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
 
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
@@ -28,20 +34,25 @@ public class VisionOpMode extends BaseOpMode {
 
     Limelight3A limelight;
 
-    Drivetrain drivetrain;
+  //  Drivetrain drivetrain;
 
+    CRServo turret;
 
+    double visionDeadzone = 10;
 
 
     @Override
     public void externalInit() {
 
-        Constants.team = Constants.Team.BLUE;
-        drivetrain = new Drivetrain(hardwareMap,0);
+        team = BLUE;
+      //  drivetrain = new Drivetrain(hardwareMap,0);
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.setPollRateHz(100); // make number higher to get more data
+        limelight.pipelineSwitch(0);
         limelight.start();
+
         limelight.reloadPipeline();
+        turret = hardwareMap.get(CRServo.class, "left");
 
 // we can use this so the limelight gives better data
         // double robotYaw = imu.getAngularOrientation().firstAngle;
@@ -61,14 +72,16 @@ public class VisionOpMode extends BaseOpMode {
     @Override
     public void externalLoop() {
         LLResult result = limelight.getLatestResult();
+        int id = 0;
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
-            int id = fiducial.getFiducialId(); // The ID number of the fiducial
+            id = fiducial.getFiducialId(); // The ID number of the fiducial
             double degreesXtoApriltag = fiducial.getTargetXDegrees();
             //Pose3D distance = fiducial.getCameraPoseTargetSpace();
-            double xDistance = (fiducial.getRobotPoseTargetSpace().getPosition().x)*100;
-            double yDistance = (fiducial.getRobotPoseTargetSpace().getPosition().y)*100;
-
+           // double xDistance = (fiducial.getRobotPoseTargetSpace().getPosition().x)*100;
+         //   double yDistance = (fiducial.getRobotPoseTargetSpace().getPosition().y)*100;
+            double ty = limelight.getLatestResult().getTy();
+            double tx = limelight.getLatestResult().getTx();
 
 
                /* if(id==21){
@@ -81,12 +94,24 @@ public class VisionOpMode extends BaseOpMode {
 */
             multTelemetry.addData("id",id);
             multTelemetry.addData("degrees", degreesXtoApriltag);
-            multTelemetry.addData("dist across", xDistance);
-            multTelemetry.addData("dist away", yDistance);
+            multTelemetry.addData("dist across", tx);
+            multTelemetry.addData("dist away", ty);
+            if(limelight.getLatestResult().isValid()){
+                if(team == BLUE||id == 20){
+                    if(Math.abs(degreesXtoApriltag) > visionDeadzone){
+                         turret.setPower(-degreesXtoApriltag/10);
+            }}else if (team == RED || id ==24){
+                    if(Math.abs(degreesXtoApriltag) > visionDeadzone){
+                        turret.setPower(-degreesXtoApriltag/10);
+                }}}
 
         }
-        drivetrain.nonDriverOrientedDrive(driver1.leftStick.Y(), -driver1.leftStick.X(), driver1.rightStick.X());
-        telemetry.addData("gjfdjgfv", limelight.isRunning());
+      //  drivetrain.nonDriverOrientedDrive(driver1.leftStick.Y(), -driver1.leftStick.X(), driver1.rightStick.X());
+
+        multTelemetry.addData("isRunning", limelight.isRunning());
+        multTelemetry.addData("power", turret.getPower());
+        multTelemetry.addData("id",id);
+
 
 
 

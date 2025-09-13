@@ -19,13 +19,6 @@ import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake.Inta
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake.IntakeStates.HOMEUP;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake.IntakeStates.HOMEUPIN;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake.IntakeStates.HOMEUPOUT;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.HIGHBUCKET;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.HIGHBUCKETSCORE;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.HOME;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.POSTTRANSFER;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.STARTAUTO;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.STARTAUTOSAMPLE;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.TRANSFER;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -44,7 +37,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 public class BlueFarBucketAuto extends BaseOpMode {
 
     Movement drive;
-    Scoring scoring;
+
     MainIntake intake;
     AAA_Paths.Path state = Score1;
     ElapsedTime timeWaste = new ElapsedTime();
@@ -75,8 +68,7 @@ public class BlueFarBucketAuto extends BaseOpMode {
 
         intake = new MainIntake(hardware);
         intake.setState(HOMEUP);
-        scoring = new Scoring(hardware);
-        scoring.setState(STARTAUTO);
+
         drive.setHeading(globalHeading);
         drive.setActiveCorrectionMethod(Movement.CorrectionMethods.Profiled);
 
@@ -92,7 +84,7 @@ public class BlueFarBucketAuto extends BaseOpMode {
     public void externalInitLoop() {
         intake.resetSlides();
         intake.setState(MainIntake.IntakeStates.HOMEUP);
-        scoring.setState(STARTAUTOSAMPLE);
+
         BaseOpMode.addData("timeWaste", timeWaste.seconds());
         BaseOpMode.addData("State", state);
         BaseOpMode.addData("X", TwoWheelOdometry.x());
@@ -167,26 +159,7 @@ public class BlueFarBucketAuto extends BaseOpMode {
 
         drive.holdPosition(4.7, 119.45, 1.4737, .6);
 
-        if (timeWaste.seconds() < .7){
-            intake.setState(EXTENDEDACTIVE);
-            intake.setSlidesLengthInches(7);
-        } else if (timeWaste.seconds() > .7){
-            intake.setState(HOMEUP);}
-        if (timeWaste.seconds() > 1.2 && done1){
-            scoring.setState(TRANSFER);
-            scoring.stopResetting();
-            done1 = false;
-        } else if (timeWaste.seconds() < 1.2 && done2){
-            scoring.setState(HOME);
-            scoring.resetSlides();
-            done2 = false;
-        }
-        if (!intake.checkForSample() && scoring.getState() == POSTTRANSFER && timeWaste.seconds() > 2.2){
-            setState(Score2);
-        } else if (scoring.getState() == POSTTRANSFER && intake.checkForSample() && timeWaste.seconds() > 2.2){
-            setState(TransferFail);
 
-        }
     }
 
     public void lupine(){
@@ -213,20 +186,7 @@ public class BlueFarBucketAuto extends BaseOpMode {
     public void Score1() {
         drive.holdPosition(7.34, 120.8,1.1794, .7);
 
-        if (done2 && timeWaste.seconds() < .3) {
-            scoring.setState(HIGHBUCKET);
-            done2 = false;
-        }
-        if (timeWaste.seconds() > 1.3){
-            intake.setState(EXTENDEDNOTACTIVE);
-            intake.setSlidesLengthInches(11);
-        }
-        if (timeWaste.seconds() > 1.5 && done1){
-            scoring.setState(HIGHBUCKETSCORE);
-            done1 = false;
-        } else if(scoring.getState() == HOME && timeWaste.seconds() > 1.5){
-            setState(FarSpike);
-        }
+
     }
 
     public void middleSpike(){
@@ -250,30 +210,7 @@ public class BlueFarBucketAuto extends BaseOpMode {
         drive.holdPosition(4.7, 120, 1.43, .6);}
         else {drive.holdPosition(5.7, 118.5, 1.43, .6);}
 
-        if (done2 && timeWaste.seconds() > .3) {
-            scoring.setState(HIGHBUCKET);
-            done2 = false;
-        }
-        if (timeWaste.seconds() > 0.8 && cycles == 0){
-            intake.setState(EXTENDEDNOTACTIVE);
-            intake.setSlidesLengthInches(10);
-        }
 
-        if (timeWaste.seconds() > 1.5 && done1) {
-            scoring.setState(HIGHBUCKETSCORE);
-            cycles++;
-            done1 = false;
-        } else if (timeWaste.seconds() > 1.55) {
-            if (cycles == 1) {
-                setState(MiddleSpike);
-            } else if (cycles == 2) {
-                setState(WallSpike);
-            } else if (cycles == 3) {
-                setState(Submersible);
-            } else if (cycles == 4){
-                setState(HoldPark);
-            }
-        }
     }
 
 
@@ -284,13 +221,7 @@ public class BlueFarBucketAuto extends BaseOpMode {
             intake.setState(HOMEUPIN);
             done3 = false;
         }
-        if (timeWaste.seconds() > .7 && done4){
-            intake.setState(HOMEUP);
-            scoring.setState(TRANSFER);
-            done4 = false;
-        }
-        if (timeWaste.seconds() > 1.5 && scoring.getState() == POSTTRANSFER)
-            setState(Score2);
+
 
     }
 
@@ -332,7 +263,7 @@ public class BlueFarBucketAuto extends BaseOpMode {
         drive.holdPosition(50, 100,Math.PI/2, .7);
         if(done1) {
             intake.setState(HOMEUPOUT);
-            scoring.setState(HOME);
+
             done1 = false;
         }
     }

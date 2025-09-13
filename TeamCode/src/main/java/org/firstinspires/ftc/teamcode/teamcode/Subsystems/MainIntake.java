@@ -152,8 +152,7 @@ public class MainIntake extends Subsystem{
     }
 
     public void updateSlides(){
-        hSlidesPID.setConstants(PIDTuningDash.HSlidesP, 0, PIDTuningDash.HSlidesD);
-        hSlidesPID.setFeedForward(PIDTuningDash.HSlidesF);
+
         //hSlidesPID.setLowerLimit(PIDTuningDash.HSlidesL);
         if (!Double.isNaN(getSlidesLengthInches())) {
             correction = hSlidesPID.getCorrection(getSlidesLengthInches(), getTargetSlidesLengthInches());
