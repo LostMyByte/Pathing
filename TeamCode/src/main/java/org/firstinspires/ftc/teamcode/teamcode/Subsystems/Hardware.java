@@ -29,7 +29,7 @@ public class Hardware{
     //                                        ehub 5
 
     public static final String
-            headlight = "ehub1none";
+            headlight = "ehub1none", shooter1 = "shooter1", shooter2 = "shooter2";
 
     public static final String
             grabLeft = "grabL", grabRight = "grabR";
@@ -40,7 +40,7 @@ public class Hardware{
             clawLeft = "clawL", clawRight = null; // Trust
 
     public static final  String
-            v4bEncoder = "v4bSensor", wristEncoder =  "wristSensor";
+            v4bEncoder = "v4bSensor", wristEncoder =  "wristSensor", hood = "hood", turret = "turret";
 
     public static final String
             climb1 = "launcher", climb2 = "climb";

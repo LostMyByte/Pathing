@@ -68,6 +68,12 @@ public class Servos {
         public DifferentialRight(){super(Hardware.differentialRight);}
     }
 
+    public static class Hood extends Servo{
+        public Hood(){
+            super(Hardware.hood,0,0,0,0);
+        }
+    }
+
 
     //For everything, 0 is straight up, 90 is facing forwards towards the intake
 

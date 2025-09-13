@@ -32,10 +32,9 @@ public class PIDTuningDash {
     public static  double Kdh = -0.000;
     public static double Kih = 0;
 
-    public static double HSlidesP = 0.22;
-    public static double HSlidesD = 0;
-    public static double HSlidesF = 0.0;
-    public static double HSlidesL = 0.05;
+    public static double ShooterP = 0.22;
+    public static double ShooterD = 0;
+    public static double ShooterF = 0.0;
 
     public static double VSlidesP = 0.004   ;
     public static double VSlidesD = 0.004;
