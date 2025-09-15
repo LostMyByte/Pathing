@@ -1,21 +1,4 @@
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp;
-
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.CLIMBDOWN;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.CLIMBUP;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.HIGHBUCKET;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.HIGHBUCKETSCORE;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.HIGHRUNG;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.HIGHRUNGSCORE;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.HOME;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.INTAKESPECIMEN;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.INTAKESPECIMENREADY;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.LOWBUCKET;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.LOWBUCKETSCORE;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.LOWRUNGSCORE;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.NOTHING;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.POSTTRANSFER;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring.ScoringStates.TRANSFER;
-
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -24,14 +7,13 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Scoring;
 
 @TeleOp(name="Dimitri Teleop 90")
 @Disabled
 public class DimitriTeleop90 extends BaseOpMode{
 
     Drivetrain drivetrain;
-    Scoring scoring;
+
     MainIntake intake;
     double turretAngle = 0;
     double slidesLength = 0;
@@ -45,10 +27,10 @@ public class DimitriTeleop90 extends BaseOpMode{
         drivetrain = new Drivetrain(hardware,0);
 
 
-        scoring = new Scoring(hardware);
+
         intake = new MainIntake(hardware);
         intake.setState(MainIntake.IntakeStates.NOTHING);
-        scoring.setState(NOTHING);
+
         sweeperTimer = new ElapsedTime();
     }
 
@@ -60,7 +42,7 @@ public class DimitriTeleop90 extends BaseOpMode{
     }
     @Override
     public void externalStart(){
-        scoring.setState(HOME);
+
         intake.setState(MainIntake.IntakeStates.HOMEUP);
     }
 
@@ -86,13 +68,7 @@ public class DimitriTeleop90 extends BaseOpMode{
             lockHeading = true;
         }
 
-        if(driver1.share.isPressed()){
-            intake.resetSlides();
-            scoring.resetSlides();
-        } else {
-            intake.stopResetting();
-            scoring.stopResetting();
-        }
+
 
         drivetrain.drive(drive,strafe,turn,speed, lockHeading);
 
@@ -109,13 +85,7 @@ public class DimitriTeleop90 extends BaseOpMode{
             turretAngle = 0;
         }
 
-        else if(driver1.options.isTapped()){
-            if(scoring.getState() == CLIMBUP){
-                scoring.setState(CLIMBDOWN);
-            } else {
-                scoring.setState(CLIMBUP);
-            }
-        }
+
 /*
         else if (intake.getState() == MainIntake.IntakeStates.EXTENDEDUP && driver2.rightTrigger.isPressed()){
             intake.setState(MainIntake.IntakeStates.EXTENDEDACTIVE);
@@ -138,64 +108,6 @@ public class DimitriTeleop90 extends BaseOpMode{
 
  */
 
-        if (intake.getState() == MainIntake.IntakeStates.EXTENDEDNOTACTIVE || intake.getState() == MainIntake.IntakeStates.EXTENDEDACTIVE){
-            if (driver2.rightTrigger.isPressed()){
-                intake.setState(MainIntake.IntakeStates.EXTENDEDACTIVE);
-            } else if (driver2.leftBumper.isTapped()){
-                intake.setState(MainIntake.IntakeStates.EXTENDEDUP);
-            } else if (driver2.leftTrigger.isPressed()){
-                intake.setState(MainIntake.IntakeStates.EXTENDEDREVERSED);
-            } else {intake.setState(MainIntake.IntakeStates.EXTENDEDNOTACTIVE);}
-        } else if (intake.getState() == MainIntake.IntakeStates.EXTENDEDUP && driver2.leftBumper.isTapped()){
-            intake.setState(MainIntake.IntakeStates.EXTENDEDNOTACTIVE);
-        } else if (driver2.leftTrigger.isPressed()){
-            intake.setState(MainIntake.IntakeStates.EXTENDEDREVERSED);
-        } else if (intake.getState() == MainIntake.IntakeStates.EXTENDEDREVERSED && !driver2.leftTrigger.isPressed()){
-            intake.setState(MainIntake.IntakeStates.EXTENDEDUP);
-        } else if (intake.getState() == MainIntake.IntakeStates.HOMEUP || intake.getState() == MainIntake.IntakeStates.HOMEUPIN || intake.getState() == MainIntake.IntakeStates.HOMEUPOUT){
-            if (driver2.leftTrigger.isPressed()){
-                intake.setState(MainIntake.IntakeStates.HOMEUPOUT);
-            } else if (driver2.rightTrigger.isPressed()){
-                intake.setState(MainIntake.IntakeStates.HOMEUPIN);
-            } else if (driver2.cross.isTapped()){
-                scoring.setState(TRANSFER);
-            } else{
-                intake.setState(MainIntake.IntakeStates.HOMEUP);
-            }
-        }
-
-        if (driver1.circle.isTapped() && (scoring.getState() != INTAKESPECIMEN && scoring.getState() != INTAKESPECIMENREADY)){
-            scoring.setState(HOME);
-        }
-
-        else if (driver1.square.isTapped() && (scoring.getState() == INTAKESPECIMEN  || scoring.getState() == POSTTRANSFER || scoring.getState() == INTAKESPECIMENREADY || scoring.getState() == HOME)){
-            if (scoring.getState() == INTAKESPECIMENREADY){
-                //intake and go to high rung
-                scoring.setState(INTAKESPECIMEN);}
-            else if (scoring.getState() != INTAKESPECIMEN){
-                //from any other position(except intaking) prepare to intake
-                scoring.setState(INTAKESPECIMENREADY);
-            }
-        } else if (driver1.rightBumper.isTapped() && scoring.getState() != TRANSFER){
-            scoring.setState(HIGHBUCKET);
-        } else if (driver1.cross.isTapped() && scoring.getState() != TRANSFER){
-            scoring.setState(LOWBUCKET);
-        }
-
-        else if (driver1.square.isTapped()){
-            if (scoring.getState() == HIGHBUCKET){
-                scoring.setState(HIGHBUCKETSCORE);
-            } else if (scoring.getState() == LOWBUCKET){
-                scoring.setState(LOWBUCKETSCORE);
-            } else if (scoring.getState() == LOWRUNGSCORE || scoring.getState() == HIGHRUNGSCORE){
-                scoring.setState(HOME);
-            } else if (scoring.getState() == HIGHRUNG){
-                scoring.setState(HIGHRUNGSCORE);
-            }
-        }
-        else if (driver1.dpad_up.isTapped() && scoring.getState() == HIGHRUNGSCORE){
-            scoring.setState(HIGHRUNG);
-        }
 
         if (intake.getState() == MainIntake.IntakeStates.EXTENDEDACTIVE || intake.getState() == MainIntake.IntakeStates.EXTENDEDREVERSED  || intake.getState() == MainIntake.IntakeStates.EXTENDEDUP || intake.getState() == MainIntake.IntakeStates.EXTENDEDNOTACTIVE){
             slidesLength += driver2.leftStick.Y() * slidesSensitivityConstant;
@@ -218,12 +130,9 @@ public class DimitriTeleop90 extends BaseOpMode{
             sweeperTimer.reset();
         }
 
-        BaseOpMode.addData("Slides Current", scoring.getSlidesCurrent());
         BaseOpMode.addData("Intake State", intake.getState());
         //BaseOpMode.addData("Scoring State", scoring.getState());
         BaseOpMode.addData("Slides Length", intake.getSlidesLengthInches());
-        BaseOpMode.addData("V Slides Length", scoring.getSlidesHeight());
-        BaseOpMode.addData("V Slides Inches", scoring.getSlidesHeightInches());
         BaseOpMode.addData("Intake State", intake.getState());
 
 
