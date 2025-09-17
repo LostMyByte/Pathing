@@ -26,6 +26,7 @@ public class TankDrivetrain {
     Motor R2;
 
     public TankDrivetrain() {
+
         this.L1 = new Motor(TankDriveConfig.L1, TankDriveConfig.L1Reversed);
         this.L2 = new Motor(TankDriveConfig.L2, TankDriveConfig.L2Reversed);
         this.R1 = new Motor(TankDriveConfig.R1, TankDriveConfig.R1Reversed);

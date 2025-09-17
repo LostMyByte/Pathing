@@ -23,12 +23,18 @@ import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
 
 import java.util.List;
 
 
 @TeleOp(name = "VisionTest")
 public class VisionOpMode extends BaseOpMode {
+
+    PID turretPDL;
+    double heading = 0;
+    double turretTargetAngle;
 
     private FtcDashboard dash;
 
@@ -37,6 +43,8 @@ public class VisionOpMode extends BaseOpMode {
   //  Drivetrain drivetrain;
 
     CRServo turret;
+
+    Motor turretEncoder;
 
     double visionDeadzone = 10;
 
@@ -71,7 +79,7 @@ public class VisionOpMode extends BaseOpMode {
 
     @Override
     public void externalLoop() {
-        LLResult result = limelight.getLatestResult();
+        /*LLResult result = limelight.getLatestResult();
         int id = 0;
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
@@ -84,14 +92,14 @@ public class VisionOpMode extends BaseOpMode {
             double tx = limelight.getLatestResult().getTx();
 
 
-               /* if(id==21){
+               *//* if(id==21){
                     Constants.motif = Constants.Motif.GPP;
                 } else if (id==22){
                     Constants.motif = Constants.Motif.PGP;
                 } else if (id==23){
                     Constants.motif = Constants.Motif.PPG;
                 }
-*/
+*//*
             multTelemetry.addData("id",id);
             multTelemetry.addData("degrees", degreesXtoApriltag);
             multTelemetry.addData("dist across", tx);
@@ -111,8 +119,51 @@ public class VisionOpMode extends BaseOpMode {
         multTelemetry.addData("isRunning", limelight.isRunning());
         multTelemetry.addData("power", turret.getPower());
         multTelemetry.addData("id",id);
+*/
+
+        LLResult result = limelight.getLatestResult();
+        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+        for (LLResultTypes.FiducialResult fiducial : fiducials) {
+            int id = fiducial.getFiducialId(); // The ID number of the fiducial
+            double degreesXtoApriltag = fiducial.getTargetXDegrees(); //gets angle to limelight along x plane
+
+            double ty = limelight.getLatestResult().getTy(); // gets degrees to crosshair from primary target along y axis
+            double tx = limelight.getLatestResult().getTx();// gets degrees to crosshair from primary target along x axis
+
+            if( team == BLUE || id == 20){
+                heading = tx;
+            } else if (team == RED || id == 24){
+                heading = tx;
+            }
+        }
 
 
+        turretTargetAngle = /*Math.asin(xVelocity/getBallSpeed())*/ - heading;//sets target angle to face goal. does this by setting target angle the negitive heading (current difference in degrees from target) and also accounts for fact that robot moves
+
+        while (turretTargetAngle > Math.PI){
+            turretTargetAngle -= 2*Math.PI;
+        }
+        while (turretTargetAngle < -Math.PI){
+            turretTargetAngle += 2*Math.PI;
+        }
+        double currentAngle = turretEncoder.encoder.getPosition();
+        //convert this to radians and wrap the angle
+        double ticksPerRotation=8130;
+        currentAngle = currentAngle * (2*Math.PI/ticksPerRotation);
+
+        while (currentAngle > Math.PI){
+            currentAngle -= 2*Math.PI;
+        }
+        while (currentAngle < -Math.PI){
+            currentAngle += 2*Math.PI;
+        }
+
+        turretPDL.setConstants(0,0,0);
+        turretPDL.getCorrectionHeading(currentAngle,turretTargetAngle);
+
+
+
+        turret.setPower(turretPDL.getCorrectionHeading(currentAngle,turretTargetAngle));
 
 
     }

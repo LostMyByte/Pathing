@@ -27,7 +27,7 @@ public class JustDrive extends BaseOpMode {
     public void externalLoop() {
         double d = driver1.leftStick.Y();
 
-        double turn = driver1.rightStick.X();
+        double turn = -driver1.rightStick.X();
         double speed = 1;
 
         drive.move(d, turn, speed);
