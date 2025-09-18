@@ -13,6 +13,7 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
@@ -25,6 +26,7 @@ import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.MotorEncoder;
 
 import java.util.List;
 
@@ -60,6 +62,7 @@ public class VisionOpMode extends BaseOpMode {
         limelight.start();
 
         limelight.reloadPipeline();
+        turretEncoder = hardwareMap.get(Motor.class, "encoder");
         turret = hardwareMap.get(CRServo.class, "left");
 
 // we can use this so the limelight gives better data
@@ -161,9 +164,12 @@ public class VisionOpMode extends BaseOpMode {
         turretPDL.setConstants(0,0,0);
         turretPDL.getCorrectionHeading(currentAngle,turretTargetAngle);
 
+        multTelemetry.addData("isRunning", limelight.isRunning());
+        multTelemetry.addData("power", turret.getPower());
+        multTelemetry.addData("ticks", turretEncoder.encoder.getPosition());
+        multTelemetry.addData("targetAngle", turretTargetAngle);
 
-
-        turret.setPower(turretPDL.getCorrectionHeading(currentAngle,turretTargetAngle));
+      //  turret.setPower((turretPDL.getCorrectionHeading(currentAngle,turretTargetAngle)/1));
 
 
     }
