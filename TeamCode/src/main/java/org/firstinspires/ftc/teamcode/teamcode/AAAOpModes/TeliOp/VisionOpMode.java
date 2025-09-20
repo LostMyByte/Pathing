@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp;
 
 
+import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.VisionOpMode.VisionPIDDash.visionConstant;
+import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.VisionOpMode.VisionPIDDash.visionKP;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.BLUE;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.RED;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.team;
@@ -10,23 +12,16 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
-
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
 
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.MotorEncoder;
 
 import java.util.List;
 
@@ -46,9 +41,9 @@ public class VisionOpMode extends BaseOpMode {
 
     CRServo turret;
 
-    Motor turretEncoder;
+    DcMotor turretEncoder;
 
-    double visionDeadzone = 10;
+
 
 
     @Override
@@ -58,12 +53,13 @@ public class VisionOpMode extends BaseOpMode {
       //  drivetrain = new Drivetrain(hardwareMap,0);
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.setPollRateHz(100); // make number higher to get more data
-        limelight.pipelineSwitch(0);
+        limelight.pipelineSwitch(1);
         limelight.start();
 
         limelight.reloadPipeline();
-        turretEncoder = hardwareMap.get(Motor.class, "encoder");
+        turretEncoder = hardwareMap.get(DcMotor.class, "encoder");
         turret = hardwareMap.get(CRServo.class, "left");
+        turretPDL = new PID(0,0,0);
 
 // we can use this so the limelight gives better data
         // double robotYaw = imu.getAngularOrientation().firstAngle;
@@ -124,53 +120,87 @@ public class VisionOpMode extends BaseOpMode {
         multTelemetry.addData("id",id);
 */
 
+        int id = 0;
+        double tx = 0;
+        double ty = 0;
         LLResult result = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
-            int id = fiducial.getFiducialId(); // The ID number of the fiducial
+            id = fiducial.getFiducialId(); // The ID number of the fiducial
             double degreesXtoApriltag = fiducial.getTargetXDegrees(); //gets angle to limelight along x plane
 
-            double ty = limelight.getLatestResult().getTy(); // gets degrees to crosshair from primary target along y axis
-            double tx = limelight.getLatestResult().getTx();// gets degrees to crosshair from primary target along x axis
+            ty = limelight.getLatestResult().getTy(); // gets degrees to crosshair from primary target along y axis
+             tx = limelight.getLatestResult().getTx();// gets degrees to crosshair from primary target along x axis
+        }
 
-            if( team == BLUE || id == 20){
-                heading = tx;
-            } else if (team == RED || id == 24){
-                heading = tx;
-            }
+        if( team == BLUE && id == 20){
+            heading = tx;
+        } else if (team == RED && id == 24){
+            heading = tx;
+        }else{
+            heading=0;
         }
 
 
+        if(id==21){
+            Constants.motif = Constants.Motif.GPP;
+
+        } else if (id==22){
+            Constants.motif = Constants.Motif.PGP;
+        } else if (id==23){
+            Constants.motif = Constants.Motif.PPG;
+        }
         turretTargetAngle = /*Math.asin(xVelocity/getBallSpeed())*/ - heading;//sets target angle to face goal. does this by setting target angle the negitive heading (current difference in degrees from target) and also accounts for fact that robot moves
 
-        while (turretTargetAngle > Math.PI){
+       /* while (turretTargetAngle > Math.PI){
             turretTargetAngle -= 2*Math.PI;
-        }
+        }*/
         while (turretTargetAngle < -Math.PI){
             turretTargetAngle += 2*Math.PI;
         }
-        double currentAngle = turretEncoder.encoder.getPosition();
+        double currentAngle = turretEncoder.getCurrentPosition();
         //convert this to radians and wrap the angle
-        double ticksPerRotation=8130;
+        double ticksPerRotation=8100;
         currentAngle = currentAngle * (2*Math.PI/ticksPerRotation);
 
-        while (currentAngle > Math.PI){
+       /* while (currentAngle > Math.PI){
             currentAngle -= 2*Math.PI;
         }
         while (currentAngle < -Math.PI){
             currentAngle += 2*Math.PI;
-        }
+        }*/
 
-        turretPDL.setConstants(0,0,0);
-        turretPDL.getCorrectionHeading(currentAngle,turretTargetAngle);
+        turretPDL.setConstants(visionKP, VisionPIDDash.visionKI, VisionPIDDash.visionKD);
 
-        multTelemetry.addData("isRunning", limelight.isRunning());
+
+        //multTelemetry.addData("isRunning", limelight.isRunning());
         multTelemetry.addData("power", turret.getPower());
-        multTelemetry.addData("ticks", turretEncoder.encoder.getPosition());
+        multTelemetry.addData("ticks", turretEncoder.getCurrentPosition());
         multTelemetry.addData("targetAngle", turretTargetAngle);
+        //multTelemetry.addData("motif", Constants.motif);
+        multTelemetry.addData("heading", heading);
+        multTelemetry.addData("id", id);
+        multTelemetry.addData("PID power",turretPDL.getCorrectionHeading(currentAngle,turretTargetAngle));
+        multTelemetry.addData("current angle", currentAngle);
+        if (Math.abs(turretTargetAngle)>= VisionPIDDash.visionDeadzone) {
+            //turret.setPower(turretPDL.getCorrectionHeading(currentAngle, turretTargetAngle));
+            //PID breaks itself, 0 clue why, the way this is should work on the robot, but it's silly rn
 
-      //  turret.setPower((turretPDL.getCorrectionHeading(currentAngle,turretTargetAngle)/1));
+            turret.setPower(turretTargetAngle/visionConstant); // works when -heading is used
+        }else{
+            turret.setPower(0);
+        }
+    }
 
+    @Config
+    public static class VisionPIDDash{
+        public static double visionConstant = 75;
+        public static double visionKD = -0.01;
+        public static double visionKI = 0.0003;
+        public static double visionKP = 0.0001;
+
+        public static double visionDeadzone = 0.5;
 
     }
 }
+
