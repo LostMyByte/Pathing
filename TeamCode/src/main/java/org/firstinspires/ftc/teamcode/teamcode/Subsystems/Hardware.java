@@ -29,7 +29,7 @@ public class Hardware{
     //                                        ehub 5
 
     public static final String
-            headlight = "ehub1none", shooter1 = "shooter1", shooter2 = "shooter2";
+            indicatorLight = "ehub1none", angleWrapWarningLight = "angleWrapWarningLight",shooter1 = "shooter1", shooter2 = "shooter2";
 
     public static final String
             grabLeft = "grabL", grabRight = "grabR";
