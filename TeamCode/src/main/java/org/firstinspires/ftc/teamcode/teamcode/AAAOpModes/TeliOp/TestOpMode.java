@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.Localization.AprilTagOdometrySource;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.Localization.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.Movement;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter;
@@ -28,7 +29,7 @@ public class TestOpMode extends BaseOpMode {
 
     @Override
     public void externalInit() {
-        shooter = new Shooter(hardwareMap, 0);
+        shooter = new Shooter(hardwareMap, 0, Constants.Team.BLUE);
     }
 
     @Override

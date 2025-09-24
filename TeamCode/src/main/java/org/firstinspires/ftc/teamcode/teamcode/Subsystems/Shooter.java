@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Servo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Shooter extends Subsystem{
@@ -50,9 +51,13 @@ public class Shooter extends Subsystem{
     double turretMarginForError = .15;
     double turretMaxRotation;
     ElapsedTime warningLightTimer;
+    BallColors[] pattern;
+    Constants.Team team;
+
+    ArrayList<BallColors> currentRamp;
 
 
-    public Shooter(HardwareMap hardwareMap, double turretStartAngle){
+    public Shooter(HardwareMap hardwareMap, double turretStartAngle, Constants.Team team){
         //Things are commented to prepare for the first tests of the shooter where we will only have the flywheel.
 
         shooter1 = new Motor(Hardware.shooter1);
@@ -61,19 +66,23 @@ public class Shooter extends Subsystem{
         //turret = new Motor(Hardware.turret);
         //turretEncoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
         shooterPDF = new PID(0,0,0);
-        //turretPDL = new PID(0,0,0);
-        //limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        //limelight.setPollRateHz(100); // make number higher to get more data
-        //limelight.pipelineSwitch(0);
-        //limelight.start();
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.setPollRateHz(100); // make number higher to get more data
+        limelight.pipelineSwitch(1);
+        limelight.start();
 
-        //limelight.reloadPipeline();
+        limelight.reloadPipeline();
+        this.team = team;
 
+        pattern = new BallColors[3];
+
+        currentRamp = new ArrayList<BallColors>();
         //this.turretStartAngle = turretStartAngle;
 
         //readyToShootIndicator = new Servo(Hardware.indicatorLight);
         //angleWrapWarningLight = new Servo(Hardware.angleWrapWarningLight);
         //warningLightTimer = new ElapsedTime();
+
     }
 
     public void work(){
@@ -109,6 +118,30 @@ public class Shooter extends Subsystem{
         shooter2.setPower(correction);
     }
 
+    public void getPattern(){
+        int id = 0;
+        LLResult result = limelight.getLatestResult();
+        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+        for (LLResultTypes.FiducialResult fiducial : fiducials) {
+            id = fiducial.getFiducialId();
+        }
+        if(id == 21){
+            pattern[0] = BallColors.GREEN;
+            pattern[1] = BallColors.PURPLE;
+            pattern[2] = BallColors.PURPLE;
+        }
+        else if(id == 22){
+            pattern[0] = BallColors.PURPLE;
+            pattern[1] = BallColors.GREEN;
+            pattern[2] = BallColors.PURPLE;
+        }
+        else if(id == 23){
+            pattern[0] = BallColors.PURPLE;
+            pattern[1] = BallColors.PURPLE;
+            pattern[2] = BallColors.GREEN;
+        }
+    }
+
     public void updateTurret(){
         double currentAngle = turret.encoder.getPosition();
         //convert this to radians and wrap the angle
@@ -137,7 +170,8 @@ public class Shooter extends Subsystem{
     }
 
     public void aim(){
-        hood.setPositionInterpolated(getHoodAngle());
+
+        hood.setPositionInterpolated(getHoodAngleHigh());
         LLResult result = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
@@ -194,36 +228,84 @@ public class Shooter extends Subsystem{
         return 1;
     }
 
-    public double getHoodAngle(){
-        //add fancy math
+    public double getHoodAngleHigh(){
+        //add fancy math (High Case)
         double hoodAngle = 1;
 
-        if(Double.isNaN(hoodAngle)){
-            //this is the case where the equation returns NaN (it couldn't hit the target no matter what angle)
-            //In this case, it declares that it can't shoot and returns the lowest possible angle
+        if(Double.isNaN(hoodAngle) || (hoodAngle < 31 || hoodAngle > 60)){
+            //this is the case where the equation returns NaN (it couldn't hit the target)
+            //In this case, it declares that it can't shoot and returns the highest possible angle
             hoodCanShoot = false;
-            return 31;
-        }
-
-        if (hoodAngle < 31 || hoodAngle > 60){
-            //this is the case where it could shoot, but the hood doesn't have enough range of motion
-            //in this case, it declares that it can't shoot and returns the clipped angle
-            hoodCanShoot = false;
+            return 60;
         }
         else {
             //in this case it can shoot, and it returns the angle to shoot at.
             hoodCanShoot = true;
+            return hoodAngle;
         }
-        return Range.clip(hoodAngle, 31, 60);
+    }
+    public double getHoodAngleLow(){
+        //add fancy math (Low Case)
+        double hoodAngle = 1;
+
+        if(Double.isNaN(hoodAngle) || (hoodAngle < 31 || hoodAngle > 60)){
+            //this is the case where the equation returns NaN (it couldn't hit the target)
+            //In this case, it declares that it can't shoot and returns the highest possible angle
+            hoodCanShoot = false;
+            return 31;
+        }
+        else {
+            //in this case it can shoot, and it returns the angle to shoot at.
+            hoodCanShoot = true;
+            return hoodAngle;
+        }
     }
 
     public boolean canRobotShoot(){
-        if (hoodCanShoot && turretCanShoot){
-            return true;
-        } else {
-            return false;
-        }
+        return (hoodCanShoot && turretCanShoot);
     }
+
+    public ArrayList<BallColors> getCurrentRamp(){
+        return currentRamp;
+    }
+    public boolean addBall(BallColors ballColor){
+        if (currentRamp.size() > 9){
+            currentRamp.add(ballColor);
+            return true;
+        }
+        return false;
+    }
+
+    public void removeLastBall(){
+        currentRamp.remove(currentRamp.size()-1);
+    }
+
+    public void clearRamp(){
+        currentRamp.clear();
+    }
+
+    public BallColors[] getNextThree(){
+        BallColors[] nextThree;
+        nextThree = new BallColors[3];
+        if (currentRamp.size() == 0 || currentRamp.size() == 3 || currentRamp.size() == 6){
+            nextThree[0] = pattern[0];
+            nextThree[1] = pattern[1];
+            nextThree[2] = pattern[2];
+        }
+        else if (currentRamp.size() == 1 || currentRamp.size() == 4 || currentRamp.size() == 7){
+            nextThree[0] = pattern[1];
+            nextThree[1] = pattern[2];
+            nextThree[2] = pattern[0];
+        }
+        else if (currentRamp.size() == 2 || currentRamp.size() == 5 || currentRamp.size() == 8){
+            nextThree[0] = pattern[2];
+            nextThree[1] = pattern[0];
+            nextThree[2] = pattern[1];
+        }
+
+        return nextThree;
+    }
+
 
     @Override
     public void updateSensors() {
@@ -244,5 +326,13 @@ public class Shooter extends Subsystem{
 
     public void setState(ShooterStates state){
         shooterState = state;
+    }
+
+    public enum BallColors{
+        GREEN, PURPLE
+    }
+
+    public enum ShotType{
+        HIGH, LOW
     }
 }
