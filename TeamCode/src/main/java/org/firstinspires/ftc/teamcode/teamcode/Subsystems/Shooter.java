@@ -176,8 +176,6 @@ public class Shooter extends Subsystem{
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
             int id = fiducial.getFiducialId(); // The ID number of the fiducial
-            double degreesXtoApriltag = fiducial.getTargetXDegrees(); //gets angle to limelight along x plane
-
             double ty = limelight.getLatestResult().getTy(); // gets degrees to crosshair from primary target along y axis
             double tx = limelight.getLatestResult().getTx();// gets degrees to crosshair from primary target along x axis
 
