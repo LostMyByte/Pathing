@@ -26,8 +26,8 @@ public class LimelightBlockDetection extends Subsystem {
     public LimelightBlockDetection() {
         limelight = BaseOpMode.hardware.get(Limelight3A.class, Hardware.limelight);
 
-        headlight = new Servo(Hardware.headlight);
-        headlight.setPosition(brightness); // Turn on the headlight
+       // headlight = new Servo(Hardware.headlight);
+       // headlight.setPosition(brightness); // Turn on the headlight
 
         limelight.getStatus();
 

@@ -49,7 +49,7 @@ public class VisionOpMode extends BaseOpMode {
     @Override
     public void externalInit() {
 
-        team = BLUE;
+        team = RED;
       //  drivetrain = new Drivetrain(hardwareMap,0);
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.setPollRateHz(100); // make number higher to get more data
@@ -152,13 +152,13 @@ public class VisionOpMode extends BaseOpMode {
         }
         turretTargetAngle = /*Math.asin(xVelocity/getBallSpeed())*/ - heading;//sets target angle to face goal. does this by setting target angle the negitive heading (current difference in degrees from target) and also accounts for fact that robot moves
 
-       /* while (turretTargetAngle > Math.PI){
+       /* while (turretTargetAngle > turretMaxRotation){
             turretTargetAngle -= 2*Math.PI;
         }*/
-        while (turretTargetAngle < -Math.PI){
+        while (turretTargetAngle < 0){
             turretTargetAngle += 2*Math.PI;
         }
-        double currentAngle = turretEncoder.getCurrentPosition();
+       double currentAngle = turretEncoder.getCurrentPosition();
         //convert this to radians and wrap the angle
         double ticksPerRotation=8100;
         currentAngle = currentAngle * (2*Math.PI/ticksPerRotation);
@@ -184,7 +184,9 @@ public class VisionOpMode extends BaseOpMode {
         multTelemetry.addData("current angle", currentAngle);
         if (Math.abs(turretTargetAngle)>= VisionPIDDash.visionDeadzone) {
             //turret.setPower(turretPDL.getCorrectionHeading(currentAngle, turretTargetAngle));
-            //PID breaks itself, 0 clue why, the way this is should work on the robot, but it's silly rn
+            //PID doesn't work because limelight gives dist from 0 degrees, not absolute angle
+            //we need current angles only to know when to turn for wires, but otherwise irrelevant
+            //I might do a silly PID for this in particular, but it wont be useful for anything else.
 
             turret.setPower(turretTargetAngle/visionConstant); // works when -heading is used
         }else{
