@@ -15,7 +15,6 @@ public class DimitriTeleop extends BaseOpMode{
     //Drivetrain drivetrain;
 
     Movement autoDrive;
-    MainIntake intake;
     double turretAngle = 0;
     double slidesLength = 0;
     double slidesSensitivityConstant = .65;
