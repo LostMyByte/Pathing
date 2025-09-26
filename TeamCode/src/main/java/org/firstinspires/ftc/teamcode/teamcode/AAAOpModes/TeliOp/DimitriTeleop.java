@@ -23,6 +23,7 @@ public class DimitriTeleop extends BaseOpMode{
     double cycles = 0;
     ElapsedTime timeWaste;
     boolean done1;
+    MainIntake intake;
 
 
     @Override

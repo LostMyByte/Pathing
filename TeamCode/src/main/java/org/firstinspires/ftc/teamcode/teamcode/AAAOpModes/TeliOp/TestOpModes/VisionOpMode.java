@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp;
+package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes;
 
 
-import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.VisionOpMode.VisionPIDDash.visionConstant;
-import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.VisionOpMode.VisionPIDDash.visionKP;
+import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes.VisionOpMode.VisionPIDDash.visionConstant;
+import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes.VisionOpMode.VisionPIDDash.visionKP;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.BLUE;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.RED;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.team;
