@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpMo
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
@@ -12,8 +13,8 @@ import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 @TeleOp (name = "ShooterTest")
 public class ShooterTest extends BaseOpMode {
 
-    DcMotor leftMotorEncoder;
-    DcMotor rightMotorEncoder;
+    DcMotorEx leftMotorEncoder;
+    DcMotorEx rightMotorEncoder;
     //named left and right as if behind shooter such that you would not be hit by projectiles being shot
 
     ElapsedTime timer;
@@ -28,8 +29,8 @@ public class ShooterTest extends BaseOpMode {
 
     @Override
     public void externalInit() {
-        leftMotorEncoder = hardwareMap.get(DcMotor.class, "left");
-        rightMotorEncoder = hardwareMap.get(DcMotor.class, "right");
+        leftMotorEncoder = hardwareMap.get(DcMotorEx.class, "left");
+        rightMotorEncoder = hardwareMap.get(DcMotorEx.class, "right");
         timer = new ElapsedTime();
         timer.reset();
 
@@ -41,13 +42,15 @@ public class ShooterTest extends BaseOpMode {
     public void externalLoop() {
 
 
-        ticksL = leftMotorEncoder.getCurrentPosition()-ticksL;
-        ticksR = rightMotorEncoder.getCurrentPosition() - ticksR;
+        //ticksL = leftMotorEncoder.getCurrentPosition()-ticksL;
+        //ticksR = rightMotorEncoder.getCurrentPosition() - ticksR;
 
 
-       multTelemetry.addData("left motor RPM", (ticksL/ticksPerRotation)/(timer.milliseconds())*1000*60);
-       multTelemetry.addData("right motor rotations per mili", (ticksR/ticksPerRotation)/(timer.milliseconds())*1000*60);
-       multTelemetry.addData("ticks since refresh", ticksL);
+        multTelemetry.addData("left motor RPM", leftMotorEncoder.getVelocity()/ticksPerRotation*60);
+        multTelemetry.addData("right motor RPM", rightMotorEncoder.getVelocity()/ticksPerRotation*60);
+      // multTelemetry.addData("left motor RPM", (ticksL/ticksPerRotation)/(timer.milliseconds())*1000*60);
+       //multTelemetry.addData("right motor RPM", (ticksR/ticksPerRotation)/(timer.milliseconds())*1000*60);
+       //multTelemetry.addData("ticks since refresh", ticksL);
        timer.reset();
 
 
