@@ -24,7 +24,7 @@ public class ShooterTest extends BaseOpMode {
     @Config
     public static class ShooterDash{
         public static double shooterMotorPower = 0;
-        public static double ticksPerRotation = 383.6;
+        public static double ticksPerRotation = 28; //This is now ticks per revolution
     }
 
     @Override
