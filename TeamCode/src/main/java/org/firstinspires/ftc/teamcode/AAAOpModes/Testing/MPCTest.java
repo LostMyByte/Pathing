@@ -1,23 +1,18 @@
 package org.firstinspires.ftc.teamcode.AAAOpModes.Testing;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.Motion.Controllers.ConstantSignal;
-import org.firstinspires.ftc.teamcode.Motion.Controllers.MPC;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.MPCPath;
-import org.firstinspires.ftc.teamcode.Motion.Controllers.Signal;
-import org.firstinspires.ftc.teamcode.Motion.DriveModel;
-import org.firstinspires.ftc.teamcode.Motion.Drivetrains.FixedDriveTrain;
-import org.firstinspires.ftc.teamcode.Motion.Localization.Location;
+import org.firstinspires.ftc.teamcode.Motion.Drivetrains.TankDriveTrain;
+import org.firstinspires.ftc.teamcode.Motion.SystemModels.MechanumDrive;
 import org.firstinspires.ftc.teamcode.Motion.Movement;
+import org.firstinspires.ftc.teamcode.Motion.SystemModels.TankDrive;
 import org.firstinspires.ftc.teamcode.Utilities.Configuration.DriveConfig;
-import org.firstinspires.ftc.teamcode.Utilities.Math.GeneralMatrix;
-import org.firstinspires.ftc.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
-import org.opencv.core.Mat;
+
+import java.io.FileNotFoundException;
 
 @TeleOp(name = "MPC Testing")
 public class MPCTest extends BaseOpMode {
@@ -32,19 +27,22 @@ public class MPCTest extends BaseOpMode {
         public static double TX = 0;
         public static double TY = 10;
         public static double TH = 0;
-        public static double TVX = 0;
-        public static double TVY = 0;
+        public static double TV = 0;
         public static double THV = 0;
 
+        public static boolean feedBack = false;
+
+        public static boolean enabled = false;
     }
 
     private MPCPath test;
-    private Movement drive;
+    private TankDriveTrain drive;
 
     @Override
     public void externalInit() {
 
-        DriveModel.reInit();
+        TankDrive.reInit();
+
 
         drive = new FixedDriveTrain(new Vector(0, 0, 0));
         test = new MPCPath();
@@ -52,44 +50,58 @@ public class MPCTest extends BaseOpMode {
         test.setMoveTime(TestMPCParams.Horizon);
         test.setResolution(((double) TestMPCParams.N)/TestMPCParams.Horizon);
         test.setParams(DriveConfig.DriveWheels.defaultParams);
-        test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TVX, TestMPCParams.TVY, TestMPCParams.THV);
-        test.setStart(0, 0, 0, 0, 0, 0);
+        test.setModel(new TankDrive());
+        test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
+        test.setStart(0, 0, 0, 0, 0);
+        test.build();
         try {
             test.load("Test Path.json");
+
+        } catch (FileNotFoundException e) {
+            test.compile(500);
+            test.save("Test Path.json");
         } catch (RuntimeException e) {
-            test.compile(3000);
+            test.compile(500);
             test.save("Test Path.json");
         }
+
+
+        drive = new TankDriveTrain(new Vector(new double[5]));
 
     }
 
     @Override
     public void externalInitLoop() {
+        TankDrive.reInit();
         test.start();
-        Vector correction = test.getCorrection();
+        Vector correction = test.getCorrection(drive.loc.getPositionForTankDrive());
 
-        BaseOpMode.addData("Correction X", correction.get(0));
-        BaseOpMode.addData("Correction Y", correction.get(1));
-        BaseOpMode.addData("Correction H", correction.get(2));
+        BaseOpMode.addData("Correction L", correction.get(0));
+        BaseOpMode.addData("Correction R", correction.get(1));
+
 
     }
 
     @Override
     public void externalLoop() {
 
-
-        Vector correction = test.getCorrection();
-
-        BaseOpMode.addData("Correction X", correction.get(0));
-        BaseOpMode.addData("Correction Y", correction.get(1));
-        BaseOpMode.addData("Correction H", correction.get(2));
-
-
-        if (gamepad1.square) {
-            drive.move(correction);
+        Vector correction;
+        if (TestMPCParams.feedBack) {
+            correction = test.getCorrection(drive.loc.getPositionForTankDrive());
         }
         else {
-            drive.moveRaw(new Vector(0,0,0,0));
+            correction = test.getFeedForward();
+        }
+        BaseOpMode.addData("Correction L", correction.get(0));
+        BaseOpMode.addData("Correction R", correction.get(1));
+
+
+
+        if (gamepad1.square || TestMPCParams.enabled) {
+            drive.moveRaw(correction);
+        }
+        else {
+            drive.move(new Vector(0,0));
         }
 
     }

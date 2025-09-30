@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.Motion.Controllers;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
@@ -10,18 +8,15 @@ import com.google.gson.stream.JsonReader;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.Motion.SystemModels.SystemModel;
 import org.firstinspires.ftc.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
-import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 
 public class MPCPath {
 
@@ -30,14 +25,12 @@ public class MPCPath {
         public double QY = 100;
         public double QH = 100;
         public double QHV = 10;
-        public double QVX = 10;
-        public double QVY = 10;
+        public double QV = 10;
 
         public double QFX = 20;
         public double QFY = 20;
         public double QFH = 20;
-        public double QFVX = 10;
-        public double QFVY= 10;
+        public double QFV = 10;
         public double QFHV = 10;
 
         public double R = 50;
@@ -53,6 +46,8 @@ public class MPCPath {
 
 
     MPCParams params;
+
+    SystemModel model;
 
     ReferenceSignal referenceSignal;
     Signal sensorSignal;
@@ -73,12 +68,12 @@ public class MPCPath {
         this.start = previous.referenceSignal.target();
     }
 
-    public void setTarget(double x, double y, double h, double vx, double vy, double vh) {
-        this.referenceSignal = new ConstantSignal(new Vector(new double[] {x, y, h, vx, vy, vh}));
+    public void setTarget(double x, double y, double h, double v, double vh) {
+        this.referenceSignal = new ConstantSignal(new Vector(new double[] {x, y, h, v, vh}));
     }
 
-    public void setStart(double x, double y, double h, double vx, double vy, double vh) {
-        this.start = new Vector(new double[] {x, y, h, vx, vy, vh});
+    public void setStart(double x, double y, double h, double v, double vh) {
+        this.start = new Vector(new double[] {x, y, h, v, vh});
     }
 
     public void setMoveTime(double time) {
@@ -94,33 +89,35 @@ public class MPCPath {
     }
 
     public void build() {
-        Matrix Q = new GeneralMatrix(6, 6, new double[] {
-                params.QX, 0, 0, 0, 0, 0,
-                0, params.QY, 0, 0, 0, 0,
-                0, 0, params.QH, 0, 0, 0,
-                0, 0, 0, params.QVX, 0, 0,
-                0, 0, 0, 0, params.QVY, 0,
-                0, 0, 0, 0, 0, 0, params.QHV,
+        Matrix Q = new GeneralMatrix(5, 5, new double[] {
+                params.QX, 0, 0, 0, 0,
+                0, params.QY, 0, 0, 0,
+                0, 0, params.QH, 0, 0,
+                0, 0, 0, params.QV, 0,
+                0, 0, 0, 0, params.QHV,
         });
 
-        Matrix QF = new GeneralMatrix(6, 6, new double[] {
-                params.QFX, 0, 0, 0, 0, 0,
-                0, params.QFY, 0, 0, 0, 0,
-                0, 0, params.QFH, 0, 0, 0,
-                0, 0, 0, params.QFVX, 0, 0,
-                0, 0, 0, 0, params.QFVY, 0,
-                0, 0, 0, 0, 0, 0, params.QFHV,
+        Matrix QF = new GeneralMatrix(5, 5, new double[] {
+                params.QFX, 0, 0, 0, 0,
+                0, params.QFY, 0, 0, 0,
+                0, 0, params.QFH, 0, 0,
+                0, 0, 0, params.QFV, 0,
+                0, 0, 0, 0, params.QFHV,
         });
 
-        Matrix R = Matrix.identityMatrix(3).multiplied(params.R);
+        Matrix R = Matrix.identityMatrix(2).multiplied(params.R);
 
-        controller = new MPC(referenceSignal, sensorSignal, start, Q, R, QF, (int) (resolution*horizonTime), horizonTime, threshold, params.lr,  params.lambdaMax);
+        controller = new MPC(referenceSignal, sensorSignal, start, Q, R, QF, (int) (resolution*horizonTime), horizonTime, threshold, params.lr,  params.lambdaMax, model);
     }
 
     public void compile(int maxIter) {
 
-        controller.iterate(3000, start);
+        controller.iterate(maxIter, start);
 
+    }
+
+    public void setModel(SystemModel model) {
+        this.model = model;
     }
 
     public void start() {
@@ -142,14 +139,14 @@ public class MPCPath {
             JsonArray KBytes = new JsonArray();
 
             for (int control = 0; control < controller.numControls; control++) {
-                uBytes.set(control, new JsonPrimitive(controller.currentControls[i].get(control)));
-                kBytes.set(control, new JsonPrimitive(controller.k[i].get(control)));
+                uBytes.add(new JsonPrimitive(controller.currentControls[i].get(control)));
+                kBytes.add(new JsonPrimitive(controller.k[i].get(control)));
             }
 
             for (int state = 0; state < controller.dimensions; state++) {
-                xBytes.set(state, new JsonPrimitive(controller.currentTrajectory[i].get(state)));
+                xBytes.add(new JsonPrimitive(controller.currentTrajectory[i].get(state)));
                 for (int control = 0; control < controller.numControls; control++) {
-                    KBytes.set(control* controller.dimensions + state, new JsonPrimitive(controller.K[i].get(control, state)));
+                    KBytes.add(new JsonPrimitive(controller.K[i].get(control, state)));
                 }
             }
 
@@ -158,10 +155,12 @@ public class MPCPath {
             step.add("k", kBytes);
             step.add("K", KBytes);
 
-            data.set(i, step);
+            data.add(step);
         }
 
         pathData.add("data", data);
+
+        name = "/storage/emulated/0/" + name;
 
         try {
             FileWriter writer = new FileWriter(name);
@@ -173,54 +172,61 @@ public class MPCPath {
 
     }
 
-    public void load(String name) {
+    public void load(String name) throws FileNotFoundException{
+
+        name = "/storage/emulated/0/" + name;
 
         Vector[] x = new Vector[controller.N];
         Vector[] u = new Vector[controller.N];
         Vector[] k = new Vector[controller.N];
         Matrix[] K = new Matrix[controller.N];
 
-        try {
-            JsonObject pathData = new JsonParser().parse(new JsonReader(new FileReader(name))).getAsJsonObject();
 
-            JsonArray data = pathData.getAsJsonArray("data");
+        JsonObject pathData = new JsonParser().parse(new JsonReader(new FileReader(name))).getAsJsonObject();
 
-            for (int i = 0; i < controller.N; i++) {
-                JsonObject step = data.get(i).getAsJsonObject();
+        JsonArray data = pathData.getAsJsonArray("data");
 
-                JsonArray xBytes = step.getAsJsonArray("x");
-                JsonArray uBytes = step.getAsJsonArray("u");
-                JsonArray kBytes = step.getAsJsonArray("k");
-                JsonArray KBytes = step.getAsJsonArray("K");
+        for (int i = 0; i < controller.N; i++) {
+            JsonObject step = data.get(i).getAsJsonObject();
 
-                double[] xdata = new double[controller.dimensions];
-                double[] udata = new double[controller.numControls];
-                double[] kdata = new double[controller.numControls];
-                double[] Kdata = new double[controller.dimensions * controller.numControls];
+            JsonArray xBytes = step.getAsJsonArray("x");
+            JsonArray uBytes = step.getAsJsonArray("u");
+            JsonArray kBytes = step.getAsJsonArray("k");
+            JsonArray KBytes = step.getAsJsonArray("K");
+
+            double[] xdata = new double[controller.dimensions];
+            double[] udata = new double[controller.numControls];
+            double[] kdata = new double[controller.numControls];
+            double[] Kdata = new double[controller.dimensions * controller.numControls];
+            for (int control = 0; control < controller.numControls; control++) {
+                udata[control] = uBytes.get(control).getAsDouble();
+                kdata[control] = kBytes.get(control).getAsDouble();
+            }
+
+            for (int state = 0; state < controller.dimensions; state++) {
+                xdata[state] = xBytes.get(state).getAsDouble();
                 for (int control = 0; control < controller.numControls; control++) {
-                    udata[control] = uBytes.get(control).getAsDouble();
-                    kdata[control] = kBytes.get(control).getAsDouble();
-                }
-
-                for (int state = 0; state < controller.dimensions; state++) {
-                    xdata[i] = xBytes.get(state).getAsDouble();
-                    for (int control = 0; control < controller.numControls; control++) {
-                        Kdata[control*controller.dimensions + state] = KBytes.get(control*controller.dimensions + state).getAsDouble();
-                    }
+                    Kdata[control*controller.dimensions + state] = KBytes.get(control*controller.dimensions + state).getAsDouble();
                 }
             }
 
+            x[i] = new Vector(xdata);
+            u[i] = new Vector(udata);
+            k[i] = new Vector(kdata);
+            K[i] = new GeneralMatrix(controller.dimensions, controller.numControls, Kdata).transposed();
+
+        }
+
             controller.loadFromArray(x, u, k, K);
 
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+
+
+
     }
+
 
     public Vector getCorrection() {
 
-        if (timer == null) start();
-        double time = timer.time();
 
         int numDim = this.sensorSignal.getLength();
         Vector sensorData = Vector.length(numDim * 2);
@@ -229,17 +235,50 @@ public class MPCPath {
             sensorData.put(i, sensorSignal.getIntegralVector().get(i));
             sensorData.put(i+numDim, sensorSignal.getDataVector().get(i));
         }
+
+        return getCorrection(sensorData);
+    }
+    public Vector getCorrection(Vector sensorData) {
+
+        if (timer == null) start();
+        double time = timer.time();
+
         Vector target = controller.getInterpolatedX(time);
+
+
         BaseOpMode.addData("TX", target.get(0));
         BaseOpMode.addData("TY", target.get(1));
         BaseOpMode.addData("TH", target.get(2));
-        BaseOpMode.addData("TVX", target.get(3));
-        BaseOpMode.addData("TVY", target.get(4));
-        BaseOpMode.addData("TVH", target.get(5));
+        BaseOpMode.addData("TV", target.get(3));
+        BaseOpMode.addData("TVH", target.get(4));
+
 
         sensorData.subtract(target);
         Vector correction = controller.getInterpolatedU(time);
-        return correction.added(controller.getInterpolatedK(time).multiplied(sensorData));
+
+        BaseOpMode.addData("FH", correction.get(1)-correction.get(0));
+        BaseOpMode.addData("FV", correction.get(1)+correction.get(0));
+        return model.controlLimit(correction.added(controller.getInterpolatedK(time).multiplied(sensorData)));
+    }
+
+    public Vector getFeedForward() {
+        if (timer == null) start();
+        double time = timer.time();
+
+        Vector target = controller.getInterpolatedX(time);
+
+        Vector correction = controller.getInterpolatedU(time);
+
+
+        BaseOpMode.addData("TX", target.get(0));
+        BaseOpMode.addData("TY", target.get(1));
+        BaseOpMode.addData("TH", target.get(2));
+        BaseOpMode.addData("TV", target.get(3));
+        BaseOpMode.addData("TVH", target.get(4));
+
+        BaseOpMode.addData("FH", correction.get(1)-correction.get(0));
+        BaseOpMode.addData("FV", correction.get(1)+correction.get(0));
+        return correction;
     }
 
 

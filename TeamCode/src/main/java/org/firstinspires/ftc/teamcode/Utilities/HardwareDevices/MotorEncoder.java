@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Utilities.HardwareDevives;
+package org.firstinspires.ftc.teamcode.Utilities.HardwareDevices;
 
 import com.qualcomm.robotcore.hardware.DcMotorImplEx;
 

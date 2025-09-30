@@ -1,0 +1,19 @@
+package org.firstinspires.ftc.teamcode.Motion.SystemModels;
+
+import org.firstinspires.ftc.teamcode.Utilities.Math.Matrix;
+import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
+
+public interface SystemModel {
+
+    Vector controlLimit(Vector u);
+
+    Vector stateTransitionFunction(Vector vector, Vector currentControl, double dt);
+
+    Matrix dFdX(Vector state, Vector control, double dt);
+
+    Matrix dFdU(Vector state, Vector control, double dt);
+
+    Matrix VdF2dXdX(Vector state, Vector control, Vector vx, double dt);
+
+    Matrix VdF2dXdU(Vector state, Vector control, Vector vx, double dt);
+}
