@@ -3,33 +3,24 @@ package org.firstinspires.ftc.teamcode.AAAOpModes.TeliOp;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.Motion.Drivetrains.FixedDriveTrain;
-import org.firstinspires.ftc.teamcode.Utilities.Configuration.DriveConfig;
+import org.firstinspires.ftc.teamcode.Motion.Drivetrains.TankDriveTrain;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
-import org.firstinspires.ftc.teamcode.Motion.Movement;
 
-@TeleOp(name = "Just Drive")
+@TeleOp(name = "Just Tank Drive")
 public class JustDrive extends BaseOpMode {
 
-    FixedDriveTrain drive;
+    TankDriveTrain drive;
 
     @Override
     public void externalInit () {
-        drive = new FixedDriveTrain(new Vector(0,0,0));
+        drive = new TankDriveTrain(new Vector(0,0,0));
     }
 
     @Override
     public void externalLoop () {
-        Vector target = (new Vector(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x));
+        Vector target = (new Vector(-gamepad1.left_stick_y, gamepad1.right_stick_x));
 
-        if (gamepad1.dpad_down)     target.add(new Vector (0, -0.5, 0));;
-        if (gamepad1.dpad_up)       target.add(new Vector (0, 0.5, 0));
-        if (gamepad1.dpad_right)    target.add(new Vector (0.5, 0, 0));
-        if (gamepad1.dpad_left)     target.add(new Vector (-0.5, 0, 0));
 
-        BaseOpMode.addData("Drive Vector X", target.get(0));
-        BaseOpMode.addData("Drive Vector Y", target.get(1));
-        BaseOpMode.addData("Drive Vector H", target.get(2));
 
         if (gamepad1.square) {
             BaseOpMode.addLine("Adjusted Drivewheel Powers");

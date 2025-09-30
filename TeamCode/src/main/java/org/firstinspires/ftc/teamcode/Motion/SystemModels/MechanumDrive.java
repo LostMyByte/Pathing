@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Motion;
+package org.firstinspires.ftc.teamcode.Motion.SystemModels;
 
 
 import org.firstinspires.ftc.teamcode.Utilities.Configuration.DriveConfig;
@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.Utilities.Math.TrigAngle;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
-public class DriveModel {
+public class MechanumDrive implements SystemModel {
 
     private static Matrix A = new GeneralMatrix(6, 6, new double[] {
             0 ,0, 0, 1, 0, 0,
@@ -120,7 +120,7 @@ public class DriveModel {
     }
 
     // Row = a, Col = j
-    public static Matrix dFdX(Vector state, Vector control, double deltaTime) {
+    public Matrix dFdX(Vector state, Vector control, double deltaTime) {
         Matrix result = new GeneralMatrix(6, 6);
         TrigAngle angle = new TrigAngle(state.get(2));
         result.add(h(angle).multiplied(A));
@@ -138,7 +138,12 @@ public class DriveModel {
         return result;
     }
 
-    public static Vector stateTransitionFunction(Vector currentState, Vector control, double deltatime) {
+    @Override
+    public Vector controlLimit(Vector u) {
+        return u;
+    }
+
+    public Vector stateTransitionFunction(Vector currentState, Vector control, double deltatime) {
 
         control = new Vector(control.getData().clone());
         for (int i = 0; i < control.length(); i++) {
@@ -147,7 +152,7 @@ public class DriveModel {
         return currentState.added(h(currentState).multiplied(linearModel(control, currentState)).multiplied(deltatime));
     }
 
-    public static Matrix dFdU(Vector state, Vector _control, double deltaTime) {
+    public Matrix dFdU(Vector state, Vector _control, double deltaTime) {
         return h(state).multiplied(B).multiplied(deltaTime);
     }
 
@@ -156,12 +161,13 @@ public class DriveModel {
      * Unfortunately, I didn't have a tensor library, so it works weirdly. This function sums over the
      * raised index of the second derivative when expressed in Einstein index notation, and returns
      * a jxk matrix, where j is the index for the x-derivative and k is the index for the u-derivative.
-     * @param state Current state of the system
-     * @param V the Vector to multiply with
+     *
+     * @param state     Current state of the system
+     * @param V         the Vector to multiply with
      * @param deltaTime timestep
      * @return The result of the operation
      */
-    public static Matrix VdF2dXdU(Vector state, Vector V, double deltaTime) {
+    public Matrix VdF2dXdU(Vector state, Vector _control, Vector V, double deltaTime) {
         Matrix result = new GeneralMatrix(3, 6);
 
         Vector col2 = dhdtheta(state.get(2)).multiplied(B).transposed().multiplied(V);
@@ -178,13 +184,14 @@ public class DriveModel {
      * Unfortunately, I didn't have a tensor library, so it works weirdly. This function sums over the
      * raised index of the second derivative when expressed in Einstein index notation, and returns
      * a jxk matrix.
-     * @param state Current state of the system
-     * @param V the Vector to multiply with
-     * @param control Control
+     *
+     * @param state     Current state of the system
+     * @param V         the Vector to multiply with
+     * @param control   Control
      * @param deltaTime timestep
      * @return The result of the operation
      */
-    public static Matrix VdF2dXdX(Vector state, Vector control, Vector V, double deltaTime) {
+    public Matrix VdF2dXdX(Vector state, Vector control, Vector V, double deltaTime) {
         Matrix result = new GeneralMatrix(6, 6);
         TrigAngle angle = new TrigAngle(state.get(2));
 

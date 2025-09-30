@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Motion.Paths.Path;
 import org.firstinspires.ftc.teamcode.Subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.Utilities.Configuration.DriveConfig;
 import org.firstinspires.ftc.teamcode.Utilities.Configuration.Hardware;
-import org.firstinspires.ftc.teamcode.Utilities.HardwareDevives.Motor;
+import org.firstinspires.ftc.teamcode.Utilities.HardwareDevices.Motor;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 public abstract class Movement extends Subsystem {
@@ -35,8 +35,6 @@ public abstract class Movement extends Subsystem {
 
     public abstract void move(Vector target);
 
-
-    public abstract void moveRaw(Vector motorPowers);
 
     @Override
     public void update() {

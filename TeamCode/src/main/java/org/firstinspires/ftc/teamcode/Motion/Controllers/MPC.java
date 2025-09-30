@@ -1,21 +1,18 @@
 package org.firstinspires.ftc.teamcode.Motion.Controllers;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.ejml.data.DMatrixRMaj;
-import org.ejml.data.SingularMatrixException;
 import org.ejml.dense.row.EigenOps_DDRM;
 import org.ejml.dense.row.CommonOps_DDRM;
 import org.ejml.dense.row.factory.DecompositionFactory_DDRM;
 import org.ejml.interfaces.decomposition.EigenDecomposition_F64;
-import org.ejml.simple.SimpleEVD;
 import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.Motion.DriveModel;
+
+import org.firstinspires.ftc.teamcode.Motion.SystemModels.SystemModel;
 import org.firstinspires.ftc.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
-import org.ejml.simple.SimpleMatrix;
 
 public class MPC {
 
@@ -46,15 +43,17 @@ public class MPC {
     private double dt;
 
     private ElapsedTime timer;
+    
+    private SystemModel model;
 
 
-    public MPC(ReferenceSignal referenceSignal, Signal dataSignal, Vector start, Matrix Q, Matrix R, Matrix QF, int N, double time, double threshold, double lr, double lambda_max) {
+    public MPC(ReferenceSignal referenceSignal, Signal dataSignal, Vector start, Matrix Q, Matrix R, Matrix QF, int N, double time, double threshold, double lr, double lambda_max, SystemModel model) {
         this.referenceSignal = referenceSignal;
         this.sensorSignal = dataSignal;
 
         this.lambda_max = lambda_max;
         this.dimensions = referenceSignal.getLength();
-        this.numControls = 3;
+        this.numControls = 2;
         this.horizon = time;
 
         this.lr = lr;
@@ -65,11 +64,13 @@ public class MPC {
 
         this.N = N;
 
+        this.model = model;
 
         this.dt = horizon/N;
         initializeControls(N, start);
 
         this.threshold = threshold;
+
 
     }
 
@@ -84,7 +85,7 @@ public class MPC {
             currentTrajectory[i] = currentState;
 
             // Simulate Linearized dynamics
-            currentState = DriveModel.stateTransitionFunction(currentState, currentControls[i], dt);
+            currentState = model.stateTransitionFunction(currentState, currentControls[i], dt);
         }
     }
 
@@ -148,10 +149,10 @@ public class MPC {
         for (int i = 0; i < N; i++) {
             Vector error = referenceSignal.target().subtracted(currentTrajectory[i]).multiplied(1/((N-i) * dt));
 
-            currentControls[i] = Vector.withValue(0, numControls);//DriveModel.getBLeftInverse(currentTrajectory[i]).multiplied(error);
+            currentControls[i] = Vector.withValue(0, numControls);//model.getBLeftInverse(currentTrajectory[i]).multiplied(error);
 
             if (i != N-1) {
-                currentTrajectory[i+1] = DriveModel.stateTransitionFunction(currentTrajectory[i], currentControls[i], dt);
+                currentTrajectory[i+1] = model.stateTransitionFunction(currentTrajectory[i], currentControls[i], dt);
             }
         }
 
@@ -216,15 +217,15 @@ public class MPC {
             Vector control = currentControls[i];
             Vector state = currentTrajectory[i];
 
-            Matrix dfdx = DriveModel.dFdX(state, control, dt);
+            Matrix dfdx = model.dFdX(state, control, dt);
             Matrix dfdxT = dfdx.transposed();
-            Matrix dfdu = DriveModel.dFdU(state, control, dt);
+            Matrix dfdu = model.dFdU(state, control, dt);
             Matrix dfduT = dfdu.transposed();
 
             Vector Qx = dCdX(state, referenceSignal.target(), dt).added(dfdxT.multiplied(vx));
             Vector Qu = dCdU(control, dt).added(dfduT.multiplied(vx));
-            Matrix Qxx = dCdX2(dt).added(dfdxT.multiplied(vxx).multiplied(dfdx)).added(DriveModel.VdF2dXdX(state, control, vx, dt));
-            Matrix Qux = dfduT.multiplied(vxx).multiplied(dfdx).added(DriveModel.VdF2dXdU(state, vx, dt));
+            Matrix Qxx = dCdX2(dt).added(dfdxT.multiplied(vxx).multiplied(dfdx)).added(model.VdF2dXdX(state, control, vx, dt));
+            Matrix Qux = dfduT.multiplied(vxx).multiplied(dfdx).added(model.VdF2dXdU(state, control, vx, dt));
             GeneralMatrix Quu = (GeneralMatrix) dCdU2(dt).added(dfduT.multiplied(vxx).multiplied(dfdu));
 
             DMatrixRMaj Quu2 = new DMatrixRMaj(this.numControls, this.numControls, true, Quu.getData());
@@ -284,7 +285,7 @@ public class MPC {
 
             if (i != N-1) {
                 oldstate = currentTrajectory[i + 1];
-                currentTrajectory[i + 1] = DriveModel.stateTransitionFunction(currentTrajectory[i], currentControls[i], dt);
+                currentTrajectory[i + 1] = model.stateTransitionFunction(currentTrajectory[i], currentControls[i], dt);
 
                 // TODO: Make this better at not-drivetrains
                 // See if it has gone past target
@@ -292,7 +293,7 @@ public class MPC {
                 Vector positionError = targetPosition.subtracted(new Vector(currentTrajectory[i].get(0), currentTrajectory[i].get(1)));
                 Vector nextPositionError = targetPosition.subtracted(new Vector(currentTrajectory[i+1].get(0), currentTrajectory[i+1].get(1)));
 
-                if (Math.signum(positionError.dotProduct(nextPositionError)) <=0 && (referenceSignal.target().get(3) != 0 || referenceSignal.target().get(4) != 0 || referenceSignal.target().get(5) != 0)) {
+                if (Math.signum(positionError.dotProduct(nextPositionError)) <=0 && (referenceSignal.target().get(3) != 0 || referenceSignal.target().get(4) != 0 )) {
                     double newhorizon = (i+1)*dt;
                     double newdt = newhorizon/N;
                     BaseOpMode.addData("Setting horizon to", newhorizon);

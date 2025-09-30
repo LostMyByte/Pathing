@@ -6,9 +6,11 @@ import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.Signal;
 import org.firstinspires.ftc.teamcode.Utilities.Configuration.Hardware;
+import org.firstinspires.ftc.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 @Config
@@ -19,8 +21,8 @@ public class Location extends Signal {
 
     public GoBildaPinpointDriver odoPods;
 
-    public static double xOffset = -172;
-    public static double yOffset = -41.25;
+    public static double xOffset = 0;
+    public static double yOffset = 0;
 
 
     public static double alpha = 0.1;
@@ -30,7 +32,7 @@ public class Location extends Signal {
         odoPods = BaseOpMode.getHardwareMap().get(GoBildaPinpointDriver.class, Hardware.odoWheels);
         odoPods.setOffsets(xOffset,yOffset);
         odoPods.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        odoPods.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
+        odoPods.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
         odoPods.recalibrateIMU();
     }
 
@@ -57,10 +59,9 @@ public class Location extends Signal {
     public void update() {
         odoPods.update();
 
-        Pose2D pose = odoPods.getPosition();
-        Vector newData = new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), pose.getHeading(AngleUnit.RADIANS));
+        Vector newData = new Vector(odoPods.getVelX(DistanceUnit.CM), odoPods.getVelY(DistanceUnit.CM),odoPods.getHeadingVelocity());
 
-        this.data.add((newData.subtracted(oldData).multiplied(1/deltaTime)).subtracted(this.data).multiplied(alpha));
+        this.data.add(newData.subtracted(this.data).multiplied(alpha));
         this.oldData = newData;
     }
 
@@ -76,16 +77,41 @@ public class Location extends Signal {
 
     @Override
     public void telemetry() {
-        BaseOpMode.addData("Velocity X", data.getData()[0]);
-        BaseOpMode.addData("Velocity Y", data.getData()[1]);
+
+        Vector pos = getPosition();
+        double angle = pos.get(2);
+
+        double v = new GeneralMatrix(2, 2, new double[] {
+                Math.cos(angle), Math.sin(angle),
+                -Math.sin(angle), Math.cos(angle)
+        }).multiplied(new Vector(data.get(0), data.get(1))).get(1);
+
+
+        BaseOpMode.addData("Velocity Drive", v);
         BaseOpMode.addData("Velocity H", data.getData()[2]);
 
-        BaseOpMode.addData("Position X", getIntegralVector().get(0));
-        BaseOpMode.addData("Position Y", getIntegralVector().get(1));
-        BaseOpMode.addData("Position H", getIntegralVector().get(2));
+        BaseOpMode.addData("Position X", pos.get(0));
+        BaseOpMode.addData("Position Y", pos.get(1));
+        BaseOpMode.addData("Position H", pos.get(2));
     }
 
     public void setPosition(Vector pos) {
         odoPods.setPosition(new Pose2D(DistanceUnit.CM, pos.get(0), pos.get(1), AngleUnit.RADIANS, pos.get(2)));
+    }
+
+    public Vector getPositionForTankDrive() {
+        Vector pos = getPosition();
+        double angle = pos.get(2);
+        double v = new GeneralMatrix(2, 2, new double[] {
+                Math.cos(angle), Math.sin(angle),
+                -Math.sin(angle), Math.cos(angle)
+        }).multiplied(new Vector(data.get(0), data.get(1))).get(1);
+        return new Vector(new double[] {
+                pos.get(0),
+                pos.get(1),
+                pos.get(2),
+                v,
+                data.get(2)
+        });
     }
 }

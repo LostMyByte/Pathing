@@ -5,9 +5,10 @@ import com.acmerobotics.dashboard.config.Config;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.MPCPath;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.PIDCoefficients;
 
-
+@Config
 public class DriveConfig {
     public static int DRIVE_MOTOR_MAX_CURRENT = 10000; // Maximum current a drivetrain motor should draw in milliAmps
+
 
 
     /*  Drive wheel Parameterization
@@ -25,12 +26,28 @@ public class DriveConfig {
     public static class DriveWheels {
         public static double maxVelocity = 50;
         // BackEMF constants
-        public static double Ex = 0.8;
+        public static double Ex = 0.9;
         public static double Ey = 0.7;
-        public static double Eh = 0;
+        public static double Eh = -3;
+
+        public static double tsh = 100;
+        public static double tsv = 100;
         // Loopback constants
         public static double Lxk = 0.3;
-        public static double Lmk = 0.17;
+        public static double Lml = 0.15;
+        public static double Lmr = 0.15;
+        public static double Lmk = 0.1;
+
+        public static double Ed = -4;
+
+
+
+        public static MPCPath.MPCParams defaultParams = new MPCPath.MPCParams();
+        public static double angularAcceleration = 30;
+        public static double Lhk = -0.1;
+        public static double controlSmoothing = 1;
+        public static double controlLimit = 0.85;
+
 
         @Config
         public static class FL {
@@ -61,9 +78,9 @@ public class DriveConfig {
 
         }
         public static PIDCoefficients driveConstants = new PIDCoefficients(0.03, 0.01, 0, 0.03, 0.01);
-        public static double driveAcceleration = 150;
+        public static double driveAcceleration = 600;
 
-        public static MPCPath.MPCParams defaultParams = new MPCPath.MPCParams();
+
 
     }
 

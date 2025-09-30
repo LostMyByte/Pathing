@@ -58,8 +58,8 @@ public class Hardware{
 
 
     public static final String
-            leftFront = "chub1orange", rightFront  = "ehub1blue",
-            leftBack = "chub0white", rightBack = "ehub0red";
+            leftFront = "fl", rightFront  = "fr",
+            leftBack = "bl", rightBack = "br";
 
 
 

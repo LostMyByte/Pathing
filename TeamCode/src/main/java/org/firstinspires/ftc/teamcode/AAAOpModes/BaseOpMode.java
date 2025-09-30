@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.AAAOpModes;
 
-//import com.acmerobotics.dashboard.FtcDashboard;
-//import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -10,7 +10,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Motion.Controllers.Signal;
 import org.firstinspires.ftc.teamcode.Subsystems.Subsystem;
-import org.firstinspires.ftc.teamcode.Utilities.HardwareDevives.Motor;
+import org.firstinspires.ftc.teamcode.Utilities.HardwareDevices.Controller;
+import org.firstinspires.ftc.teamcode.Utilities.HardwareDevices.Motor;
+import org.firstinspires.ftc.teamcode.Utilities.Telemetry.ThrowbackTelemetry;
 /*import org.firstinspires.ftc.teamcode.Utilities.HardwareDevices.Controller;
 import org.firstinspires.ftc.teamcode.Utilities.HardwareDevices.Gyro;
 import org.firstinspires.ftc.teamcode.Utilities.HardwareDevices.Motor;
@@ -28,10 +30,10 @@ public abstract class BaseOpMode extends LinearOpMode {
     public static Telemetry telemetree;
     public static FtcDashboard dashboard = FtcDashboard.getInstance();
     public static Telemetry dashboardTelemetry = dashboard.getTelemetry();
-  // public static ThrowbackTelemetry multTelemetry;
+    public static ThrowbackTelemetry multTelemetry;
     public static boolean isActive;
 
-    //public static Controller driver1, driver2;
+    public static Controller driver1, driver2;
     public static List<LynxModule> allHubs;
 
     /**
@@ -46,10 +48,10 @@ public abstract class BaseOpMode extends LinearOpMode {
 
         telemetree = opMode.telemetry;
         telemetree.setMsTransmissionInterval(5);
-      //  multTelemetry = new ThrowbackTelemetry(new MultipleTelemetry(telemetree, dashboardTelemetry));
+        multTelemetry = new ThrowbackTelemetry(new MultipleTelemetry(telemetree, dashboardTelemetry));
 
-        //driver1 = new Controller(opMode.gamepad1);
-        //driver2 = new Controller(opMode.gamepad2);
+        driver1 = new Controller(opMode.gamepad1);
+        driver2 = new Controller(opMode.gamepad2);
 
         allHubs = hardware.getAll(LynxModule.class);
 

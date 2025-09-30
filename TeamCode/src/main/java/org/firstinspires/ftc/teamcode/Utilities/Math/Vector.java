@@ -132,6 +132,10 @@ public class Vector
         this.data[index] = value;
     }
 
+    public void add(int index, double value) {
+        this.data[index] += value;
+    }
+
     @Override public String toString()
     {
         StringBuilder result = new StringBuilder();
