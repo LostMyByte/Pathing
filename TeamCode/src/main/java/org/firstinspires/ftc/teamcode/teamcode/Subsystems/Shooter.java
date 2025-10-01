@@ -110,9 +110,9 @@ public class Shooter extends Subsystem{
         shooterPDF.setConstants(PIDTuningDash.ShooterP,0,PIDTuningDash.ShooterD);
         shooterPDF.setFeedForward(PIDTuningDash.ShooterF);
 
-        //if I understand correctly, gobilda's documentation says that a bare motor has 28 ticks per revolution, and we're running with a 1 to 1 gear ratio.
-        double shooterRPM = ((shooter1.getVelocity()/28)+(shooter2.getVelocity()/28))/2;
-        double correction = shooterPDF.getCorrection(shooterRPM,targetShooterRPM);
+
+        double shooterVelocity = (shooter1.getVelocity()+shooter2.getVelocity())/2;
+        double correction = shooterPDF.getCorrection(shooterVelocity,targetShooterRPM);
 
         shooter1.setPower(correction);
         shooter2.setPower(correction);
