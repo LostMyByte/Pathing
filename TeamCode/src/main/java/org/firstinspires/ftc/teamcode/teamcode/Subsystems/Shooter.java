@@ -100,7 +100,7 @@ public class Shooter extends Subsystem{
                 updateShooter();
                 //hood.setPositionInterpolated(DashPositions.servoTest);
                 targetShooterRPM = DashPositions.dashShooterRPM;
-
+                hood.setPosition(DashPositions.servoTest);
         }
     };
 
