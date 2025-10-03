@@ -24,7 +24,7 @@ public class ShooterTest extends BaseOpMode {
     @Config
     public static class ShooterDash{
         public static double shooterMotorPower = 0;
-        public static double ticksPerRotation = 28; //This is now ticks per revolution
+        public static double ticksPerRotation = 28*(3.0/2); //This is now ticks per revolution
     }
 
     @Override
@@ -46,8 +46,8 @@ public class ShooterTest extends BaseOpMode {
         //ticksR = rightMotorEncoder.getCurrentPosition() - ticksR;
 
 
-        multTelemetry.addData("left motor RPM", leftMotorEncoder.getVelocity()/ticksPerRotation*60);
-        multTelemetry.addData("right motor RPM", rightMotorEncoder.getVelocity()/ticksPerRotation*60);
+        multTelemetry.addData("left motor RPM", leftMotorEncoder.getVelocity()/ShooterDash.ticksPerRotation*60);
+        multTelemetry.addData("right motor RPM", rightMotorEncoder.getVelocity()/ShooterDash.ticksPerRotation*60);
       // multTelemetry.addData("left motor RPM", (ticksL/ticksPerRotation)/(timer.milliseconds())*1000*60);
        //multTelemetry.addData("right motor RPM", (ticksR/ticksPerRotation)/(timer.milliseconds())*1000*60);
        //multTelemetry.addData("ticks since refresh", ticksL);
