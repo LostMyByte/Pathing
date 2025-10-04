@@ -7,6 +7,10 @@ public class Constants {
     public static double fieldSizeX = 141.5;
     public static double backWallY = 0;
 
+    public static double goalAprilTagHeight = 0.7493; //meters
+    public static double limelightLensHeightFromGround = 0.1143; //meters, this is for test setup
+    public static double limelightAngleOffset = 0;//radians, this is again for test setup
+
     public static double tag16x = fieldSizeX-22.25;
     public static double tag11x = 23.25;
     public static double tag12y = 70.25;
