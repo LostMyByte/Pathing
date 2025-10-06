@@ -12,6 +12,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes.ShooterTest;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.DashPositions;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash;
@@ -66,6 +68,7 @@ public class Shooter extends Subsystem{
         //turret = new Motor(Hardware.turret);
         //turretEncoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
         shooterPDF = new PID(0,0,0);
+        /*
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.setPollRateHz(100); // make number higher to get more data
         limelight.pipelineSwitch(1);
@@ -74,9 +77,9 @@ public class Shooter extends Subsystem{
         limelight.reloadPipeline();
         this.team = team;
 
-        pattern = new BallColors[3];
-
-        currentRamp = new ArrayList<BallColors>();
+        pattern = new BallColors[3];*/
+        shooterState = ShooterStates.OBELISK;
+        //currentRamp = new ArrayList<BallColors>();
         //this.turretStartAngle = turretStartAngle;
 
         //readyToShootIndicator = new Servo(Hardware.indicatorLight);
@@ -100,7 +103,7 @@ public class Shooter extends Subsystem{
                 updateShooter();
                 //hood.setPositionInterpolated(DashPositions.servoTest);
                 targetShooterRPM = DashPositions.dashShooterRPM;
-                hood.setPosition(DashPositions.servoTest);
+                //hood.setPosition(DashPositions.servoTest);
         }
     };
 
@@ -108,11 +111,17 @@ public class Shooter extends Subsystem{
 
     public void updateShooter(){
         shooterPDF.setConstants(PIDTuningDash.ShooterP,0,PIDTuningDash.ShooterD);
-        shooterPDF.setFeedForward(PIDTuningDash.ShooterF);
+        //sets the feedforward to the voltage needed to hold the target velocity. Values ob
+        if (targetShooterRPM > 0){
+        shooterPDF.setFeedForward(((targetShooterRPM * 0.00318451)+1.48267)/12);
+        } else {
+            shooterPDF.setFeedForward(0);
+        }
 
-        //if I understand correctly, gobilda's documentation says that a bare motor has 28 ticks per revolution, and we're running with a 1 to 1 gear ratio.
-        double shooterRPM = ((shooter1.getVelocity()/28)+(shooter2.getVelocity()/28))/2;
-        double correction = shooterPDF.getCorrection(shooterRPM,targetShooterRPM);
+        double correction = shooterPDF.getCorrection(getShooterRPM(),targetShooterRPM);
+
+
+
 
         shooter1.setPower(correction);
         shooter2.setPower(correction);
@@ -153,7 +162,6 @@ public class Shooter extends Subsystem{
         turretPDL.getCorrectionHeading(currentAngle,turretTargetAngle);
 
 
-
         turret.setPower(turretPDL.getCorrectionHeading(currentAngle,turretTargetAngle));
 
         if (Math.abs(currentAngle-turretTargetAngle) < turretMarginForError){
@@ -163,9 +171,16 @@ public class Shooter extends Subsystem{
         }
     }
 
+    public double getShooterRPM(){
+        return (Math.abs(shooter1.getVelocity()/ShooterTest.ShooterDash.ticksPerRotation*60)+Math.abs(shooter2.getVelocity()/ShooterTest.ShooterDash.ticksPerRotation*60))/2;
+    }
+
+    public double getTargetShooterRPM(){
+        return targetShooterRPM;
+    }
     public double setTargetBallSpeed(double speed){
         //make a regression comparing ball exit velocity to shooter RPM
-        targetShooterRPM = speed;
+        targetShooterRPM = (speed - 1.20826)/0.00263999;
         return targetShooterRPM;
     }
 
@@ -223,7 +238,13 @@ public class Shooter extends Subsystem{
 
     public double getBallSpeed(){
         //invert the regression comparing ball exit velocity to shooter RPM
-        return 1;
+        return 0.00263999 * getShooterRPM() + 1.20826;
+    }
+
+    public void setHoodAngleBasedOnTargetShotAngle(double angle){
+        //This ignores the effect initial velocity has on angle. If we are having issues targeting at very low or high velocities, try to account for that
+        //Values obtained from regression
+        hood.setPositionInterpolated((Math.asin((angle-52.7762)/18.1541)-163.65723)/4.04363);
     }
 
     public double getHoodAngleHigh(){

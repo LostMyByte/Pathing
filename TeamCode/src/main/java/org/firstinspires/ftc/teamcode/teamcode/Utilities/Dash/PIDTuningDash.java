@@ -32,7 +32,7 @@ public class PIDTuningDash {
     public static  double Kdh = -0.000;
     public static double Kih = 0;
 
-    public static double ShooterP = 0.22;
+    public static double ShooterP = 0.003;
     public static double ShooterD = 0;
     public static double ShooterF = 0.0;
 
