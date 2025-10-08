@@ -1,9 +1,18 @@
 package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
 
+import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode.multTelemetry;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.VisionDistanceTarget;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.VisionDrive;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.VisionDriveDeadzone;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.VisionTurn;
+//import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.visionDeadzone;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.visionTurnDeadzone;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HD;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HP;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.rateOfChange;
+
+import static java.lang.Math.PI;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.geometry.Vector2d;
@@ -17,6 +26,7 @@ import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.DriveClasses.MecanumDrive;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.Localization.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 public class Drivetrain extends Subsystem {
@@ -40,7 +50,7 @@ public class Drivetrain extends Subsystem {
     boolean pid_on_last_cycle = false;
     double setPoint = 0;
     double error = 0;
-
+    double angleRad;
 
     @Override
     public void update(){}
@@ -67,7 +77,7 @@ public class Drivetrain extends Subsystem {
         }
         else {
 
-            gyro.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, gyro.getHeading()-Math.PI/2));;
+            gyro.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, gyro.getHeading()- PI/2));;
         }
         pid = new PID(HP,0, HD);
 
@@ -146,6 +156,69 @@ public class Drivetrain extends Subsystem {
         setPoint = heading;
     }
 
+    public void rectangle(){
+
+        //Rect rectangle = TestPipelineBlue.getRectangle();
+
+        double drive = 0;
+
+      /*  if ((rectangle.height)/2 < 120){
+            //drive up to box
+            drive = 1;
+        }*/
+
+
+        double strafe = 0;
+        double turn = 0 ;
+
+
+//this should correct for the x coordinate
+
+        if (Math.abs(BallDetector.getError(false))> visionTurnDeadzone && BallDetector.targetDetected){
+            //error 199
+
+
+            //added by collin, works in every direction
+
+
+            turn = -(BallDetector.getError(false) * VisionTurn);
+
+        } else{
+            multTelemetry.addData("Status","not moving");
+
+            strafe = 0;
+        }
+
+        double distanceError = distance(BallDetector.getWidth(false)) - VisionDistanceTarget;
+        if(Math.abs(distanceError) > VisionDriveDeadzone && BallDetector.targetDetected){
+            drive = -distanceError * VisionDrive;
+        }else{
+            drive = 0;
+        }
+
+
+
+        multTelemetry.addData("Error", BallDetector.getError(false));
+        multTelemetry.addData("Width", BallDetector.getWidth(false));
+        multTelemetry.addData("distance", distance(BallDetector.getWidth(false)));
+        multTelemetry.addData("angle in radians", angleRad);
+
+
+
+        driveWheels.veryDirectDrive(drive +strafe -turn,drive -strafe +turn,drive -strafe -turn,drive +strafe +turn);
+      /* fl.setPower((drive -strafe +turn));
+       fr.setPower((drive +strafe -turn));
+        bl.setPower((drive +strafe +turn));
+        br.setPower((drive -strafe -turn));*/
+    }
+    public double distance(double widthPixels){
+        double angleDeg = ((120*widthPixels)/320) /2 ;
+
+        angleRad = angleDeg * (PI/180);
+        double height = 85;
+        double distance = Math.sqrt(Math.pow(30/Math.tan(angleRad),2)-(Math.pow(height,2)));
+        return distance;
+    }
 
     public void resetHeading(){
         gyro.resetPosAndIMU();

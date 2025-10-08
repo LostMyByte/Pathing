@@ -11,6 +11,13 @@ public class Constants {
     public static double limelightLensHeightFromGround = 0.28; //meters, this is for test setup
     public static double limelightAngleOffset = 22.5;//degrees, this is again for test setup
 
+
+    public static double visionTurnDeadzone = 5; //silly (ignore this stuff)
+    public static double VisionTurn = 0.008;
+    public static double VisionDrive = -0.012;
+    public static double VisionDriveDeadzone = 1;
+    public static double VisionDistanceTarget = 180;
+    public double angleRad;
     public static double tag16x = fieldSizeX-22.25;
     public static double tag11x = 23.25;
     public static double tag12y = 70.25;
