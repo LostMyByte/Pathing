@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.B;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.BLUE;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.RED;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.goalAprilTagHeight;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.limelightAngleOffset;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.limelightLensHeightFromGround;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.team;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -58,17 +62,20 @@ public class Shooter extends Subsystem{
 
     ArrayList<BallColors> currentRamp;
 
+    double degreesYtoApriltag;
+    double radsYtoApriltag;
+    double distanceAway;
+
 
     public Shooter(HardwareMap hardwareMap, double turretStartAngle, Constants.Team team){
         //Things are commented to prepare for the first tests of the shooter where we will only have the flywheel.
 
         shooter1 = new Motor(Hardware.shooter1);
         shooter2 = new Motor(Hardware.shooter2);
-        //hood = new Servos.Hood();
+        hood = new Servos.Hood();
         //turret = new Motor(Hardware.turret);
         //turretEncoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
         shooterPDF = new PID(0,0,0);
-        /*
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.setPollRateHz(100); // make number higher to get more data
         limelight.pipelineSwitch(1);
@@ -77,7 +84,7 @@ public class Shooter extends Subsystem{
         limelight.reloadPipeline();
         this.team = team;
 
-        pattern = new BallColors[3];*/
+        //pattern = new BallColors[3];
         shooterState = ShooterStates.OBELISK;
         //currentRamp = new ArrayList<BallColors>();
         //this.turretStartAngle = turretStartAngle;
@@ -100,10 +107,8 @@ public class Shooter extends Subsystem{
             case OBELISK:
                 break;
             case SHOOTERTESTING:
-                updateShooter();
-                //hood.setPositionInterpolated(DashPositions.servoTest);
-                targetShooterRPM = DashPositions.dashShooterRPM;
-                //hood.setPosition(DashPositions.servoTest);
+                updateTargeting();
+                break;
         }
     };
 
@@ -186,21 +191,7 @@ public class Shooter extends Subsystem{
 
     public void aim(){
 
-        hood.setPositionInterpolated(getHoodAngleHigh());
-        LLResult result = limelight.getLatestResult();
-        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-        for (LLResultTypes.FiducialResult fiducial : fiducials) {
-            int id = fiducial.getFiducialId(); // The ID number of the fiducial
-            double ty = limelight.getLatestResult().getTy(); // gets degrees to crosshair from primary target along y axis
-            double tx = limelight.getLatestResult().getTx();// gets degrees to crosshair from primary target along x axis
-
-            if( team == BLUE || id == 20){
-                heading = tx;
-            } else if (team == RED || id == 24){
-                heading = tx;
-            }
-        }
-
+        hood.setPositionInterpolated(getHoodAngle());
 
         turretTargetAngle = Math.asin(xVelocity/getBallSpeed()) - heading;//sets target angle to face goal. does this by setting target angle the negitive heading (current difference in degrees from target) and also accounts for fact that robot moves
 
@@ -235,6 +226,35 @@ public class Shooter extends Subsystem{
     }
 
 
+    public void updateTargeting(){
+        int id = 0;
+        double tx = 0;
+        double ty = 0;
+        double distance = 0;
+        LLResult result = limelight.getLatestResult();
+        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+        for (LLResultTypes.FiducialResult fiducial : fiducials) {
+            id = fiducial.getFiducialId();// The ID number of the fiducial
+            double degreesYtoApriltag = fiducial.getTargetYDegrees()+ limelightAngleOffset; //gets angle to limelight along x plane
+            double radsYtoApriltag = degreesYtoApriltag * (Math.PI/180);
+            distance = (goalAprilTagHeight- limelightLensHeightFromGround)/Math.tan(radsYtoApriltag);
+            ty = limelight.getLatestResult().getTy(); // gets degrees to crosshair from primary target along y axis
+            tx = limelight.getLatestResult().getTx();// gets degrees to crosshair from primary target along x axis
+        }
+        if( team == BLUE && id == 20){
+            heading = tx;
+            distanceAway = distance;
+        } else if (team == RED && id == 24){
+            heading = tx;
+            distanceAway = distance;
+        }else{
+            heading=0;
+        }
+
+        BaseOpMode.addData("distanceAway",distanceAway);
+    }
+
+
 
     public double getBallSpeed(){
         //invert the regression comparing ball exit velocity to shooter RPM
@@ -244,34 +264,19 @@ public class Shooter extends Subsystem{
     public void setHoodAngleBasedOnTargetShotAngle(double angle){
         //This ignores the effect initial velocity has on angle. If we are having issues targeting at very low or high velocities, try to account for that
         //Values obtained from regression
-        hood.setPositionInterpolated((Math.asin((angle-52.7762)/18.1541)-163.65723)/4.04363);
+        //hood.setPositionInterpolated((Math.asin((angle-52.7762)/18.1541)-163.65723)/4.04363);
+        hood.setPositionInterpolated(angle);
     }
 
-    public double getHoodAngleHigh(){
+    public double getHoodAngle(){
         //add fancy math (High Case)
         double hoodAngle = 1;
 
-        if(Double.isNaN(hoodAngle) || (hoodAngle < 31 || hoodAngle > 60)){
+        if(Double.isNaN(hoodAngle) || (hoodAngle < 25 || hoodAngle > 65)){
             //this is the case where the equation returns NaN (it couldn't hit the target)
             //In this case, it declares that it can't shoot and returns the highest possible angle
             hoodCanShoot = false;
             return 60;
-        }
-        else {
-            //in this case it can shoot, and it returns the angle to shoot at.
-            hoodCanShoot = true;
-            return hoodAngle;
-        }
-    }
-    public double getHoodAngleLow(){
-        //add fancy math (Low Case)
-        double hoodAngle = 1;
-
-        if(Double.isNaN(hoodAngle) || (hoodAngle < 31 || hoodAngle > 60)){
-            //this is the case where the equation returns NaN (it couldn't hit the target)
-            //In this case, it declares that it can't shoot and returns the highest possible angle
-            hoodCanShoot = false;
-            return 31;
         }
         else {
             //in this case it can shoot, and it returns the angle to shoot at.

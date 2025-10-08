@@ -30,7 +30,7 @@ Servos.Hood hood;
 
     @Override
     public void externalInit() {
-        shooter = new Shooter(hardwareMap, 0, Constants.Team.BLUE);
+        shooter = new Shooter(hardwareMap, 0, Constants.Team.RED);
         hood = new Servos.Hood();
     }
 
@@ -38,7 +38,6 @@ Servos.Hood hood;
     @Override
     public void externalLoop() {
         shooter.setState(Shooter.ShooterStates.SHOOTERTESTING);
-        hood.setPositionInterpolated(DashPositions.servoTest);
         BaseOpMode.addData("targetRPM", shooter.getTargetShooterRPM());
         BaseOpMode.addData("RPM", shooter.getShooterRPM());
     }
