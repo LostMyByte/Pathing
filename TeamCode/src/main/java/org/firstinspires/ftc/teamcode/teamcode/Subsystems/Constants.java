@@ -12,12 +12,8 @@ public class Constants {
     public static double limelightAngleOffset = 22.5;//degrees, this is again for test setup
 
 
-    public static double visionTurnDeadzone = 5; //silly (ignore this stuff)
-    public static double VisionTurn = 0.008;
-    public static double VisionDrive = -0.012;
-    public static double VisionDriveDeadzone = 1;
-    public static double VisionDistanceTarget = 180;
-    public double angleRad;
+
+
     public static double tag16x = fieldSizeX-22.25;
     public static double tag11x = 23.25;
     public static double tag12y = 70.25;
@@ -66,7 +62,7 @@ public class Constants {
     public static double camOffsetY = 0;
     public static boolean intakeReady = false;
     public static boolean depositorReady = false;
-    public static final double fx = 905.527;
+    public static final double fx = 396.874;
     public static final double cy = 421.638;
     public static final double fy = 905.527;
     public static final double cx = 662.777;

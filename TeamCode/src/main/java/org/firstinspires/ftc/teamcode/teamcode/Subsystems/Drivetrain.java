@@ -2,12 +2,8 @@ package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
 
 import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode.multTelemetry;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.VisionDistanceTarget;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.VisionDrive;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.VisionDriveDeadzone;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.VisionTurn;
-//import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.visionDeadzone;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.visionTurnDeadzone;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.focalLengthMM;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.fx;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HD;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HP;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.rateOfChange;
@@ -24,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.DriveClasses.MecanumDrive;
+import org.firstinspires.ftc.teamcode.teamcode.KCP.DriveClasses.TankDrivetrain;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.Localization.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector;
@@ -38,6 +35,14 @@ public class Drivetrain extends Subsystem {
 //                i = 0,
 //                d = 0;
 //
+        public static double visionTurnDeadzone = 5; //silly (ignore this stuff)
+        public static double visionTurn = 0.008;
+
+        public static double visionStrafe = 0.005;
+        public static double visionStrafeDeadzone = 3;
+        public static double visionDrive = -0.012;
+        public static double visionDriveDeadzone = 1;
+        public static double visionDistanceTarget = 180; //pixels bc goofy
     }
     MecanumDrive driveWheels;
 
@@ -51,6 +56,8 @@ public class Drivetrain extends Subsystem {
     double setPoint = 0;
     double error = 0;
     double angleRad;
+
+    TankDrivetrain driveWheels2;
 
     @Override
     public void update(){}
@@ -67,7 +74,7 @@ public class Drivetrain extends Subsystem {
     public Drivetrain(HardwareMap hardware, double heading) {
 
         gamepad1 = new Gamepad();
-
+        driveWheels2 = new TankDrivetrain();
         driveWheels = new MecanumDrive();
 
         gyro = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
@@ -156,7 +163,7 @@ public class Drivetrain extends Subsystem {
         setPoint = heading;
     }
 
-    public void rectangle(){
+    public void ballFollow(){
 
         //Rect rectangle = TestPipelineBlue.getRectangle();
 
@@ -168,30 +175,31 @@ public class Drivetrain extends Subsystem {
         }*/
 
 
-        double strafe = 0;
+       // double strafe = 0; //this ain't meccanum
         double turn = 0 ;
 
 
 //this should correct for the x coordinate
 
-        if (Math.abs(BallDetector.getError(false))> visionTurnDeadzone && BallDetector.targetDetected){
+        if(Math.abs(BallDetector.getError(false))> DrivetrainDash.visionTurnDeadzone && BallDetector.targetDetected){
+
             //error 199
 
 
-            //added by collin, works in every direction
+            //this code is now 3 yrs old (made in 2023) and I still havn't made anything more useful/reusable
 
 
-            turn = -(BallDetector.getError(false) * VisionTurn);
+            turn = -(BallDetector.getError(false) * DrivetrainDash.visionTurn);
 
         } else{
             multTelemetry.addData("Status","not moving");
 
-            strafe = 0;
+         //   strafe = 0;
         }
 
-        double distanceError = distance(BallDetector.getWidth(false)) - VisionDistanceTarget;
-        if(Math.abs(distanceError) > VisionDriveDeadzone && BallDetector.targetDetected){
-            drive = -distanceError * VisionDrive;
+        double distanceError = distance(BallDetector.getWidth(false)) - DrivetrainDash.visionDistanceTarget;
+        if(Math.abs(distanceError) > DrivetrainDash.visionDriveDeadzone && BallDetector.targetDetected){
+            drive = -distanceError * DrivetrainDash.visionDrive;
         }else{
             drive = 0;
         }
@@ -199,24 +207,25 @@ public class Drivetrain extends Subsystem {
 
 
         multTelemetry.addData("Error", BallDetector.getError(false));
+        multTelemetry.addData("distance error", distanceError);
         multTelemetry.addData("Width", BallDetector.getWidth(false));
-        multTelemetry.addData("distance", distance(BallDetector.getWidth(false)));
+       // multTelemetry.addData("distance", distance(BallDetector.getWidth(false)));
         multTelemetry.addData("angle in radians", angleRad);
 
-
-
-        driveWheels.veryDirectDrive(drive +strafe -turn,drive -strafe +turn,drive -strafe -turn,drive +strafe +turn);
+        driveWheels2.veryVeryDirectDrive(drive,turn);
+      //  driveWheels.veryDirectDrive(drive +strafe -turn,drive -strafe +turn,drive -strafe -turn,drive +strafe +turn);
       /* fl.setPower((drive -strafe +turn));
        fr.setPower((drive +strafe -turn));
         bl.setPower((drive +strafe +turn));
         br.setPower((drive -strafe -turn));*/
     }
     public double distance(double widthPixels){
-        double angleDeg = ((120*widthPixels)/320) /2 ;
-
-        angleRad = angleDeg * (PI/180);
-        double height = 85;
-        double distance = Math.sqrt(Math.pow(30/Math.tan(angleRad),2)-(Math.pow(height,2)));
+        //double angleDeg = ((120*widthPixels)/320) /2;
+       // angleRad = angleDeg * (PI/180);
+        double diameterOfObject = 12.7/100; //in meters
+        double distance = 396.874;
+        distance = diameterOfObject*fx/widthPixels-focalLengthMM; //not real yet, ran out of time
+        //distance = Math.sqrt(Math.pow(30/Math.tan(angleRad),2)-(Math.pow(height,2)));
         return distance;
     }
 

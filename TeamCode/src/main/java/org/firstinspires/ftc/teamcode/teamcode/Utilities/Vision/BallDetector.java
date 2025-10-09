@@ -219,7 +219,10 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
     public static double getError(boolean trueIfGreen){
         if(targetDetected){
             double centerBlob = 0;
-            if(trueIfGreen){centerBlob=largestGreenCircle.getX() + (largestGreenCircle.getRadius());}else{centerBlob = largestPurpleCircle.getX()+largestPurpleCircle.getRadius();};
+            if(trueIfGreen){
+                centerBlob=largestGreenCircle.getX() + (largestGreenCircle.getRadius());
+            } else{
+                centerBlob = largestPurpleCircle.getX()+largestPurpleCircle.getRadius();};
                 //error 157
             double error = (IMG_WIDTH / 2)  - centerBlob;
             return error;
