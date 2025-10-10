@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode.multTelemetry;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.focalLengthMM;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.fx;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.pixelsToMeters;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HD;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HP;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.rateOfChange;
@@ -192,8 +193,8 @@ public class Drivetrain extends Subsystem {
             turn = -(BallDetector.getError(false) * DrivetrainDash.visionTurn);
 
         } else{
-            multTelemetry.addData("Status","not moving");
-
+           // multTelemetry.addData("Status","not moving");
+            turn = 0;
          //   strafe = 0;
         }
 
@@ -208,11 +209,13 @@ public class Drivetrain extends Subsystem {
 
         multTelemetry.addData("Error", BallDetector.getError(false));
         multTelemetry.addData("distance error", distanceError);
+        multTelemetry.addData("turn", turn );
+        multTelemetry.addData("drive", drive);
         multTelemetry.addData("Width", BallDetector.getWidth(false));
        // multTelemetry.addData("distance", distance(BallDetector.getWidth(false)));
         multTelemetry.addData("angle in radians", angleRad);
 
-        driveWheels2.veryVeryDirectDrive(drive,turn);
+      //  driveWheels2.veryVeryDirectDrive(drive,turn);
       //  driveWheels.veryDirectDrive(drive +strafe -turn,drive -strafe +turn,drive -strafe -turn,drive +strafe +turn);
       /* fl.setPower((drive -strafe +turn));
        fr.setPower((drive +strafe -turn));
@@ -223,8 +226,11 @@ public class Drivetrain extends Subsystem {
         //double angleDeg = ((120*widthPixels)/320) /2;
        // angleRad = angleDeg * (PI/180);
         double diameterOfObject = 12.7/100; //in meters
-        double distance = 396.874;
-        distance = diameterOfObject*fx/widthPixels-focalLengthMM; //not real yet, ran out of time
+        double distance;
+        distance = diameterOfObject*fx/widthPixels-focalLengthMM;
+        //distance = pixelsToMeters*widthPixels; //this will never work, but it's a neat idea
+        //not real yet, ran out of time
+        //real diameter times focal length in px over pixel diameter minus focal length MM
         //distance = Math.sqrt(Math.pow(30/Math.tan(angleRad),2)-(Math.pow(height,2)));
         return distance;
     }

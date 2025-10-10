@@ -18,6 +18,8 @@ import static org.opencv.imgproc.Imgproc.minAreaRect;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 
 import com.acmerobotics.dashboard.config.Config;
 
@@ -154,6 +156,49 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
 
+        Paint ballPaintGreen = new Paint();
+        ballPaintGreen.setColor(Color.GREEN);
+        ballPaintGreen.setStyle(Paint.Style.STROKE);
+        ballPaintGreen.setStrokeWidth(scaleCanvasDensity * 8);
+
+        Paint contourpaintGreen = new Paint();
+        contourpaintGreen.setColor(Color.CYAN);
+        contourpaintGreen.setStyle(Paint.Style.STROKE);
+        contourpaintGreen.setStrokeWidth(scaleCanvasDensity *4);
+
+        Paint ballPaintPurple = new Paint();
+        ballPaintPurple.setColor(Color.RED);
+        ballPaintPurple.setStyle(Paint.Style.STROKE);
+        ballPaintPurple.setStrokeWidth(scaleCanvasDensity * 8);
+
+        Paint contourpaintPurple = new Paint();
+        contourpaintPurple.setColor(Color.BLUE);
+        contourpaintPurple.setStyle(Paint.Style.STROKE);
+        contourpaintPurple.setStrokeWidth(scaleCanvasDensity *4);
+        // Create a copy of the contours
+        List<MatOfPoint> contourCopyPurple = new ArrayList<>(contoursPurple);
+        // Rectangle showing camera view
+        // This loops through all the contours and draw points on the canvas
+
+        for (MatOfPoint point : contourCopyPurple) {
+            Point[] contourArray = point.toArray();
+            // This Extracts the contour points and iterates through them.
+            for (Point p : contourArray) {
+                canvas.drawPoint((float) (p.x * scaleBmpPxToCanvasPx), (float) (p.y * scaleBmpPxToCanvasPx), contourpaintPurple);
+            }
+        }
+
+        List<MatOfPoint> contourCopyGreen = new ArrayList<>(contoursGreen);
+        // Rectangle showing camera view
+        // This loops through all the contours and draw points on the canvas
+
+        for (MatOfPoint point : contourCopyGreen) {
+            Point[] contourArray = point.toArray();
+            // This Extracts the contour points and iterates through them.
+            for (Point p : contourArray) {
+                canvas.drawPoint((float) (p.x * scaleBmpPxToCanvasPx), (float) (p.y * scaleBmpPxToCanvasPx), contourpaintGreen);
+            }
+        }
     }
     @Override
     public void getFrameBitmap(Continuation<? extends Consumer<Bitmap>> continuation) {
