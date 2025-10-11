@@ -70,7 +70,9 @@ public class Constants {
     //very approximate
 
 
-    public static double g = 9.8;
+    public static double g = 8.8;
+    //trust
+    //DO NOT USE FOR NON-SHOOTER PURPOSES
 
 
     public void setEndAngle(double angle){
