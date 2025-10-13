@@ -324,39 +324,57 @@ public class Shooter extends Subsystem{
         double ty = result.getTy();
         tyFiltered = tyAlpha * ty + (1 - tyAlpha) * tyFiltered;
 
+        // Dynamic angle compensation beyond ~2.8 m
+        // Start with baseline Limelight mount angle
+        double dynamicAngleOffset = limelightAngleOffset;
+
+        // Gradually increase virtual mount angle up to +3.2° by 3.2 m
+        // (simulates camera calibration bias at long range)
+        if (actualDistance > 2.8) {
+            double ramp = Range.clip((actualDistance - 2.8) * 8.0, 0.0, 3.2); // 8°/m ramp
+            dynamicAngleOffset += ramp;
+        }
+
         // Raw trig distance (m)
-        double totalAngle = limelightAngleOffset + tyFiltered;
+        double totalAngle = dynamicAngleOffset + tyFiltered;
         double trigDist = (goalAprilTagHeight - limelightLensHeightFromGround)
                 / Math.tan(Math.toRadians(totalAngle));
 
         // Mild linear correction beyond 2.3 m
         double correctedDist = trigDist;
         if (trigDist > 2.3) {
-            // Roughly subtract ~0.18 % of the excess beyond 2.3 m
             double bias = biasterm * (trigDist - 2.3);
             correctedDist = trigDist - bias;
         }
 
-        // pose blend far away (>3.2 m)
+        // pose-based cross-check beyond ~3.2 m
         double x = fid.getRobotPoseTargetSpace().getPosition().x;
         double z = fid.getRobotPoseTargetSpace().getPosition().z;
         double poseDist = Math.sqrt(x * x + z * z);
         boolean poseValid = poseDist > 0.3 && poseDist < 5.0;
 
+        // Blend in up to 50% of pose data between 3.2–4.0 m
         double wPose = poseValid ? Range.clip((correctedDist - 3.2) / 0.8, 0.0, 0.5) : 0.0;
         double blended = (1 - wPose) * correctedDist + wPose * poseDist;
 
-        // Filter
+        double yaw = 180-Math.abs(fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES)-3);
+        yaw = Math.toRadians(yaw);
+        // Final smoothing filter for stability
         actualDistance = alpha * blended + (1 - alpha) * actualDistance;
-        heading = result.getTx();
-        distanceAway = actualDistance;
 
-        // Telemetry
+        //Heading and telemetry
+        heading = result.getTx();
+        distanceAway = Math.sqrt(Math.pow(0.46,2)+Math.pow(actualDistance,2)-2*0.46*actualDistance*Math.cos(yaw));
+
+        BaseOpMode.addData("tyFiltered", tyFiltered);
+        BaseOpMode.addData("DynamicAngleOffset", dynamicAngleOffset);
         BaseOpMode.addData("TrigDist(m)", trigDist);
         BaseOpMode.addData("CorrectedDist(m)", correctedDist);
         BaseOpMode.addData("PoseDist(m)", poseDist);
         BaseOpMode.addData("FinalDist(m)", actualDistance);
+        BaseOpMode.addData("adjustedDistance", distanceAway);
     }
+
 
 
     public double getBallSpeed(){
