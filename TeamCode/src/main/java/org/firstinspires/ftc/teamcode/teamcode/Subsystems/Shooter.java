@@ -362,7 +362,7 @@ public class Shooter extends Subsystem{
         // Final smoothing filter for stability
         actualDistance = alpha * blended + (1 - alpha) * actualDistance;
 
-        //Heading and telemetry
+        ///Heading and telemetry
         heading = result.getTx();
         distanceAway = Math.sqrt(Math.pow(0.46,2)+Math.pow(actualDistance,2)-2*0.46*actualDistance*Math.cos(yaw));
 
