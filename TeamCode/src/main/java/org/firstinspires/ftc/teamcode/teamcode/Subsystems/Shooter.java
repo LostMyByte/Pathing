@@ -3,10 +3,13 @@ package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.B;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.BLUE;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.RED;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.biasterm;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.goalAprilTagHeight;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.limelightAngleOffset;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.limelightLensHeightFromGround;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.team;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.tyAlpha;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.tyFiltered;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -70,6 +73,13 @@ public class Shooter extends Subsystem{
     double distanceAway;
 
 
+    // Calibration state variables
+    private int calibrationFrameCount = 0;
+    private double runningOffsetSum = 0;
+    private boolean offsetCalibrated = false;
+
+
+
     public Shooter(HardwareMap hardwareMap, double turretStartAngle, Constants.Team team){
         //Things are commented to prepare for the first tests of the shooter where we will only have the flywheel.
 
@@ -110,7 +120,8 @@ public class Shooter extends Subsystem{
             case OBELISK:
                 break;
             case SHOOTERTESTING:
-                updateTargeting();
+                updateTagDistanceHybridCorrected();
+                //updateTargeting();
                 break;
         }
     };
@@ -297,6 +308,55 @@ public class Shooter extends Subsystem{
         BaseOpMode.addData("distanceAway",distanceAway);
     }
 
+    public void updateTagDistanceHybridCorrected() {
+        LLResult result = limelight.getLatestResult();
+        if (result == null || !result.isValid()) {
+            BaseOpMode.addData("HybridDistance", "No valid tag");
+            return;
+        }
+
+        List<LLResultTypes.FiducialResult> fids = result.getFiducialResults();
+        if (fids == null || fids.isEmpty()) return;
+
+        LLResultTypes.FiducialResult fid = fids.get(0);
+
+        // Smooth ty
+        double ty = result.getTy();
+        tyFiltered = tyAlpha * ty + (1 - tyAlpha) * tyFiltered;
+
+        // Raw trig distance (m)
+        double totalAngle = limelightAngleOffset + tyFiltered;
+        double trigDist = (goalAprilTagHeight - limelightLensHeightFromGround)
+                / Math.tan(Math.toRadians(totalAngle));
+
+        // Mild linear correction beyond 2.3 m
+        double correctedDist = trigDist;
+        if (trigDist > 2.3) {
+            // Roughly subtract ~0.18 % of the excess beyond 2.3 m
+            double bias = biasterm * (trigDist - 2.3);
+            correctedDist = trigDist - bias;
+        }
+
+        // pose blend far away (>3.2 m)
+        double x = fid.getRobotPoseTargetSpace().getPosition().x;
+        double z = fid.getRobotPoseTargetSpace().getPosition().z;
+        double poseDist = Math.sqrt(x * x + z * z);
+        boolean poseValid = poseDist > 0.3 && poseDist < 5.0;
+
+        double wPose = poseValid ? Range.clip((correctedDist - 3.2) / 0.8, 0.0, 0.5) : 0.0;
+        double blended = (1 - wPose) * correctedDist + wPose * poseDist;
+
+        // Filter
+        actualDistance = alpha * blended + (1 - alpha) * actualDistance;
+        heading = result.getTx();
+        distanceAway = actualDistance;
+
+        // Telemetry
+        BaseOpMode.addData("TrigDist(m)", trigDist);
+        BaseOpMode.addData("CorrectedDist(m)", correctedDist);
+        BaseOpMode.addData("PoseDist(m)", poseDist);
+        BaseOpMode.addData("FinalDist(m)", actualDistance);
+    }
 
 
     public double getBallSpeed(){
@@ -403,7 +463,8 @@ public class Shooter extends Subsystem{
     @Override
     public void update() {
         work();
-        updateTargeting();
+        updateTagDistanceHybridCorrected();
+        //updateTargeting();
     }
 
     public enum ShooterStates{
