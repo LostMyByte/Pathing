@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.DashPositions;
 
@@ -13,31 +14,21 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.DashPositions;
 public class TestOpMode extends BaseOpMode {
 
 
-    Shooter shooter;
-    ElapsedTime timer;
+    Hopper hopper;
+
 
     @Override
     public void externalInit() {
 
-        shooter = new Shooter(hardwareMap, 0, Constants.Team.BLUE);
-        timer = new ElapsedTime();
-        timer.reset();
+        hopper = new Hopper(hardwareMap);
+
     }
 
     @Override
     public void externalLoop() {
-        shooter.setState(Shooter.ShooterStates.SHOOTERTESTING);
-
-        DashPositions.dashShooterRPM = 2100;
-
-
-        BaseOpMode.addData("time", timer.seconds());
-
-        if (timer.seconds() < 10){
-            shooter.setHoodAngleBasedOnTargetShotAngle(25);
-        }
-        if (timer.seconds() > 10){
-            shooter.setHoodAngleBasedOnTargetShotAngle(65);
-        }
+       telemetry.update();
+      // hopper.update();
+        hopper.work();
+       hopper.setState(Hopper.HopperStates.TRANSFER);
     }
 }

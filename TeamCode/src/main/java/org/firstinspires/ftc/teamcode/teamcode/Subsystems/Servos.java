@@ -83,6 +83,22 @@ public class Servos {
             super.setPositionInterpolated(a);
         }
     }
+    public static class Transfer extends Servo{
+        public Transfer(){
+            super(Hardware.transfer);
+
+        }
+
+        @Override
+        public void setPosition(double p) {
+            super.setPosition(p);
+        }
+
+        @Override
+        public void setPositionInterpolated(double a) {
+            super.setPositionInterpolated(a);
+        }
+    }
 
 
     //For everything, 0 is straight up, 90 is facing forwards towards the intake
