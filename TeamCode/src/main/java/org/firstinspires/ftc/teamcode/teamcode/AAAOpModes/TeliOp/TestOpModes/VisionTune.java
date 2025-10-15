@@ -25,6 +25,7 @@ public class VisionTune extends BaseOpMode {
     @Override
     public void externalInit() {
 
+        ballDetector = new BallDetector();
         webcam1 = hardwareMap.get(WebcamName.class, "Webcam 1");
         visionPortal = new VisionPortal.Builder()
                 //setup for using webcam, there is a different way to set up a phone camera
@@ -39,16 +40,16 @@ public class VisionTune extends BaseOpMode {
 
 
 
-        dash = FtcDashboard.getInstance();
+        FtcDashboard.getInstance().startCameraStream(visionPortal, 0);
         //this is what allows ftc dashboard to work
-        dash.startCameraStream(visionPortal, 0);
-        telemetry = dash.getTelemetry();
+        //dash.startCameraStream(visionPortal, 0);
+        telemetry = FtcDashboard.getInstance().getTelemetry();
         waitForStart();
     }
 
     @Override
     public void externalLoop() {
-        multTelemetry.addData("Color RBG to HSV", ballDetector.getCenterpixel(false));
+      //  multTelemetry.addData("Color RBG to HSV", ballDetector.getCenterpixel(false));
       //  multTelemetry.addData("Color BGR to HSV", ballDetector.getCenterpixel(true));
         multTelemetry.update();
     }

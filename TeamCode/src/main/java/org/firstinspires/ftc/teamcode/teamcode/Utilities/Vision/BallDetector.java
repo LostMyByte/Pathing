@@ -30,6 +30,7 @@ import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibra
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.opencv.Circle;
 import org.opencv.android.Utils;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
@@ -93,18 +94,18 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
 
     @Config
     public static class visionDash{
-        public static int maxH_green = 100;
-        public static int maxS_green = 100;
-        public static int maxV_green = 100;
-        public static int minH_green = 100;
+        public static int maxH_green = 87;
+        public static int maxS_green = 255;
+        public static int maxV_green = 190;
+        public static int minH_green = 75;
         public static int minS_green = 100;
-        public static int minV_green = 100;
+        public static int minV_green = 70;
 
-        public static int maxH_purple = 100;
-        public static int maxS_purple = 100;
-        public static int maxV_purple = 100;
-        public static int minH_purple = 100;
-        public static int minS_purple = 100;
+        public static int maxH_purple = 170;
+        public static int maxS_purple = 200;
+        public static int maxV_purple = 255;
+        public static int minH_purple = 140;
+        public static int minS_purple = 65;
         public static int minV_purple = 100;
     }
 
@@ -225,11 +226,13 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
     public Circle getObjectsDetected(ArrayList<MatOfPoint> contours){
         if (!contours.isEmpty()) {
             MatOfPoint largestContour = findLargestContour(contours);
+            MatOfPoint2f largestContour2f = new MatOfPoint2f();
             if (largestContour != null) {
                 // Find the minimum enclosing circle for the largest contour
+                largestContour.convertTo(largestContour2f, CvType.CV_32FC2);
                 Point center = new Point();
                 float[] radius = new float[1];
-                Imgproc.minEnclosingCircle(new MatOfPoint2f(largestContour), center, radius);
+                Imgproc.minEnclosingCircle(new MatOfPoint2f(largestContour2f), center, radius);
 
                 // Update the public variables with the circle's properties
                 circleX = center.x;
