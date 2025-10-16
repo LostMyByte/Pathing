@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.DashPositions;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.ShooterDashClass;
 
 @TeleOp (name = "ShooterTest")
 public class ShooterTest extends BaseOpMode {
@@ -24,7 +25,6 @@ Servos.Hood hood;
     double ticksR = 0;
     @Config
     public static class ShooterDash{
-        public static double shooterMotorPower = 0;
         public static double ticksPerRotation = 28*(3.0/2); //This is now ticks per revolution
     }
 
@@ -38,7 +38,7 @@ Servos.Hood hood;
     @Override
     public void externalLoop() {
         shooter.setState(Shooter.ShooterStates.ACTIVE);
-        shooter.setTargetShooterRPM(1950);
+        shooter.setTargetShooterRPM(ShooterDashClass.shooterSpeed);
         BaseOpMode.addData("targetRPM", shooter.getTargetShooterRPM());
         BaseOpMode.addData("RPM", shooter.getShooterRPM());
     }

@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.B;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.BLUE;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.RED;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.biasterm;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.goalAprilTagHeight;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.limelightAngleOffset;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.limelightLensHeightFromGround;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.team;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.tyAlpha;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.tyFiltered;
 
@@ -23,10 +21,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes.ShooterTest;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.RingBuffer;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.DashPositions;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.ShooterDash;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.ShooterDashClass;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Servo;
 
@@ -194,8 +190,11 @@ public class Shooter extends Subsystem{
     double rpmAlpha = 0.2;
     public double getShooterRPM(){
         double rpm = (Math.abs(shooter1.getVelocity()/ShooterTest.ShooterDash.ticksPerRotation*60)+Math.abs(shooter2.getVelocity()/ShooterTest.ShooterDash.ticksPerRotation*60))/2;
+
         filteredRPM = alpha*(rpm) + (1-rpmAlpha) * filteredRPM;
+        if(shooter1.getVelocity() > 0){
         return filteredRPM;
+        } else {return 0;}
     }
 
     public double getTargetShooterRPM(){
@@ -318,68 +317,75 @@ public class Shooter extends Subsystem{
         List<LLResultTypes.FiducialResult> fids = result.getFiducialResults();
         if (fids == null || fids.isEmpty()) return;
 
-        LLResultTypes.FiducialResult fid = fids.get(0);
+        for (LLResultTypes.FiducialResult fid : fids)
+            if ((fid.getFiducialId() == 20 && team == BLUE) || (fid.getFiducialId() == 24 && team == RED)) {
 
-        // Smooth ty
-        double ty = result.getTy();
-        tyFiltered = tyAlpha * ty + (1 - tyAlpha) * tyFiltered;
 
-        // Dynamic angle compensation beyond ~2.8 m
-        // Start with baseline Limelight mount angle
-        double dynamicAngleOffset = limelightAngleOffset;
+                // Smooth ty
+                double ty = result.getTy();
+                tyFiltered = tyAlpha * ty + (1 - tyAlpha) * tyFiltered;
 
-        // Gradually increase virtual mount angle up to +3.2° by 3.2 m
-        // (simulates camera calibration bias at long range)
-        if (actualDistance > 2.8) {
-            double ramp = Range.clip((actualDistance - 2.8) * 8.0, 0.0, 3.2); // 8°/m ramp
-            dynamicAngleOffset += ramp;
-        }
+                // Dynamic angle compensation beyond ~2.8 m
+                // Start with baseline Limelight mount angle
+                double dynamicAngleOffset = limelightAngleOffset;
 
-        // Raw trig distance (m)
-        double totalAngle = dynamicAngleOffset + tyFiltered;
-        double trigDist = (goalAprilTagHeight - limelightLensHeightFromGround)
-                / Math.tan(Math.toRadians(totalAngle));
+                // Gradually increase virtual mount angle up to +3.2° by 3.2 m
+                // (simulates camera calibration bias at long range)
+                if (actualDistance > 2.8) {
+                    double ramp = Range.clip((actualDistance - 2.8) * 8.0, 0.0, 3.2); // 8°/m ramp
+                    dynamicAngleOffset += ramp;
+                }
 
-        // Mild linear correction beyond 2.3 m
-        double correctedDist = trigDist;
-        if (trigDist > 2.3) {
-            double bias = biasterm * (trigDist - 2.3);
-            correctedDist = trigDist - bias;
-        }
+                // Raw trig distance (m)
+                double totalAngle = dynamicAngleOffset + tyFiltered;
+                double trigDist = (goalAprilTagHeight - limelightLensHeightFromGround)
+                        / Math.tan(Math.toRadians(totalAngle));
 
-        // pose-based cross-check beyond ~3.2 m
-        double x = fid.getRobotPoseTargetSpace().getPosition().x;
-        double z = fid.getRobotPoseTargetSpace().getPosition().z;
-        double poseDist = Math.sqrt(x * x + z * z);
-        boolean poseValid = poseDist > 0.3 && poseDist < 5.0;
+                // Mild linear correction beyond 2.3 m
+                double correctedDist = trigDist;
+                if (trigDist > 2.3) {
+                    double bias = biasterm * (trigDist - 2.3);
+                    correctedDist = trigDist - bias;
+                }
 
-        // Blend in up to 50% of pose data between 3.2–4.0 m
-        double wPose = poseValid ? Range.clip((correctedDist - 3.2) / 0.8, 0.0, 0.5) : 0.0;
-        double blended = (1 - wPose) * correctedDist + wPose * poseDist;
+                // pose-based cross-check beyond ~3.2 m
+                double x = fid.getRobotPoseTargetSpace().getPosition().x;
+                double z = fid.getRobotPoseTargetSpace().getPosition().z;
+                double poseDist = Math.sqrt(x * x + z * z);
+                boolean poseValid = poseDist > 0.3 && poseDist < 5.0;
 
-        double yaw = 180-Math.abs(fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES)-3);
-        yaw = Math.toRadians(yaw);
-        // Final smoothing filter for stability
-        actualDistance = alpha * blended + (1 - alpha) * actualDistance;
+                // Blend in up to 50% of pose data between 3.2–4.0 m
+                double wPose = poseValid ? Range.clip((correctedDist - 3.2) / 0.8, 0.0, 0.5) : 0.0;
+                double blended = (1 - wPose) * correctedDist + wPose * poseDist;
 
-        ///Heading and telemetry
-        heading = result.getTx();
-        distanceAway = Math.sqrt(Math.pow(0.46,2)+Math.pow(actualDistance,2)-2*0.46*actualDistance*Math.cos(yaw));
+                double yaw = 180 - Math.abs(fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES) - 3);
+                yaw = Math.toRadians(yaw);
+                // Final smoothing filter for stability
+                actualDistance = alpha * blended + (1 - alpha) * actualDistance;
 
-        BaseOpMode.addData("tyFiltered", tyFiltered);
-        BaseOpMode.addData("DynamicAngleOffset", dynamicAngleOffset);
-        BaseOpMode.addData("TrigDist(m)", trigDist);
-        BaseOpMode.addData("CorrectedDist(m)", correctedDist);
-        BaseOpMode.addData("PoseDist(m)", poseDist);
-        BaseOpMode.addData("FinalDist(m)", actualDistance);
-        BaseOpMode.addData("adjustedDistance", distanceAway);
+                ///Heading and telemetry
+                heading = result.getTx();
+                distanceAway = Math.sqrt(Math.pow(0.46, 2) + Math.pow(actualDistance, 2) - 2 * 0.46 * actualDistance * Math.cos(yaw));
+
+                BaseOpMode.addData("tyFiltered", tyFiltered);
+                BaseOpMode.addData("DynamicAngleOffset", dynamicAngleOffset);
+                BaseOpMode.addData("TrigDist(m)", trigDist);
+                BaseOpMode.addData("CorrectedDist(m)", correctedDist);
+                BaseOpMode.addData("PoseDist(m)", poseDist);
+                BaseOpMode.addData("FinalDist(m)", actualDistance);
+                BaseOpMode.addData("adjustedDistance", distanceAway);
+            }
     }
 
 
 
     public double getBallSpeed(){
         //invert the regression comparing ball exit velocity to shooter RPM
-        return ShooterDash.speedRegressionM * getShooterRPM();
+        return ShooterDashClass.speedRegressionM * getShooterRPM();
+    }
+    public double getTargetBallSpeed(){
+        //invert the regression comparing ball exit velocity to shooter RPM
+        return ShooterDashClass.speedRegressionM * getTargetShooterRPM();
     }
 
     public void setHoodAngleBasedOnTargetShotAngle(double angle){
@@ -389,20 +395,24 @@ public class Shooter extends Subsystem{
         hood.setPositionInterpolated(angle);
     }
 
+    double hoodAngle;
+
     public double getHoodAngle(){
         //add fancy math (High Case)
         //This is for the not-moving case
         xPosition = distanceAway;
-        double ballSpeed = getBallSpeed();
+        double ballSpeed = getTargetBallSpeed();
         BaseOpMode.addData("ballSpeed", ballSpeed);
         double t1 = xPosition*Math.pow(ballSpeed,2);
         double t2 = Math.pow(t1,2);
         double t3 = Constants.g*Math.pow(xPosition,2)/2;
         double t4 = t3 + 0.75*Math.pow(ballSpeed,2);
         double t5 = Constants.g*Math.pow(xPosition,2);
-
-        double input = (t1 - Math.sqrt(t2-(4*t3*t4)))/t5;
-        double hoodAngle = Math.toDegrees(Math.atan(input));
+        double input;
+        if (distanceAway > 1){
+        input = (t1 - Math.sqrt(t2-(4*t3*t4)))/t5;
+        }
+        else {input = t1 + Math.sqrt(t2-(4*t3*t4))/t5;}
 
         BaseOpMode.addData("input", input);
         BaseOpMode.addData("t1",t1);
@@ -411,22 +421,35 @@ public class Shooter extends Subsystem{
         BaseOpMode.addData("t4",t4);
         BaseOpMode.addData("t5",t5);
 
+        //If this works, if it can't find a new angle, it will return the last good angle.
 
 
-
-        if(Double.isNaN(hoodAngle)){
+        if(Double.isNaN(input)){
             //this is the case where the equation returns NaN (it couldn't hit the target)
-            //In this case, it declares that it can't shoot and returns the highest possible angle
+            //In this case, it declares that it can't shoot and returns the last good angle
             hoodCanShoot = false;
-            return 60;
+            if (Double.isNaN(hoodAngle)){
+                return 60;
+            }
+            else {
+                return hoodAngle;
+            }
         }
         else{
             BaseOpMode.addData("targetAngle", hoodAngle);
             hoodCanShoot = true;
+            hoodAngle = Math.toDegrees(Math.atan(input));
             return Range.clip(hoodAngle, 33, 65);
         }
     }
 
+
+    public void selectRPM(){
+        //Populate this with all the RPM Ranges
+        if (distanceAway < 1){
+            targetShooterRPM = 1180;
+        }
+    }
     public boolean canRobotShoot(){
         return (hoodCanShoot && turretCanShoot);
     }
