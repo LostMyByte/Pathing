@@ -76,9 +76,9 @@ public class Drivetrain extends Subsystem {
 
         gamepad1 = new Gamepad();
         driveWheels2 = new TankDrivetrain();
-        driveWheels = new MecanumDrive();
+        //driveWheels = new MecanumDrive();
 
-        gyro = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
+       /* gyro = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
         if (Double.isNaN(Constants.startAngle)) {
             gyro.resetPosAndIMU();
             gyro.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, heading));
@@ -87,7 +87,7 @@ public class Drivetrain extends Subsystem {
 
             gyro.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, gyro.getHeading()- PI/2));;
         }
-        pid = new PID(HP,0, HD);
+        pid = new PID(HP,0, HD);*/
 
 
     }
