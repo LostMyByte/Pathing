@@ -4,7 +4,7 @@ package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode.multTelemetry;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.focalLengthMM;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.fx;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.pixelsToMeters;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.visionTurnDeadzone;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HD;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HP;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.rateOfChange;
@@ -76,9 +76,9 @@ public class Drivetrain extends Subsystem {
 
         gamepad1 = new Gamepad();
         driveWheels2 = new TankDrivetrain();
-        driveWheels = new MecanumDrive();
+        //driveWheels = new MecanumDrive();
 
-        gyro = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
+       /* gyro = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
         if (Double.isNaN(Constants.startAngle)) {
             gyro.resetPosAndIMU();
             gyro.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, heading));
@@ -87,7 +87,7 @@ public class Drivetrain extends Subsystem {
 
             gyro.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, gyro.getHeading()- PI/2));;
         }
-        pid = new PID(HP,0, HD);
+        pid = new PID(HP,0, HD);*/
 
 
     }
@@ -198,9 +198,10 @@ public class Drivetrain extends Subsystem {
          //   strafe = 0;
         }
 
-        double distanceError = distance(BallDetector.getWidth(false)) - DrivetrainDash.visionDistanceTarget;
+        double distanceError = scuffedDistance(BallDetector.getWidth(false));
+        //double distanceError = distance(BallDetector.getWidth(false)) - DrivetrainDash.visionDistanceTarget;
         if(Math.abs(distanceError) > DrivetrainDash.visionDriveDeadzone && BallDetector.targetDetected){
-            drive = -distanceError * DrivetrainDash.visionDrive;
+            drive = distanceError * DrivetrainDash.visionDrive;
         }else{
             drive = 0;
         }
@@ -208,7 +209,7 @@ public class Drivetrain extends Subsystem {
 
 
         multTelemetry.addData("Error", BallDetector.getError(false));
-        multTelemetry.addData("distance error", distanceError);
+      //  multTelemetry.addData("distance error", distanceError);
         multTelemetry.addData("turn", turn );
         multTelemetry.addData("drive", drive);
         multTelemetry.addData("Width", BallDetector.getWidth(false));
@@ -233,6 +234,14 @@ public class Drivetrain extends Subsystem {
         //real diameter times focal length in px over pixel diameter minus focal length MM
         //distance = Math.sqrt(Math.pow(30/Math.tan(angleRad),2)-(Math.pow(height,2)));
         return distance;
+    }
+
+    public double scuffedDistance(double widthPixels){
+       double distance;
+           distance = DrivetrainDash.visionDistanceTarget-widthPixels;
+
+        return distance;
+        //gives dist in pixels, trust
     }
 
     public void resetHeading(){

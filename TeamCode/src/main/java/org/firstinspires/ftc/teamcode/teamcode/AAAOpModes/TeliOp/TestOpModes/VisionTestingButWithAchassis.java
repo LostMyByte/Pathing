@@ -28,24 +28,26 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
 
     @Override
     public void externalInit() {
-
+        ballDetector = new BallDetector();
         webcam1 = hardwareMap.get(WebcamName.class, "Webcam 1");
         visionPortal = new VisionPortal.Builder()
                 //setup for using webcam, there is a different way to set up a phone camera
                 .setCamera(webcam1)
                 //use addProcessor() for only adding one processor
-                .addProcessors(ballDetector)
+                .addProcessor(ballDetector)
                 // .addProcessors(drive.getProcessor())
                 //sets the camera resolution to the size we set up earlier
                 //Currently 1280x720 because that size works for both a global shutter camera and a logitech camera
                 .setCameraResolution(cameraResolution)
                 .build();
-        //this is what allows ftc dashboard to work
-        dash.startCameraStream(visionPortal, 0);
 
-        drive = new Drivetrain(hardwareMap,0);
-        dash = FtcDashboard.getInstance();
-        telemetry = dash.getTelemetry();
+        drive = new Drivetrain(hardwareMap, 0);
+
+        FtcDashboard.getInstance().startCameraStream(visionPortal, 0);
+        //this is what allows ftc dashboard to work
+        //dash.startCameraStream(visionPortal, 0);
+        telemetry = FtcDashboard.getInstance().getTelemetry();
+        waitForStart();
         waitForStart();
     }
 
@@ -53,5 +55,7 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
     public void externalLoop() {
         if(!driver1.circle.isTapped()){
      drive.ballFollow();
-    }}
+    }
+    }
+
 }

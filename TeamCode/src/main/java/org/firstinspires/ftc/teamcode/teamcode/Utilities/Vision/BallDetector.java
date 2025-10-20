@@ -27,6 +27,7 @@ import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
+import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.opencv.Circle;
 import org.opencv.android.Utils;
@@ -94,18 +95,18 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
 
     @Config
     public static class visionDash{
-        public static int maxH_green = 87;
+        public static int maxH_green = 95;
         public static int maxS_green = 255;
-        public static int maxV_green = 190;
+        public static int maxV_green = 255;
         public static int minH_green = 75;
         public static int minS_green = 100;
-        public static int minV_green = 70;
+        public static int minV_green = 80;
 
         public static int maxH_purple = 170;
         public static int maxS_purple = 200;
         public static int maxV_purple = 255;
         public static int minH_purple = 140;
-        public static int minS_purple = 65;
+        public static int minS_purple = 55;
         public static int minV_purple = 100;
     }
 
@@ -200,6 +201,8 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
                 canvas.drawPoint((float) (p.x * scaleBmpPxToCanvasPx), (float) (p.y * scaleBmpPxToCanvasPx), contourpaintGreen);
             }
         }
+
+
     }
     @Override
     public void getFrameBitmap(Continuation<? extends Consumer<Bitmap>> continuation) {
@@ -232,13 +235,15 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
                 largestContour.convertTo(largestContour2f, CvType.CV_32FC2);
                 Point center = new Point();
                 float[] radius = new float[1];
-                Imgproc.minEnclosingCircle(new MatOfPoint2f(largestContour2f), center, radius);
-
-                // Update the public variables with the circle's properties
                 circleX = center.x;
                 circleY = center.y;
                 circleRadius = radius[0];
-                targetDetected = true;
+                Imgproc.minEnclosingCircle(new MatOfPoint2f(largestContour2f), center, radius);
+
+                // Update the public variables with the circle's properties
+
+                if(largestCircle!=null){
+                targetDetected = true;}
                 // Draw the bounding circle on the original frame
                 //  Imgproc.circle(input, center, (int) radius[0], new Scalar(255, 0, 0), 2);
                 // Imgproc.circle(input, center, 5, new Scalar(0, 255, 0), -1); // Draw a dot at the center
@@ -248,7 +253,7 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
 
         drawContours(output, contours, -1, lightBlue);
         // Draws contours around shapes
-
+        BaseOpMode.addData("target  detected", targetDetected);
         return largestCircle;
     }
     private MatOfPoint findLargestContour(List<MatOfPoint> contours) {
@@ -267,9 +272,9 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
     public static double getError(boolean trueIfGreen){
         if(targetDetected){
             double centerBlob = 0;
-            if(trueIfGreen){
+            if(trueIfGreen&&largestGreenCircle!=null){
                 centerBlob=largestGreenCircle.getX() + (largestGreenCircle.getRadius());
-            } else{
+            } else if (largestPurpleCircle!=null){
                 centerBlob = largestPurpleCircle.getX()+largestPurpleCircle.getRadius();};
                 //error 157
             double error = (IMG_WIDTH / 2)  - centerBlob;
@@ -282,12 +287,12 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
     public static double getWidth(boolean trueIfGreen){
         if(targetDetected){
 
-            if(trueIfGreen) {
+            if(trueIfGreen&&largestGreenCircle!=null) {
                 return largestGreenCircle.getRadius() * 2;
 
-            }else {
+            }else if(largestPurpleCircle!=null) {
                 return largestPurpleCircle.getRadius()*2;
-            }
+            }else return 0;
         }else{
             return 0;
         }
