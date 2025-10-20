@@ -51,8 +51,8 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
     public static Rect largestRect;
 
     public static Circle largestCircle;
-    public static Circle largestPurpleCircle;
-    public static Circle largestGreenCircle;
+    public static Rect largestPurpleRect;
+    public static Rect largestGreenRect;
 
     public double circleX = 0;
     public double circleY = 0;
@@ -142,8 +142,8 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
 
         findContours(maskGreen, contoursGreen, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
         findContours(maskPurple, contoursPurple, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-        largestPurpleCircle = getObjectsDetected(contoursPurple);
-        largestGreenCircle = getObjectsDetected(contoursGreen);
+        largestPurpleRect = getObjectsDetected(contoursPurple);
+        largestGreenRect = getObjectsDetected(contoursGreen);
 
 
 
@@ -226,36 +226,62 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
             return centerPixelColorRGB;
         }
     }
-    public Circle getObjectsDetected(ArrayList<MatOfPoint> contours){
+    public Rect getObjectsDetected(ArrayList<MatOfPoint> contours){
         if (!contours.isEmpty()) {
             MatOfPoint largestContour = findLargestContour(contours);
-            MatOfPoint2f largestContour2f = new MatOfPoint2f();
+          //  MatOfPoint2f largestContour2f = new MatOfPoint2f();
             if (largestContour != null) {
+
+                List<Rect> rects = new ArrayList<>();
+                for (int i = 0; i < contours.size(); i++) {
+                    Rect rect = boundingRect(contours.get(i));
+                    rects.add(rect);
+                }
+                if (!rects.isEmpty()) {
+                    this.largestRect = VisionUtils.sortRectsByMaxOption(1, VisionUtils.RECT_OPTION.AREA, rects).get(0);
+                    targetDetected = true;
+                } else {
+                    largestRect = null;
+                    targetDetected = false;
+                }}
                 // Find the minimum enclosing circle for the largest contour
-                largestContour.convertTo(largestContour2f, CvType.CV_32FC2);
-                Point center = new Point();
+               /* largestContour.convertTo(largestContour2f, CvType.CV_32FC2);
+                List<Circle> circles = new ArrayList<>();
+                for (int i = 0; i < contours.size(); i++) {
+                    Point center = new Point();
+                    float[] radius = new float[(int) (Math.sqrt(( Imgproc.contourArea(contours.get(i)))/Math.PI))];
+                    circleX =
+                    circleY = center.y;
+                    circleRadius = radius[0];
+                    Imgproc.minEnclosingCircle(new MatOfPoint2f(largestContour2f), center, radius);
+                    circles.add(circle);
+                }*/
+                /*Point center = new Point();
                 float[] radius = new float[1];
                 circleX = center.x;
                 circleY = center.y;
                 circleRadius = radius[0];
                 Imgproc.minEnclosingCircle(new MatOfPoint2f(largestContour2f), center, radius);
+                */
 
                 // Update the public variables with the circle's properties
 
-                if(largestCircle!=null){
+                /*if(largestCircle!=null){
                 targetDetected = true;}
                 // Draw the bounding circle on the original frame
                 //  Imgproc.circle(input, center, (int) radius[0], new Scalar(255, 0, 0), 2);
                 // Imgproc.circle(input, center, 5, new Scalar(0, 255, 0), -1); // Draw a dot at the center
             }} else {
                 targetDetected = false;
-    }
+    }*/
 
-        drawContours(output, contours, -1, lightBlue);
-        // Draws contours around shapes
-        BaseOpMode.addData("target  detected", targetDetected);
-        return largestCircle;
-    }
+                drawContours(output, contours, -1, lightBlue);
+                // Draws contours around shapes
+                BaseOpMode.addData("target  detected", targetDetected);
+                return largestRect;
+            }else{
+            return null;
+    }}
     private MatOfPoint findLargestContour(List<MatOfPoint> contours) {
         double maxArea = 0;
         MatOfPoint largestContour = null;
@@ -272,10 +298,10 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
     public static double getError(boolean trueIfGreen){
         if(targetDetected){
             double centerBlob = 0;
-            if(trueIfGreen&&largestGreenCircle!=null){
-                centerBlob=largestGreenCircle.getX() + (largestGreenCircle.getRadius());
-            } else if (largestPurpleCircle!=null){
-                centerBlob = largestPurpleCircle.getX()+largestPurpleCircle.getRadius();};
+            if(trueIfGreen&&largestGreenRect!=null){
+                centerBlob=largestGreenRect.x + (largestGreenRect.width/2);
+            } else if (largestPurpleRect!=null){
+                centerBlob = largestPurpleRect.x+largestPurpleRect.width/2;};
                 //error 157
             double error = (IMG_WIDTH / 2)  - centerBlob;
             return error;
@@ -287,11 +313,11 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
     public static double getWidth(boolean trueIfGreen){
         if(targetDetected){
 
-            if(trueIfGreen&&largestGreenCircle!=null) {
-                return largestGreenCircle.getRadius() * 2;
+            if(trueIfGreen&&largestGreenRect!=null) {
+                return largestGreenRect.width;
 
-            }else if(largestPurpleCircle!=null) {
-                return largestPurpleCircle.getRadius()*2;
+            }else if(largestPurpleRect!=null) {
+                return largestPurpleRect.width;
             }else return 0;
         }else{
             return 0;

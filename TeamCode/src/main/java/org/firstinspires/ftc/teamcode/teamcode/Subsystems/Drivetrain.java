@@ -37,13 +37,13 @@ public class Drivetrain extends Subsystem {
 //                d = 0;
 //
         public static double visionTurnDeadzone = 5; //silly (ignore this stuff)
-        public static double visionTurn = 0.008;
+        public static double visionTurn = 0.00;
 
         public static double visionStrafe = 0.005;
         public static double visionStrafeDeadzone = 3;
-        public static double visionDrive = -0.012;
+        public static double visionDrive = 0.01;
         public static double visionDriveDeadzone = 1;
-        public static double visionDistanceTarget = 180; //pixels bc goofy
+        public static double visionDistanceTarget = 138; //pixels bc goofy
     }
     MecanumDrive driveWheels;
 
@@ -216,7 +216,7 @@ public class Drivetrain extends Subsystem {
        // multTelemetry.addData("distance", distance(BallDetector.getWidth(false)));
         multTelemetry.addData("angle in radians", angleRad);
 
-      //  driveWheels2.veryVeryDirectDrive(drive,turn);
+        driveWheels2.veryVeryDirectDrive(drive,-turn);
       //  driveWheels.veryDirectDrive(drive +strafe -turn,drive -strafe +turn,drive -strafe -turn,drive +strafe +turn);
       /* fl.setPower((drive -strafe +turn));
        fr.setPower((drive +strafe -turn));
