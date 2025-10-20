@@ -55,11 +55,5 @@ public abstract class Movement extends Subsystem {
 
     public Movement(Vector startState) {
         loc = new Location(startState);
-        driveWheels = new Motor[]{
-                new Motor(Hardware.rightFront, false),
-                new Motor(Hardware.leftFront, false),
-                new Motor(Hardware.rightBack, false),
-                new Motor(Hardware.leftBack, false),
-        };
     }
 }

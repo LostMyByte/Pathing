@@ -13,7 +13,13 @@ public interface SystemModel {
 
     Matrix dFdU(Vector state, Vector control, double dt);
 
+    Matrix dSdU(Vector control);
+
+    Matrix h(Vector state);
+
     Matrix VdF2dXdX(Vector state, Vector control, Vector vx, double dt);
 
     Matrix VdF2dXdU(Vector state, Vector control, Vector vx, double dt);
+
+    Matrix VdF2dUdU(Vector state, Vector control, Vector vx, double dt);
 }

@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.Motion.Drivetrains.TankDriveTrain;
+import org.firstinspires.ftc.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.Utilities.Math.Vector;
 
 @TeleOp(name = "Just Tank Drive")
@@ -18,6 +19,8 @@ public class JustDrive extends BaseOpMode {
 
     @Override
     public void externalLoop () {
+
+        drive.loc.updateOffsets();
         Vector target = (new Vector(-gamepad1.left_stick_y, gamepad1.right_stick_x));
 
 

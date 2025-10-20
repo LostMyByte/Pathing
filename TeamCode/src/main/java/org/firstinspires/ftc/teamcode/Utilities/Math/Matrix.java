@@ -659,17 +659,8 @@ public abstract class Matrix
      */
     @Const public Matrix inverted()
     {
-        SimpleMatrix m = new SimpleMatrix(this.numRows, this.numCols);
-
-        for (int r = 0; r < numRows; r++) {
-            for (int c = 0; c < numCols; c++) {
-                m.set(r, c, get(r, c));
-            }
-        }
 
 
-        return new GeneralMatrix(numRows, numCols, m.invert().getDDRM().data);
-        /*
         // Algorithms were generated with the help of Mathematica: general nxn matrices with symbolic
         // (instead of numeric) entries were defined, their inverse symbolically computed, then
         // automatically transcribed to Java.
@@ -782,34 +773,16 @@ public abstract class Matrix
             return result;
         }
 
+        SimpleMatrix m = new SimpleMatrix(this.numRows, this.numCols);
 
-        throw dimensionsError();
-        /*
-        // Otherwise, solve with Gauss-Jordan elimination
-
-        Matrix inverse = identityMatrix(numRows);
-        // Cannot invert if there is a zero along the diagonal
-        for (int i = 0; i < numCols; i++) {
-            double pivot = get(i,i);
-            if (pivot == 0) {
-                throw dimensionsError();
-            }
-
-            // For every column, set (j, i) to zero
-            for (int j = 0; j < numRows; j++) {
-                if (j == i) continue;
-
-                double scale = get(j, i)/pivot;
-
-                for (int k =0 ; k < numCols; k++) {
-                }
+        for (int r = 0; r < numRows; r++) {
+            for (int c = 0; c < numCols; c++) {
+                m.set(r, c, get(r, c));
             }
         }
-        */
 
 
-
-
+        return new GeneralMatrix(numRows, numCols, m.invert().getDDRM().data);
 
     }
 

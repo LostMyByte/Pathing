@@ -88,7 +88,7 @@ public abstract class BaseOpMode extends LinearOpMode {
      * Will execute once when the stop button is pressed
      */
     public void externalStop(){
-        //Motor.stopMotors();
+        Motor.stopMotors();
     }
 
     @Override
@@ -197,7 +197,7 @@ public abstract class BaseOpMode extends LinearOpMode {
         //multTelemetry.setTelemetry(new RobotLogTelemetry());
     }
     public static void updateTelemetry(){
-        //multTelemetry.update();
+        multTelemetry.update();
         dashboardTelemetry.update();
     }
 

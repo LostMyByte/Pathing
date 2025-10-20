@@ -18,13 +18,16 @@ public class TankDriveTrain extends Movement {
     public TankDriveTrain(Vector startState) {
         super(startState);
 
-        L1 = new Motor(Hardware.leftFront, false);
-        L2 = new Motor(Hardware.leftBack, false);
-        R1 = new Motor(Hardware.rightFront, true);
-        R2 = new Motor(Hardware.rightBack, true);
+        L1 = new Motor(Hardware.leftFront, true);
+        L2 = new Motor(Hardware.leftBack, true);
+        R1 = new Motor(Hardware.rightFront, false);
+        R2 = new Motor(Hardware.rightBack, false);
     }
 
-    private void setPowers(Vector powers) {
+    public void setPowers(Vector powers) {
+
+        BaseOpMode.addData("Power L", powers.get(0));
+        BaseOpMode.addData("Power R", powers.get(1));
         this.L1.setPower(powers.get(0));
         this.L2.setPower(powers.get(0));
         this.R1.setPower(powers.get(1));
@@ -44,9 +47,9 @@ public class TankDriveTrain extends Movement {
 
     public void moveRaw(Vector target) {
 
-        Vector powers = target.added(TankDrive.getLoopback(loc.getPositionForTankDrive()));
 
-        setPowers(powers);
+
+        setPowers(target);
     }
 
 

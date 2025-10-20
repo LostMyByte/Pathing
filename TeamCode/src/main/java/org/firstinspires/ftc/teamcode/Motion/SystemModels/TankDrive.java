@@ -30,6 +30,13 @@ public class TankDrive implements SystemModel{
         }).multiplied(hinv(state));
     }
 
+    public static Matrix getWheelVelocity() {
+        return new GeneralMatrix(2, 5, new double[] {
+                0, 0, 0, 1, -DriveConfig.DriveWheels.LeverArm,
+                0, 0, 0, 1, DriveConfig.DriveWheels.LeverArm,
+        });
+    }
+
 
 
     public static void reInit() {
@@ -50,7 +57,7 @@ public class TankDrive implements SystemModel{
         });
     }
 
-    public static Matrix h(TrigAngle angle) {
+    public Matrix h(TrigAngle angle) {
         return new GeneralMatrix(5, 5, new double[] {
                 angle.cos, -angle.sin, 0, 0, 0,
                 angle.sin, angle.cos, 0, 0, 0,
@@ -73,7 +80,7 @@ public class TankDrive implements SystemModel{
         });
     }
 
-    public static Matrix h(Vector state) {
+    public Matrix h(Vector state) {
         TrigAngle theta = new TrigAngle(state.get(2));
         return h(theta);
     }
@@ -107,11 +114,11 @@ public class TankDrive implements SystemModel{
         return h(x).multiplied(linearModel(u, x));
 
     }
-    public static Matrix getAMatrix(Vector state) {
+    public Matrix getAMatrix(Vector state) {
         return h(state).multiplied(A);
     }
 
-    public static Matrix getBMatrix(Vector state) {
+    public Matrix getBMatrix(Vector state) {
         return h(state).multiplied(B);
     }
 
@@ -129,7 +136,8 @@ public class TankDrive implements SystemModel{
         return result;
     }
 
-    public static Matrix dSdU(Vector u) {
+
+    public Matrix dSdU(Vector u) {
         GeneralMatrix result = new GeneralMatrix(2, 2);
 
         double cl = DriveConfig.DriveWheels.controlLimit;
@@ -163,11 +171,11 @@ public class TankDrive implements SystemModel{
     }
 
     public static Vector getLoopback(Vector pos) {
-        Vector wheelVelocities = TankDrive.getBLeftInverse(pos).multiplied(pos);
-        Vector frictionCorrection = new Vector(0,0);
+        Vector wheelVelocities = TankDrive.getWheelVelocity().multiplied(pos);
+         Vector frictionCorrection = new Vector(0,0);
 
         frictionCorrection.put(0, DriveConfig.DriveWheels.Lhk * Math.tanh(DriveConfig.DriveWheels.tsh * pos.get(4)));
-        frictionCorrection.put(1, -DriveConfig.DriveWheels.Lhk * Math.tanh(DriveConfig.DriveWheels.tsv * pos.get(4)));
+        frictionCorrection.put(1, -DriveConfig.DriveWheels.Lhk * Math.tanh(DriveConfig.DriveWheels.tsh * pos.get(4)));
 
         frictionCorrection.add(0, Math.tanh(DriveConfig.DriveWheels.tsv * wheelVelocities.get(0)) * DriveConfig.DriveWheels.Lml);
         frictionCorrection.add(1, Math.tanh(DriveConfig.DriveWheels.tsv * wheelVelocities.get(1)) * DriveConfig.DriveWheels.Lmr);
@@ -245,8 +253,8 @@ public class TankDrive implements SystemModel{
         Vector crossVector = dhdtheta(angle).multiplied(A).multiplied(V);
 
         for (int j = 0; j < 5; j++) {
-            result.put(j, 2, result.get(j, 2) + crossVector.get(2));
-            result.put(2, j, result.get(2, j) + crossVector.get(2));
+            result.put(j, 2, result.get(j, 2) + crossVector.get(j));
+            result.put(2, j, result.get(2, j) + crossVector.get(j));
         }
 
         Vector linearModel = dhdthetadtheta(angle).multiplied(linearModel(control, state));
@@ -255,5 +263,28 @@ public class TankDrive implements SystemModel{
         result.multiply(deltaTime);
 
         return result;
+    }
+
+    public Matrix VdF2dUdU(Vector state, Vector control, Vector V, double deltaTime) {
+        /*Matrix i1 = new GeneralMatrix(2, 2);
+        Matrix i2 = new GeneralMatrix(2, 2);
+        i1.put(0, 0, -2*Math.tanh(control.get(0))/(Math.pow(Math.cosh(control.get(0)), 2)));
+        i2.put(1, 1, -2*Math.tanh(control.get(1))/(Math.pow(Math.cosh(control.get(1)), 2)));
+
+        TrigAngle angle = new TrigAngle(state.get(2));
+
+        Matrix col1 = h(angle).multiplied(B).multiplied(i1);
+        Vector col2 = h(angle).multiplied(B).multiplied(i2).multiplied(V);
+
+        Matrix result = new GeneralMatrix(2,2);
+
+        for (int i =0; i < 2; i++) {
+            result.put(0, i, col1.get(i, i));
+            result.put(1, i, col2.get(i));
+        }
+
+        result.multiply(deltaTime);
+        */
+        return new GeneralMatrix(2,2);
     }
 }

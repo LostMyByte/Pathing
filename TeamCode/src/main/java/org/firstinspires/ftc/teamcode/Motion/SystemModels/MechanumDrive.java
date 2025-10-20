@@ -49,7 +49,7 @@ public class MechanumDrive implements SystemModel {
         }).multiplied(DriveConfig.DriveWheels.driveAcceleration);
     }
 
-    public static Matrix getBLeftInverse(Vector state) {
+    public Matrix getBLeftInverse(Vector state) {
         return B.transposed().multiplied(1/(DriveConfig.DriveWheels.driveAcceleration * DriveConfig.DriveWheels.driveAcceleration)).multiplied(h(state).inverted());
     }
 
@@ -64,7 +64,7 @@ public class MechanumDrive implements SystemModel {
         });
     }
 
-    public static Matrix h(Vector state) {
+    public Matrix h(Vector state) {
         TrigAngle theta = new TrigAngle(state.get(2));
         return h(theta);
     }
@@ -95,16 +95,16 @@ public class MechanumDrive implements SystemModel {
         });
     }
 
-    public static Vector instantaneousModel(Vector x, Vector u) {
+    public Vector instantaneousModel(Vector x, Vector u) {
 
         return h(x).multiplied(linearModel(u, x));
 
     }
-    public static Matrix getAMatrix(Vector state) {
+    public Matrix getAMatrix(Vector state) {
         return h(state).multiplied(A);
     }
 
-    public static Matrix getBMatrix(Vector state) {
+    public Matrix getBMatrix(Vector state) {
         return h(state).multiplied(B);
     }
 
@@ -156,6 +156,11 @@ public class MechanumDrive implements SystemModel {
         return h(state).multiplied(B).multiplied(deltaTime);
     }
 
+    @Override
+    public Matrix dSdU(Vector control) {
+        return Matrix.identityMatrix(4);
+    }
+
     /**
      * Performs the Matrix-Tensor product with the second derivative of F with respect to x and u.
      * Unfortunately, I didn't have a tensor library, so it works weirdly. This function sums over the
@@ -177,6 +182,11 @@ public class MechanumDrive implements SystemModel {
         }
         result.multiply(deltaTime);
         return result;
+    }
+
+    @Override
+    public Matrix VdF2dUdU(Vector state, Vector control, Vector vx, double dt) {
+        return null;
     }
 
     /**

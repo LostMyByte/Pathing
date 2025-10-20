@@ -25,8 +25,8 @@ public class MPCTest extends BaseOpMode {
         public static double threshold = 0.0001;
 
         public static double TX = 0;
-        public static double TY = 10;
-        public static double TH = 0;
+        public static double TY = -10;
+        public static double TH = Math.PI;
         public static double TV = 0;
         public static double THV = 0;
 
@@ -51,21 +51,22 @@ public class MPCTest extends BaseOpMode {
         test.setParams(DriveConfig.DriveWheels.defaultParams);
         test.setModel(new TankDrive());
         test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
-        test.setStart(0, 0, 0, 0, 0);
+        test.setName("Test Path");
+        test.setStart(0, 0, Math.PI, 0, 0);
         test.build();
         try {
-            test.load("Test Path.json");
+            test.load();
 
         } catch (FileNotFoundException e) {
             test.compile(500);
-            test.save("Test Path.json");
+
         } catch (RuntimeException e) {
             test.compile(500);
-            test.save("Test Path.json");
+
         }
 
 
-        drive = new TankDriveTrain(new Vector(new double[5]));
+        drive = new TankDriveTrain(new Vector(new double[]{0, 0, Math.PI, 0, 0}));
 
     }
 
@@ -85,6 +86,7 @@ public class MPCTest extends BaseOpMode {
     public void externalLoop() {
 
         Vector correction;
+
         if (TestMPCParams.feedBack) {
             correction = test.getCorrection(drive.loc.getPositionForTankDrive());
         }
@@ -97,7 +99,7 @@ public class MPCTest extends BaseOpMode {
 
 
         if (gamepad1.square || TestMPCParams.enabled) {
-            drive.moveRaw(correction);
+            drive.setPowers(correction);
         }
         else {
             drive.move(new Vector(0,0));

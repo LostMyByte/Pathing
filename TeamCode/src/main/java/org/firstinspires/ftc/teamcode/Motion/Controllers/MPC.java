@@ -26,7 +26,6 @@ public class MPC {
     private double threshold;
 
 
-
     public Vector[] currentControls;
     public Vector[] k;
     public Matrix[] K;
@@ -70,6 +69,8 @@ public class MPC {
         initializeControls(N, start);
 
         this.threshold = threshold;
+
+        this.lambda = 1;
 
 
     }
@@ -151,6 +152,8 @@ public class MPC {
 
             currentControls[i] = Vector.withValue(0, numControls);//model.getBLeftInverse(currentTrajectory[i]).multiplied(error);
 
+            this.k[i] = Vector.length(2);
+            this.K[i] = new GeneralMatrix(2, 5);
             if (i != N-1) {
                 currentTrajectory[i+1] = model.stateTransitionFunction(currentTrajectory[i], currentControls[i], dt);
             }
@@ -172,7 +175,7 @@ public class MPC {
     }
 
     public Vector getInterpolatedk(double time, double horizon) {
-        if (time >= (horizon-dt)) return k[N-1];
+        if (time >= (horizon-2 * dt)) return k[N-2];
         double position = (time/horizon) * N;
         int index = (int) position;
         double alpha = position - index;
@@ -181,7 +184,7 @@ public class MPC {
     }
 
     public Matrix getInterpolatedK(double time, double horizon) {
-        if (time >= (horizon-dt)) return K[N-1];
+        if (time >= (horizon-2* dt)) return K[N-2];
         double position = (time/horizon) * N;
         int index = (int) position;
         double alpha = position - index;
@@ -198,7 +201,7 @@ public class MPC {
         return (currentTrajectory[index].multiplied(1 - alpha).added(currentTrajectory[index + 1].multiplied(alpha)));
     }
     public Vector getInterpolatedU(double time, double horizon) {
-        if (time >= (horizon-dt)) return currentControls[N-1];
+        if (time >= (horizon-2*dt)) return Vector.length(numControls);
         double position = (time/horizon) * N;
         int index = (int) position;
         double alpha = position - index;
@@ -224,9 +227,9 @@ public class MPC {
 
             Vector Qx = dCdX(state, referenceSignal.target(), dt).added(dfdxT.multiplied(vx));
             Vector Qu = dCdU(control, dt).added(dfduT.multiplied(vx));
-            Matrix Qxx = dCdX2(dt).added(dfdxT.multiplied(vxx).multiplied(dfdx)).added(model.VdF2dXdX(state, control, vx, dt));
-            Matrix Qux = dfduT.multiplied(vxx).multiplied(dfdx).added(model.VdF2dXdU(state, control, vx, dt));
-            GeneralMatrix Quu = (GeneralMatrix) dCdU2(dt).added(dfduT.multiplied(vxx).multiplied(dfdu));
+            Matrix Qxx = dCdX2(dt).added(dfdxT.multiplied(vxx).multiplied(dfdx));//.added(model.VdF2dXdX(state, control, vx, dt));
+            Matrix Qux = dfduT.multiplied(vxx).multiplied(dfdx);//.added(model.VdF2dXdU(state, control, vx, dt));
+            GeneralMatrix Quu = (GeneralMatrix) dCdU2(dt).added(dfduT.multiplied(vxx).multiplied(dfdu)).added(model.VdF2dUdU(state,control,vx, dt));
 
             DMatrixRMaj Quu2 = new DMatrixRMaj(this.numControls, this.numControls, true, Quu.getData());
 
@@ -315,6 +318,43 @@ public class MPC {
 
     }
 
+    protected void stepForwardHorizon(Vector currentPos, int currentN) {
+
+        if (currentN == 0) return;
+
+        lambda = 125;
+
+
+        for (int i = 0; i < N - currentN; i++) {
+            this.currentControls[i] = this.currentControls[currentN + i];
+            this.currentTrajectory[i] = this.currentTrajectory[currentN + i];
+            this.k[i] = this.k[currentN + i];
+            this.K[i] = this.K[currentN + i];
+        }
+
+        for (int i = currentN; i < N; i++) {
+            this.k[i] = this.k[i-1];
+            this.K[i] = this.K[i-1];
+            this.currentControls[i] = currentControls[N-1].added(k[i]);
+        }
+
+        Vector oldstate = currentTrajectory[0];
+        currentTrajectory[0] = currentPos;
+
+        for (int i = 0; i < N; i++ ) {
+            currentControls[i] = currentControls[i].added(k[i]);
+            currentControls[i].add(K[i].multiplied(currentTrajectory[i].subtracted(oldstate)));
+
+            if (i != N-1) {
+                oldstate = currentTrajectory[i + 1];
+                currentTrajectory[i + 1] = model.stateTransitionFunction(currentTrajectory[i], currentControls[i], dt);
+            }
+        }
+
+
+
+    }
+
 
     public void loadFromArray(Vector[] x, Vector[] u, Vector[] k, Matrix[] K) {
         this.currentTrajectory = x;
@@ -325,7 +365,7 @@ public class MPC {
 
     public void iterate(int maxIter, Vector start) {
 
-        this.lambda = 1;
+
 
         double oldcost = getTotalCost();
         BaseOpMode.addData("MPC: Initial Cost", oldcost);
@@ -335,13 +375,20 @@ public class MPC {
         Vector[] kold = k.clone();
         Matrix[] Kold = K.clone();
 
-        updateControls(start);
         BaseOpMode.addData("MPC", "Controls updated");
         double cost = getTotalCost();
 
 
         for (int iter = 0; (iter < maxIter) || (maxIter == 0); iter++) {
-            if (cost < oldcost) {
+            updateControls(start);
+            cost = getTotalCost();
+
+
+            BaseOpMode.addData("MPC: Iteration", iter);
+            BaseOpMode.addData("MPC: lambda", lambda);
+
+
+            if (cost < oldcost ) {
 
                 BaseOpMode.addData("MPC: Cost", cost);
                 BaseOpMode.addData("MPC: Old Cost", oldcost);
@@ -374,16 +421,8 @@ public class MPC {
                 }
             }
 
-
-            updateControls(start);
-            cost = getTotalCost();
-
-
-            BaseOpMode.addData("MPC: Iteration", iter);
-            BaseOpMode.addData("MPC: lambda", lambda);
-
-
             BaseOpMode.updateTelemetry();
+
         }
 
     }

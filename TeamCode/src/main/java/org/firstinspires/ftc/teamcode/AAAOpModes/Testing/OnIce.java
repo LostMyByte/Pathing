@@ -16,10 +16,13 @@ public class OnIce extends BaseOpMode {
 
     private Location sensorSignal;
 
+    TankDrive model;
+
     @Override
     public void externalInit() {
         drive = new TankDriveTrain(new Vector(0, 0, 0));
         sensorSignal = drive.loc;
+        model = new TankDrive();
 
     }
 
@@ -36,7 +39,7 @@ public class OnIce extends BaseOpMode {
         }
 
 
-        Vector powers = TankDrive.getBLeftInverse(sensorData).multiplied(target.subtracted(TankDrive.getAMatrix(sensorData).multiplied(sensorData)));
+        Vector powers = TankDrive.getBLeftInverse(sensorData).multiplied(target.subtracted(model.getAMatrix(sensorData).multiplied(sensorData)));
 
         BaseOpMode.addData("Correction L", powers.get(0));
         BaseOpMode.addData("Correction R", powers.get(1));

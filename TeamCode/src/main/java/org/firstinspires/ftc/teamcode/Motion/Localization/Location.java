@@ -22,17 +22,19 @@ public class Location extends Signal {
     public GoBildaPinpointDriver odoPods;
 
     public static double xOffset = 0;
-    public static double yOffset = 0;
+    public static double yOffset = 21;
 
 
-    public static double alpha = 0.1;
+    public static double alpha = 1;
+
+    double oldAngle;
 
     private void initialize() {
 
         odoPods = BaseOpMode.getHardwareMap().get(GoBildaPinpointDriver.class, Hardware.odoWheels);
         odoPods.setOffsets(xOffset,yOffset);
         odoPods.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        odoPods.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        odoPods.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.REVERSED);
         odoPods.recalibrateIMU();
     }
 
@@ -40,6 +42,7 @@ public class Location extends Signal {
         super(3);
         initialize();
         this.data = new Vector(0,0,0);
+        this.oldAngle = startH;
         odoPods.setPosition(new Pose2D(DistanceUnit.CM, startX, startY, AngleUnit.RADIANS, startH));
     }
 
@@ -47,6 +50,7 @@ public class Location extends Signal {
         super(3);
         initialize();
         this.data = Vector.length(3);
+        this.oldAngle = startState.get(2);
         odoPods.setPosition(new Pose2D(DistanceUnit.CM, startState.get(0), startState.get(1), AngleUnit.RADIANS, startState.get(2)));
     }
 
@@ -63,12 +67,24 @@ public class Location extends Signal {
 
         this.data.add(newData.subtracted(this.data).multiplied(alpha));
         this.oldData = newData;
+
+        Pose2D pose = odoPods.getPosition();
+        double angle = pose.getHeading(AngleUnit.RADIANS);
+        while (angle - oldAngle > Math.PI) {
+            angle -= 2 * Math.PI;
+        }
+        while (angle - oldAngle < -Math.PI) {
+            angle += 2 * Math.PI;
+        }
+
+        oldAngle = angle;
     }
+
 
     @Override
     public Vector getIntegralVector() {
         Pose2D pose = odoPods.getPosition();
-        return new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), pose.getHeading(AngleUnit.RADIANS));
+        return new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), oldAngle);
     }
 
     // Don't worry about the integration because we have a better source
@@ -81,13 +97,9 @@ public class Location extends Signal {
         Vector pos = getPosition();
         double angle = pos.get(2);
 
-        double v = new GeneralMatrix(2, 2, new double[] {
-                Math.cos(angle), Math.sin(angle),
-                -Math.sin(angle), Math.cos(angle)
-        }).multiplied(new Vector(data.get(0), data.get(1))).get(1);
 
-
-        BaseOpMode.addData("Velocity Drive", v);
+        BaseOpMode.addData("Velocity X", data.getData()[0]);
+        BaseOpMode.addData("Velocity Y", data.getData()[1]);
         BaseOpMode.addData("Velocity H", data.getData()[2]);
 
         BaseOpMode.addData("Position X", pos.get(0));
@@ -102,10 +114,8 @@ public class Location extends Signal {
     public Vector getPositionForTankDrive() {
         Vector pos = getPosition();
         double angle = pos.get(2);
-        double v = new GeneralMatrix(2, 2, new double[] {
-                Math.cos(angle), Math.sin(angle),
-                -Math.sin(angle), Math.cos(angle)
-        }).multiplied(new Vector(data.get(0), data.get(1))).get(1);
+        double v = new Vector(Math.cos(-angle), Math.sin(-angle)).dotProduct(new Vector(data.get(1), data.get(0)));
+        BaseOpMode.addData("Velocity Drive", v);
         return new Vector(new double[] {
                 pos.get(0),
                 pos.get(1),
@@ -114,4 +124,9 @@ public class Location extends Signal {
                 data.get(2)
         });
     }
+
+    public void updateOffsets() {
+        odoPods.setOffsets(xOffset, yOffset);
+    }
+
 }
