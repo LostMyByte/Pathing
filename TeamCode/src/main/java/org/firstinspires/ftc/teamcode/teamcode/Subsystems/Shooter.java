@@ -44,11 +44,13 @@ public class Shooter extends Subsystem{
     double yPosition;
     double xVelocity;
     double yVelocity;
-    double heading;
+    double tx;
     ShooterStates shooterState;
+    TurretState turretState;
     double ticksPerRotation;
     double turretStartAngle;
     double turretTargetAngle;
+    double turretError;
     Servo readyToShootIndicator;
     Servo angleWrapWarningLight;
 
@@ -57,6 +59,11 @@ public class Shooter extends Subsystem{
     boolean hoodCanShoot = false;
     boolean turretCanShoot = false;
     double turretMarginForError = .15;
+
+    //This has the middle of its range of motion as zero, and it can go this far in EITHER DIRECTION,
+    //notated by setting it as negative or positive
+    double turretRangeOfMotion = 3.5;
+
     double turretMaxRotation;
     ElapsedTime warningLightTimer;
     BallColors[] pattern;
@@ -95,6 +102,7 @@ public class Shooter extends Subsystem{
 
         //pattern = new BallColors[3];
         shooterState = ShooterStates.OBELISK;
+        turretState = TurretState.ACTIVE;
         //currentRamp = new ArrayList<BallColors>();
         //this.turretStartAngle = turretStartAngle;
 
@@ -117,7 +125,6 @@ public class Shooter extends Subsystem{
                 break;
             case SHOOTERTESTING:
                 updateTagDistanceHybridCorrected();
-                //updateTargeting();
                 break;
         }
     };
@@ -166,24 +173,47 @@ public class Shooter extends Subsystem{
         }
     }
 
+    double turretResetTargetAngle = 0;
+    double correction = 0;
     public void updateTurret(){
-        double currentAngle = turret.encoder.getPosition();
+        double currentTurretAngle = turret.encoder.getPosition();
         //convert this to radians and wrap the angle
-        currentAngle = currentAngle * (2*Math.PI/ticksPerRotation);
+        currentTurretAngle = currentTurretAngle * (2*Math.PI/ticksPerRotation);
 
         //DONT angle wrap because the wiring means we can't actually spin around multiple times
 
         turretPDL.setConstants(0,0,0);
-        turretPDL.getCorrectionHeading(currentAngle,turretTargetAngle);
+        switch (turretState){
+            case ACTIVE:
+                //if it is attempting to go outside its range of motion, switch to the resetting state
+                if ((turretError + currentTurretAngle) > turretRangeOfMotion){
+                    turretResetTargetAngle = turretRangeOfMotion-(2*Math.PI);
+                    setTurretState(TurretState.RESETTING);
+                } else if ((turretError + currentTurretAngle) < -turretRangeOfMotion)  {
+                    turretResetTargetAngle = -turretRangeOfMotion+(2*Math.PI);
+                    setTurretState(TurretState.RESETTING);
+                } else {
+                    correction = turretPDL.getCorrection(turretError);
+                    turret.setPower(correction);
 
+                    if (Math.abs(turretError) < turretMarginForError){
+                        turretCanShoot = true;
+                    } else {
+                        turretCanShoot = false;
+                    }
+                }
+                break;
+            case RESETTING:
+                if (){
 
-        turret.setPower(turretPDL.getCorrectionHeading(currentAngle,turretTargetAngle));
-
-        if (Math.abs(currentAngle-turretTargetAngle) < turretMarginForError){
-            turretCanShoot = true;
-        } else {
-            turretCanShoot = false;
+                } else {
+                    correction = turretPDL.getCorrection(currentTurretAngle, turretResetTargetAngle);
+                    
+                }
         }
+    }
+    public void setTurretState(TurretState state){
+        turretState = state;
     }
 
     double filteredRPM = 0;
@@ -212,17 +242,18 @@ public class Shooter extends Subsystem{
     public void aim(){
 
         hood.setPositionInterpolated(getHoodAngle());
-        /*
-        turretTargetAngle = Math.asin(xVelocity/getBallSpeed()) - heading;//sets target angle to face goal. does this by setting target angle the negitive heading (current difference in degrees from target) and also accounts for fact that robot moves
+
+        //This is the target angle relative to facing directly at the aprilTag
+        //yaw is current angle of the aprilTag relative to the shooter
+        //This uses the law of sines to find the target angle of the robot relative to the april tag
+        turretTargetAngle = Math.asin((0.46*Math.sin(yaw)/distanceAway));
+        turretError = turretTargetAngle - tx;
 
 
-        while (turretTargetAngle > turretMaxRotation){
-            turretTargetAngle -= 2*Math.PI;
-        }
-        while (turretTargetAngle < 0){
-            turretTargetAngle += 2*Math.PI;
-        }
+
+
         updateTurret();
+        /*
 
         if (canRobotShoot()){
             readyToShootIndicator.setPosition(0.5);
@@ -294,19 +325,20 @@ public class Shooter extends Subsystem{
         BaseOpMode.addData("tagDistance", actualDistance);
 
         if( team == BLUE && id == 20){
-            heading = tx;
+            this.tx = tx;
             distanceAway = Math.sqrt(Math.pow(0.46,2)+Math.pow(actualDistance,2)-(2*0.46*actualDistance*Math.cos(yaw)));
         } else if (team == RED && id == 24){
-            heading = tx;
+            this.tx = tx;
             distanceAway = actualDistance;
         }else{
-            heading=0;
+            this.tx =0;
         }
 
 
         BaseOpMode.addData("distanceAway",distanceAway);
     }
 
+    double yaw;
     public void updateTagDistanceHybridCorrected() {
         LLResult result = limelight.getLatestResult();
         if (result == null || !result.isValid()) {
@@ -322,8 +354,8 @@ public class Shooter extends Subsystem{
 
 
                 // Smooth ty
-                double ty = result.getTy();
-                tyFiltered = tyAlpha * ty + (1 - tyAlpha) * tyFiltered;
+                double tx = result.getTx();
+                tyFiltered = tyAlpha * tx + (1 - tyAlpha) * tyFiltered;
 
                 // Dynamic angle compensation beyond ~2.8 m
                 // Start with baseline Limelight mount angle
@@ -358,14 +390,15 @@ public class Shooter extends Subsystem{
                 double wPose = poseValid ? Range.clip((correctedDist - 3.2) / 0.8, 0.0, 0.5) : 0.0;
                 double blended = (1 - wPose) * correctedDist + wPose * poseDist;
 
-                double yaw = 180 - Math.abs(fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES) - 3);
+                yaw = 180 - Math.abs(fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES) - 3);
                 yaw = Math.toRadians(yaw);
                 // Final smoothing filter for stability
                 actualDistance = alpha * blended + (1 - alpha) * actualDistance;
 
                 ///Heading and telemetry
-                heading = result.getTx();
+                this.tx = result.getTx();
                 distanceAway = Math.sqrt(Math.pow(0.46, 2) + Math.pow(actualDistance, 2) - 2 * 0.46 * actualDistance * Math.cos(yaw));
+                this.tx = tx;
 
                 BaseOpMode.addData("tyFiltered", tyFiltered);
                 BaseOpMode.addData("DynamicAngleOffset", dynamicAngleOffset);
@@ -521,6 +554,10 @@ public class Shooter extends Subsystem{
 
     public enum BallColors{
         GREEN, PURPLE
+    }
+
+    public enum TurretState{
+        ACTIVE, RESETTING
     }
 
     public enum ShotType{
