@@ -4,26 +4,23 @@ package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode.multTelemetry;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.focalLengthMM;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.fx;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.visionTurnDeadzone;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain.DrivetrainDash.kD;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HD;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HP;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.rateOfChange;
-
-import static java.lang.Math.PI;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.DriveClasses.MecanumDrive;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.DriveClasses.TankDrivetrain;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.Localization.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.RingBuffer;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
@@ -36,13 +33,17 @@ public class Drivetrain extends Subsystem {
 //                i = 0,
 //                d = 0;
 //
-        public static double visionTurnDeadzone = 5; //silly (ignore this stuff)
-        public static double visionTurn = 0.00;
+        public static double
+            kP = 0.001,
+            kI = 0,
+            kD = -0.0001;
+        public static double visionTurnDeadzone = 3; //silly (ignore this stuff)
+        public static double visionTurn = -0.003;
 
         public static double visionStrafe = 0.005;
         public static double visionStrafeDeadzone = 3;
-        public static double visionDrive = 0.01;
-        public static double visionDriveDeadzone = 1;
+        public static double visionDrive = 0.007;
+        public static double visionDriveDeadzone = 5;
         public static double visionDistanceTarget = 138; //pixels bc goofy
     }
     MecanumDrive driveWheels;
@@ -57,6 +58,8 @@ public class Drivetrain extends Subsystem {
     double setPoint = 0;
     double error = 0;
     double angleRad;
+
+    PID visionTurnPID;
 
     TankDrivetrain driveWheels2;
 
@@ -77,7 +80,7 @@ public class Drivetrain extends Subsystem {
         gamepad1 = new Gamepad();
         driveWheels2 = new TankDrivetrain();
         //driveWheels = new MecanumDrive();
-
+        visionTurnPID = new PID(DrivetrainDash.kP, DrivetrainDash.kI, kD);
        /* gyro = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
         if (Double.isNaN(Constants.startAngle)) {
             gyro.resetPosAndIMU();
@@ -182,15 +185,17 @@ public class Drivetrain extends Subsystem {
 
 //this should correct for the x coordinate
 
-        if(Math.abs(BallDetector.getError(false))> DrivetrainDash.visionTurnDeadzone && BallDetector.targetDetected){
+        if(Math.abs(BallDetector.getError(false))> DrivetrainDash.visionTurnDeadzone && BallDetector.targetDetected&&BallDetector.getWidth(false)>30){
 
             //error 199
-
+    visionTurnPID.setConstants(DrivetrainDash.kP, DrivetrainDash.kI, kD);
 
             //this code is now 3 yrs old (made in 2023) and I still havn't made anything more useful/reusable
 
+            turn =
+            // BallDetector.getError(false)* DrivetrainDash.kP
 
-            turn = -(BallDetector.getError(false) * DrivetrainDash.visionTurn);
+        -visionTurnPID.getCorrection(BallDetector.getError(false));
 
         } else{
            // multTelemetry.addData("Status","not moving");
@@ -200,8 +205,8 @@ public class Drivetrain extends Subsystem {
 
         double distanceError = scuffedDistance(BallDetector.getWidth(false));
         //double distanceError = distance(BallDetector.getWidth(false)) - DrivetrainDash.visionDistanceTarget;
-        if(Math.abs(distanceError) > DrivetrainDash.visionDriveDeadzone && BallDetector.targetDetected){
-            drive = distanceError * DrivetrainDash.visionDrive;
+        if(Math.abs(distanceError) > DrivetrainDash.visionDriveDeadzone && BallDetector.targetDetected&&BallDetector.getWidth(false)>30){
+            drive = distanceError * DrivetrainDash.visionDrive+0.001;
         }else{
             drive = 0;
         }

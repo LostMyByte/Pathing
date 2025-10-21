@@ -8,6 +8,7 @@ import static org.opencv.core.CvType.CV_8U;
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
 import static org.opencv.imgproc.Imgproc.COLOR_BGR2HSV;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2HSV;
+import static org.opencv.imgproc.Imgproc.INTER_MAX;
 import static org.opencv.imgproc.Imgproc.RETR_TREE;
 import static org.opencv.imgproc.Imgproc.boundingRect;
 import static org.opencv.imgproc.Imgproc.dilate;
@@ -174,9 +175,14 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
         ballPaintPurple.setStrokeWidth(scaleCanvasDensity * 8);
 
         Paint contourpaintPurple = new Paint();
-        contourpaintPurple.setColor(Color.BLUE);
+        contourpaintPurple.setColor(Color.MAGENTA);
         contourpaintPurple.setStyle(Paint.Style.STROKE);
         contourpaintPurple.setStrokeWidth(scaleCanvasDensity *4);
+
+        Paint linePaint = new Paint();
+        linePaint.setColor(Color.DKGRAY);
+        linePaint.setStyle(Paint.Style.STROKE);
+        linePaint.setStrokeWidth(scaleCanvasDensity*10);
         // Create a copy of the contours
         List<MatOfPoint> contourCopyPurple = new ArrayList<>(contoursPurple);
         // Rectangle showing camera view
@@ -202,6 +208,17 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
             }
         }
 
+        if(targetDetected) {
+            if (largestGreenRect != null) {
+                 canvas.drawRect(makeGraphicsRect(largestGreenRect, scaleBmpPxToCanvasPx), ballPaintGreen);
+            }
+            if (largestPurpleRect != null) {
+                canvas.drawRect(makeGraphicsRect(largestPurpleRect, scaleBmpPxToCanvasPx), ballPaintPurple);
+            }
+        }
+
+        canvas.drawLine(IMG_WIDTH/2, 0, IMG_WIDTH/2, IMG_HEIGHT, linePaint);
+        canvas.drawLine(0, IMG_HEIGHT/2, IMG_WIDTH, IMG_HEIGHT/2, linePaint);
 
     }
     @Override
@@ -299,12 +316,11 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
         if(targetDetected){
             double centerBlob = 0;
             if(trueIfGreen&&largestGreenRect!=null){
-                centerBlob=largestGreenRect.x + (largestGreenRect.width/2);
+                centerBlob= largestGreenRect.x + (largestGreenRect.width/2);
             } else if (largestPurpleRect!=null){
                 centerBlob = largestPurpleRect.x+largestPurpleRect.width/2;};
                 //error 157
-            double error = (IMG_WIDTH / 2)  - centerBlob;
-            return error;
+            return (IMG_WIDTH / 2)  - centerBlob;
         }else{
             return 0;
         }
@@ -322,6 +338,15 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
         }else{
             return 0;
         }
+    }
+
+    private android.graphics.Rect makeGraphicsRect(Rect rect, float scaleBmpPxToCanvasPx) {
+        int left = Math.round(rect.x * scaleBmpPxToCanvasPx);
+        int top = Math.round(rect.y * scaleBmpPxToCanvasPx);
+        int right = left + Math.round(rect.width * scaleBmpPxToCanvasPx);
+        int bottom = top + Math.round(rect.height * scaleBmpPxToCanvasPx);
+
+        return new android.graphics.Rect(left, top, right, bottom);
     }
 
 }

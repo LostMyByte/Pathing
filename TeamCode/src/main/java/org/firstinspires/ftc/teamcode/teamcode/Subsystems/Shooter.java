@@ -206,7 +206,7 @@ public class Shooter extends Subsystem{
                 }
                 break;
             case RESETTING:
-                if (){
+                if (false){
 
                 } else {
                     correction = turretPDL.getCorrection(currentTurretAngle, turretResetTargetAngle);
