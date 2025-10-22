@@ -70,7 +70,33 @@ public class Servos {
 
     public static class Hood extends Servo{
         public Hood(){
-            super(Hardware.hood,0,0,0,0);
+            super(Hardware.hood,0.9,65,0.62,25);
+        }
+
+        @Override
+        public void setPosition(double p) {
+            super.setPosition(p);
+        }
+
+        @Override
+        public void setPositionInterpolated(double a) {
+            super.setPositionInterpolated(a);
+        }
+    }
+    public static class Transfer extends Servo{
+        public Transfer(){
+            super(Hardware.transfer);
+
+        }
+
+        @Override
+        public void setPosition(double p) {
+            super.setPosition(p);
+        }
+
+        @Override
+        public void setPositionInterpolated(double a) {
+            super.setPositionInterpolated(a);
         }
     }
 

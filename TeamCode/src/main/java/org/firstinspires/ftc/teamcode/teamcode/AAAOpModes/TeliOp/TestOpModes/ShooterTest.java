@@ -9,50 +9,37 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.DashPositions;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.ShooterDashClass;
 
 @TeleOp (name = "ShooterTest")
 public class ShooterTest extends BaseOpMode {
 
-    DcMotorEx leftMotorEncoder;
-    DcMotorEx rightMotorEncoder;
-    //named left and right as if behind shooter such that you would not be hit by projectiles being shot
-
-    ElapsedTime timer;
+Shooter shooter;
+Servos.Hood hood;
 
     double ticksL = 0;
     double ticksR = 0;
     @Config
     public static class ShooterDash{
-        public static double shooterMotorPower = 0;
-        public static double ticksPerRotation = 28; //This is now ticks per revolution
+        public static double ticksPerRotation = 28*(3.0/2); //This is now ticks per revolution
     }
 
     @Override
     public void externalInit() {
-        leftMotorEncoder = hardwareMap.get(DcMotorEx.class, "left");
-        rightMotorEncoder = hardwareMap.get(DcMotorEx.class, "right");
-        timer = new ElapsedTime();
-        timer.reset();
-
-
+    shooter = new Shooter(hardwareMap, 0, Constants.Team.BLUE);
+        hood = new Servos.Hood();
     }
 
 
     @Override
     public void externalLoop() {
-
-
-        //ticksL = leftMotorEncoder.getCurrentPosition()-ticksL;
-        //ticksR = rightMotorEncoder.getCurrentPosition() - ticksR;
-
-
-        multTelemetry.addData("left motor RPM", leftMotorEncoder.getVelocity()/ticksPerRotation*60);
-        multTelemetry.addData("right motor RPM", rightMotorEncoder.getVelocity()/ticksPerRotation*60);
-      // multTelemetry.addData("left motor RPM", (ticksL/ticksPerRotation)/(timer.milliseconds())*1000*60);
-       //multTelemetry.addData("right motor RPM", (ticksR/ticksPerRotation)/(timer.milliseconds())*1000*60);
-       //multTelemetry.addData("ticks since refresh", ticksL);
-       timer.reset();
-
-
+        shooter.setState(Shooter.ShooterStates.ACTIVE);
+        shooter.setTargetShooterRPM(ShooterDashClass.shooterSpeed);
+        BaseOpMode.addData("targetRPM", shooter.getTargetShooterRPM());
+        BaseOpMode.addData("RPM", shooter.getShooterRPM());
     }
 }

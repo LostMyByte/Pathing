@@ -5,6 +5,10 @@ import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpMo
 import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes.VisionOpMode.VisionPIDDash.visionKP;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.BLUE;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.RED;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.goalAprilTagHeight;
+
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.limelightAngleOffset;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.limelightLensHeightFromGround;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.team;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -127,8 +131,9 @@ public class VisionOpMode extends BaseOpMode {
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
             id = fiducial.getFiducialId(); // The ID number of the fiducial
-            double degreesXtoApriltag = fiducial.getTargetXDegrees(); //gets angle to limelight along x plane
-
+            double degreesYtoApriltag = fiducial.getTargetYDegrees()+limelightAngleOffset; //gets angle to limelight along x plane
+            double radsYtoApriltag = degreesYtoApriltag * (Math.PI/180);
+            double distanceAway = (goalAprilTagHeight- limelightLensHeightFromGround)/Math.tan(radsYtoApriltag);
             ty = limelight.getLatestResult().getTy(); // gets degrees to crosshair from primary target along y axis
              tx = limelight.getLatestResult().getTx();// gets degrees to crosshair from primary target along x axis
         }
