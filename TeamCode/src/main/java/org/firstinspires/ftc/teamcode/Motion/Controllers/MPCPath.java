@@ -71,7 +71,9 @@ public class MPCPath {
 
     MPC controller;
 
+    // These two are NOT related
     double startTime = 0;
+    double stopTime = 0;
 
     public void setPath(ReferenceSignal referenceSignal) {
         this.referenceSignal = referenceSignal;
@@ -99,6 +101,10 @@ public class MPCPath {
 
     public void setAccuracy(double accuracy) {
         this.threshold = accuracy;
+    }
+
+    public void setStopTime(double time) {
+        this.stopTime = time;
     }
 
     public void setResolution(double resolution) {
@@ -206,7 +212,6 @@ public class MPCPath {
             target = this.referenceSignal.target();
         }
 
-
         BaseOpMode.addData("TX", target.get(0));
         BaseOpMode.addData("TY", target.get(1));
         BaseOpMode.addData("TH", target.get(2));
@@ -215,6 +220,15 @@ public class MPCPath {
 
         sensorData = sensorData.subtracted(target);
         Vector correction = controller.getInterpolatedU(time);
+
+        if (time > horizonTime - startTime) {
+            Vector posError = new Vector(sensorData.get(0), sensorData.get(1));
+            Vector heading = new Vector(Math.cos(sensorData.get(2)), Math.sin(sensorData.get(2)));
+            posError = heading.multiplied(heading.dotProduct(posError));
+
+            sensorData.put(0, posError.get(0));
+            sensorData.put(1, posError.get(1));
+        }
 
         BaseOpMode.addData("FH", correction.get(1)-correction.get(0));
         BaseOpMode.addData("FV", correction.get(1)+correction.get(0));

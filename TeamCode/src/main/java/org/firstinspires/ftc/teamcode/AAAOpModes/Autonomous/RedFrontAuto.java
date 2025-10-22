@@ -26,27 +26,27 @@ public class RedFrontAuto extends BaseOpMode {
         public static double H0 = 0;
 
 
-        public static double X1 = -60;
-        public static double Y1 = 120;
+        public static double X1 = -70;
+        public static double Y1 = 75;
         public static double H1 = 3* Math.PI/4;
 
-        public static double X2 = -100;
-        public static double Y2 = 130;
+        public static double X2 = -120;
+        public static double Y2 = 100;
         public static double H2 = 3* Math.PI/4;
 
-        public static double XLaunch = -15;
-        public static double YLaunch = 120;
+        public static double XLaunch = 0;
+        public static double YLaunch = 70;
         public static double HLaunch = Math.PI/4;
 
-        public static double XLeave = 70;
-        public static double YLeave = 50;
+        public static double XLeave = 30;
+        public static double YLeave = 30;
         public static double HLeave = Math.PI/4;
 
         public static double V = 0;
 
         public static double Tlaunch = 5;
         public static double T1 = 3;
-        public static double T1launch = 5;
+        public static double T1launch = 3;
         public static double T2 = 5;
         public static double T2launch = 5;
         public static double Tleave= 5;
@@ -145,6 +145,7 @@ public class RedFrontAuto extends BaseOpMode {
         for (MPCPath path : allPaths) {
             path.setAccuracy(RedPositions.accuracy);
             path.setResolution(RedPositions.resolution);
+            path.setStopTime(1);
             path.setParams(DriveConfig.DriveWheels.defaultParams);
             path.setModel(driveModel);
         }
