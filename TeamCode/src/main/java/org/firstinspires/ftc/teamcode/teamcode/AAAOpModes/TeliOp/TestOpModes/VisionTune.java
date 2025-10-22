@@ -7,8 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser;
 import org.firstinspires.ftc.vision.VisionPortal;
 
 @TeleOp (name = "visionTune")
@@ -16,7 +15,7 @@ public class VisionTune extends BaseOpMode {
 
     private FtcDashboard dash;
     WebcamName webcam1;
-    BallDetector ballDetector;
+    BallChaser ballChaser;
 
     VisionPortal visionPortal;
 
@@ -25,13 +24,13 @@ public class VisionTune extends BaseOpMode {
     @Override
     public void externalInit() {
 
-        ballDetector = new BallDetector();
+        ballChaser = new BallChaser();
         webcam1 = hardwareMap.get(WebcamName.class, "Webcam 1");
         visionPortal = new VisionPortal.Builder()
                 //setup for using webcam, there is a different way to set up a phone camera
                 .setCamera(webcam1)
                 //use addProcessor() for only adding one processor
-                .addProcessor(ballDetector)
+                .addProcessor(ballChaser)
                 // .addProcessors(drive.getProcessor())
                 //sets the camera resolution to the size we set up earlier
                 //Currently 1280x720 because that size works for both a global shutter camera and a logitech camera

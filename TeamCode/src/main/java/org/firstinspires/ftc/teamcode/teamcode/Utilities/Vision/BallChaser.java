@@ -1,21 +1,18 @@
 package org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision;
 
-import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector.visionDash.maxS_green;
-import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector.visionDash.maxS_purple;
-import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector.visionDash.minV_purple;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser.visionDash.maxS_green;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser.visionDash.maxS_purple;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser.visionDash.minV_purple;
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.CvType.CV_8U;
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
-import static org.opencv.imgproc.Imgproc.COLOR_BGR2HSV;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2HSV;
-import static org.opencv.imgproc.Imgproc.INTER_MAX;
 import static org.opencv.imgproc.Imgproc.RETR_TREE;
 import static org.opencv.imgproc.Imgproc.boundingRect;
 import static org.opencv.imgproc.Imgproc.dilate;
 import static org.opencv.imgproc.Imgproc.drawContours;
 import static org.opencv.imgproc.Imgproc.erode;
 import static org.opencv.imgproc.Imgproc.findContours;
-import static org.opencv.imgproc.Imgproc.minAreaRect;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -32,13 +29,10 @@ import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.opencv.Circle;
 import org.opencv.android.Utils;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
-import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
@@ -46,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class BallDetector implements VisionProcessor, CameraStreamSource {
+public class BallChaser implements VisionProcessor, CameraStreamSource {
 
 
     public static Rect largestRect;
