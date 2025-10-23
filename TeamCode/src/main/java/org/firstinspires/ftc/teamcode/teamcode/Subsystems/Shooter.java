@@ -49,7 +49,7 @@ public class Shooter extends Subsystem{
     double tx;
     ShooterStates shooterState;
     TurretState turretState;
-    double ticksPerRotation;
+    double ticksPerRotation = 636;
     double turretStartAngle;
     double turretTargetAngle;
     double turretError;
@@ -60,7 +60,7 @@ public class Shooter extends Subsystem{
 
     boolean hoodCanShoot = false;
     boolean turretCanShoot = false;
-    double turretMarginForError = .15;
+    double turretMarginForError = .1;
 
     //This has the middle of its range of motion as zero, and it can go this far in EITHER DIRECTION,
     //notated by setting it as negative or positive
@@ -88,12 +88,14 @@ public class Shooter extends Subsystem{
     public Shooter(HardwareMap hardwareMap, double turretStartAngle, Constants.Team team){
         //Things are commented to prepare for the first tests of the shooter where we will only have the flywheel.
 
-        shooter1 = new Motor(Hardware.shooter1);
-        shooter2 = new Motor(Hardware.shooter2);
-        hood = new Servos.Hood();
-        //turret = new Motor(Hardware.turret);
+        //shooter1 = new Motor(Hardware.shooter1);
+        //shooter2 = new Motor(Hardware.shooter2);
+        //hood = new Servos.Hood();
+        turret = new Motor(Hardware.turret, false, true);
+
         //turretEncoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
         shooterPDF = new PID(0,0,0);
+        turretPDL = new PID(0,0,0);
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.setPollRateHz(100); // make number higher to get more data
         limelight.pipelineSwitch(1);
@@ -127,6 +129,7 @@ public class Shooter extends Subsystem{
                 break;
             case SHOOTERTESTING:
                 updateTagDistanceHybridCorrected();
+                aim();
                 break;
         }
     };
@@ -184,16 +187,20 @@ public class Shooter extends Subsystem{
 
         //DONT angle wrap because the wiring means we can't actually spin around multiple times
 
-        turretPDL.setConstants(0,0,0);
+        turretPDL.setConstants(PIDTuningDash.TurretP,0,PIDTuningDash.TurretD);
+        turretPDL.setLowerLimit(PIDTuningDash.TurretL);
+        turretPDL.setDeadZone(PIDTuningDash.TurretDeadzone);
         switch (turretState){
             case ACTIVE:
                 //if it is attempting to go outside its range of motion, switch to the resetting state
                 if ((turretError + currentTurretAngle) > turretRangeOfMotion){
                     turretResetTargetAngle = turretRangeOfMotion-(2*Math.PI);
-                    setTurretState(TurretState.RESETTING);
+                    BaseOpMode.addData("RangeOfMotion Exception","High");
+                    //setTurretState(TurreState.RESETTING);
                 } else if ((turretError + currentTurretAngle) < -turretRangeOfMotion)  {
                     turretResetTargetAngle = -turretRangeOfMotion+(2*Math.PI);
-                    setTurretState(TurretState.RESETTING);
+                    BaseOpMode.addData("RangeOfMotion Exception", "Low");
+                    //setTurretState(TurretState.RESETTING);
                 } else {
                     correction = turretPDL.getCorrection(turretError);
                     turret.setPower(correction);
@@ -204,10 +211,14 @@ public class Shooter extends Subsystem{
                         turretCanShoot = false;
                     }
                 }
+
+                BaseOpMode.addData("correction", correction);
+                BaseOpMode.addData("turretError", turretError);
+                BaseOpMode.addData("currentAngle", currentTurretAngle);
                 break;
             case RESETTING:
-                if (){
-
+                if ((turretResetTargetAngle + turretMarginForError > currentTurretAngle) || (turretResetTargetAngle - turretMarginForError < currentTurretAngle)){
+                    setState(ShooterStates.ACTIVE);
                 } else {
                     correction = turretPDL.getCorrection(currentTurretAngle, turretResetTargetAngle);
                     
@@ -243,13 +254,13 @@ public class Shooter extends Subsystem{
 
     public void aim(){
 
-        hood.setPositionInterpolated(getHoodAngle());
+        //hood.setPositionInterpolated(getHoodAngle());
 
         //This is the target angle relative to facing directly at the aprilTag
         //yaw is current angle of the aprilTag relative to the shooter
         //This uses the law of sines to find the target angle of the robot relative to the april tag
         turretTargetAngle = Math.asin((0.46*Math.sin(yaw)/distanceAway));
-        turretError = turretTargetAngle - tx;
+        turretError = Math.toRadians(turretTargetAngle - tx);
 
 
 
@@ -283,12 +294,13 @@ public class Shooter extends Subsystem{
 
     private  double actualDistance = 0;
     private double alpha = 0.2;
+
+    /*
     public void updateTargeting(){
         int id = 0;
         double tx = 0;
         double ty = 0;
         double distance = 0;
-        double yaw = 0;
         double pitch = 0;
         double roll = 0;
         LLResult result = limelight.getLatestResult();
@@ -302,15 +314,13 @@ public class Shooter extends Subsystem{
             //distance = distance + 0.0764839 * Math.sin(2.06539 * distance - 2.68937) + 0.158071;
             ty = limelight.getLatestResult().getTy(); // gets degrees to crosshair from primary target along y axis
             tx = limelight.getLatestResult().getTx();// gets degrees to crosshair from primary target along x axis
-            yaw = fiducial.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES) + 90;
-            if (yaw < 93){
-                yaw += 87;
+            if (team == BLUE) {
+                yaw = 180 - Math.abs(fiducial.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES) - 3);
+                yaw = Math.toRadians(yaw);
+            } else if (team == RED){
+                yaw = 180 - Math.abs(fiducial.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES) - 3);
+                yaw = Math.toRadians(yaw);
             }
-            else if (yaw > 93){
-                yaw += 3;
-            } else { yaw += 90;}
-
-            yaw = Math.toRadians(yaw);
           //  roll = fiducial.getCameraPoseTargetSpace().getOrientation().getRoll(AngleUnit.DEGREES);
            // yaw = fiducial.getCameraPoseTargetSpace().getOrientation().getYaw(AngleUnit.DEGREES);
 //roll is pitch, pitch is roll and yaw is roll
@@ -326,19 +336,15 @@ public class Shooter extends Subsystem{
         }
         BaseOpMode.addData("tagDistance", actualDistance);
 
-        if( team == BLUE && id == 20){
-            this.tx = tx;
-            distanceAway = Math.sqrt(Math.pow(0.46,2)+Math.pow(actualDistance,2)-(2*0.46*actualDistance*Math.cos(yaw)));
-        } else if (team == RED && id == 24){
-            this.tx = tx;
-            distanceAway = actualDistance;
-        }else{
-            this.tx =0;
-        }
+
+        this.tx = tx;
+
 
 
         BaseOpMode.addData("distanceAway",distanceAway);
     }
+
+     */
 
     double yaw;
     public void updateTagDistanceHybridCorrected() {
@@ -356,8 +362,8 @@ public class Shooter extends Subsystem{
 
 
                 // Smooth ty
-                double tx = result.getTx();
-                tyFiltered = tyAlpha * tx + (1 - tyAlpha) * tyFiltered;
+                double ty = result.getTy();
+                tyFiltered = tyAlpha * ty + (1 - tyAlpha) * tyFiltered;
 
                 // Dynamic angle compensation beyond ~2.8 m
                 // Start with baseline Limelight mount angle
@@ -372,7 +378,8 @@ public class Shooter extends Subsystem{
 
                 // Raw trig distance (m)
                 double totalAngle = dynamicAngleOffset + tyFiltered;
-                double trigDist = (goalAprilTagHeight - limelightLensHeightFromGround)
+                double
+                        trigDist = (goalAprilTagHeight - limelightLensHeightFromGround)
                         / Math.tan(Math.toRadians(totalAngle));
 
                 // Mild linear correction beyond 2.3 m
@@ -392,15 +399,24 @@ public class Shooter extends Subsystem{
                 double wPose = poseValid ? Range.clip((correctedDist - 3.2) / 0.8, 0.0, 0.5) : 0.0;
                 double blended = (1 - wPose) * correctedDist + wPose * poseDist;
 
-                yaw = 180 - Math.abs(fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES) - 3);
-                yaw = Math.toRadians(yaw);
+
+                if (team == BLUE) {
+                    yaw = fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES);
+                    BaseOpMode.addData("rawYaw", yaw);
+                    yaw = 180 - Math.abs(yaw - 3);
+                    yaw = Math.toRadians(yaw);
+                } else if (team == RED){
+                    yaw = fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES);
+                    BaseOpMode.addData("rawYaw", yaw);
+                    yaw = 180 - Math.abs(yaw + 3);
+                    yaw = Math.toRadians(yaw);
+                }
                 // Final smoothing filter for stability
                 actualDistance = alpha * blended + (1 - alpha) * actualDistance;
 
                 ///Heading and telemetry
-                this.tx = result.getTx();
+                tx = result.getTx();
                 distanceAway = Math.sqrt(Math.pow(0.46, 2) + Math.pow(actualDistance, 2) - 2 * 0.46 * actualDistance * Math.cos(yaw));
-                this.tx = tx;
 
                 BaseOpMode.addData("tyFiltered", tyFiltered);
                 BaseOpMode.addData("DynamicAngleOffset", dynamicAngleOffset);
@@ -409,6 +425,7 @@ public class Shooter extends Subsystem{
                 BaseOpMode.addData("PoseDist(m)", poseDist);
                 BaseOpMode.addData("FinalDist(m)", actualDistance);
                 BaseOpMode.addData("adjustedDistance", distanceAway);
+                BaseOpMode.addData("yaw", Math.toDegrees(yaw));
             }
     }
 

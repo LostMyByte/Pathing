@@ -36,6 +36,12 @@ public class PIDTuningDash {
     public static double  ShooterD = 0;
     public static double ShooterF = 0.0;
 
+    public static double TurretP = 0.003;
+    public static double  TurretD = 0;
+    public static double TurretL = 0.13;
+    public static double TurretDeadzone = 0.05;
+
+
     public static double VSlidesP = 0.004   ;
     public static double VSlidesD = 0.004;
     public static double VSlidesF = 0;
