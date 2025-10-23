@@ -68,7 +68,7 @@ public class Shooter extends Subsystem{
 
     double turretMaxRotation;
     ElapsedTime warningLightTimer;
-    BallColors[] pattern;
+    public BallColors[] pattern;
     Constants.Team team;
 
     ArrayList<BallColors> currentRamp;
@@ -162,16 +162,19 @@ public class Shooter extends Subsystem{
             pattern[0] = BallColors.GREEN;
             pattern[1] = BallColors.PURPLE;
             pattern[2] = BallColors.PURPLE;
+            Constants.motif = Constants.Motif.GPP;
         }
         else if(id == 22){
             pattern[0] = BallColors.PURPLE;
             pattern[1] = BallColors.GREEN;
             pattern[2] = BallColors.PURPLE;
+            Constants.motif = Constants.Motif.PGP;
         }
         else if(id == 23){
             pattern[0] = BallColors.PURPLE;
             pattern[1] = BallColors.PURPLE;
             pattern[2] = BallColors.GREEN;
+            Constants.motif = Constants.Motif.PPG;
         }
     }
 

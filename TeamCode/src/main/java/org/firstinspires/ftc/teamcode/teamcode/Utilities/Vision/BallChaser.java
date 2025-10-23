@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision;
 
+import static android.graphics.Color.GREEN;
+import static android.graphics.Color.MAGENTA;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser.visionDash.maxS_green;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser.visionDash.maxS_purple;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser.visionDash.minV_purple;
@@ -26,6 +28,8 @@ import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.opencv.Circle;
 import org.opencv.android.Utils;
@@ -61,6 +65,9 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
     public static boolean targetDetected = false;
     ArrayList<MatOfPoint> contoursGreen = new ArrayList<>();
     ArrayList<MatOfPoint> contoursPurple = new ArrayList<>();
+
+    List <Rect> purpleRects = new ArrayList<>();
+    List <Rect> greenRects = new ArrayList<>();
     private static int IMG_HEIGHT = 0;
     private static int IMG_WIDTH = 0;
     // Sets up variables to collect image details
@@ -71,6 +78,8 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
             maskGreen = new Mat(),
             maskPurple = new Mat();
     private Mat hierarchy = new Mat();
+
+    List <Rect> targetBalls = new ArrayList<>(3);
 
     // Stuff for variables
     int submatleft = IMG_WIDTH/3;
@@ -112,6 +121,8 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
         // Clear previous contours
         contoursGreen.clear();
         contoursPurple.clear();
+        greenRects.clear();
+        purpleRects.clear();
         IMG_HEIGHT = input.rows();
         IMG_WIDTH = input.cols();
 
@@ -137,8 +148,42 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
 
         findContours(maskGreen, contoursGreen, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
         findContours(maskPurple, contoursPurple, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-        largestPurpleRect = getObjectsDetected(contoursPurple);
-        largestGreenRect = getObjectsDetected(contoursGreen);
+        largestPurpleRect = getObjectsDetected(contoursPurple, MAGENTA);
+        largestGreenRect = getObjectsDetected(contoursGreen, GREEN);
+
+        if(targetDetected){
+            if(Constants.motif.equals(Constants.Motif.GPP)){
+              if(greenRects.get(0)!=null){
+                 targetBalls.add(greenRects.get(0));
+                }else{targetBalls.add(null);}
+              if(purpleRects.get(0)!=null){
+                targetBalls.add(purpleRects.get(0));
+                }else{targetBalls.add(null);}
+                 if (purpleRects.get(1)!=null){
+                targetBalls.add(purpleRects.get(1));
+             }else{targetBalls.add(null);}}
+            if(Constants.motif.equals(Constants.Motif.PGP)){
+                if(purpleRects.get(0)!=null){
+                    targetBalls.add(purpleRects.get(0));
+                }else{targetBalls.add(null);}
+                if(greenRects.get(0)!=null){
+                    targetBalls.add(greenRects.get(0));
+                }else{targetBalls.add(null);}
+                if (purpleRects.get(1)!=null){
+                    targetBalls.add(purpleRects.get(1));
+                }else{targetBalls.add(null);}}
+            if(Constants.motif.equals(Constants.Motif.PPG)){
+                if(purpleRects.get(0)!=null){
+                    targetBalls.add(purpleRects.get(0));
+                }else{targetBalls.add(null);}
+                if (purpleRects.get(1)!=null){
+                    targetBalls.add(purpleRects.get(1));
+                }else{targetBalls.add(null);}
+                if(greenRects.get(0)!=null){
+                    targetBalls.add(greenRects.get(0));
+                }else{targetBalls.add(null);}}
+        }
+
 
 
 
@@ -154,7 +199,7 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
 
         Paint ballPaintGreen = new Paint();
-        ballPaintGreen.setColor(Color.GREEN);
+        ballPaintGreen.setColor(GREEN);
         ballPaintGreen.setStyle(Paint.Style.STROKE);
         ballPaintGreen.setStrokeWidth(scaleCanvasDensity * 8);
 
@@ -169,7 +214,7 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
         ballPaintPurple.setStrokeWidth(scaleCanvasDensity * 8);
 
         Paint contourpaintPurple = new Paint();
-        contourpaintPurple.setColor(Color.MAGENTA);
+        contourpaintPurple.setColor(MAGENTA);
         contourpaintPurple.setStyle(Paint.Style.STROKE);
         contourpaintPurple.setStrokeWidth(scaleCanvasDensity *4);
 
@@ -179,6 +224,11 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
         linePaint.setStrokeWidth(scaleCanvasDensity*10);
         // Create a copy of the contours
         List<MatOfPoint> contourCopyPurple = new ArrayList<>(contoursPurple);
+
+        Paint ballPaint = new Paint();
+        ballPaint.setStyle(Paint.Style.STROKE);
+        ballPaint.setColor(Color.BLUE);
+        ballPaint.setStrokeWidth(scaleCanvasDensity*4);
         // Rectangle showing camera view
         // This loops through all the contours and draw points on the canvas
 
@@ -203,11 +253,23 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
         }
 
         if(targetDetected) {
+            /*for(Rect i : greenRects){
+                canvas.drawRect(makeGraphicsRect(greenRects.get(0), scaleBmpPxToCanvasPx), ballPaintGreen);
+            }
+            for (Rect i : purpleRects){
+                canvas.drawRect(makeGraphicsRect(purpleRects.get(0), scaleBmpPxToCanvasPx), ballPaintPurple);
+            }*/
             if (largestGreenRect != null) {
                  canvas.drawRect(makeGraphicsRect(largestGreenRect, scaleBmpPxToCanvasPx), ballPaintGreen);
             }
             if (largestPurpleRect != null) {
                 canvas.drawRect(makeGraphicsRect(largestPurpleRect, scaleBmpPxToCanvasPx), ballPaintPurple);
+            }
+            int i = 0;
+            for (Rect rect : targetBalls){
+                canvas.drawText(String.valueOf(i), (targetBalls.get(i).x+5), (targetBalls.get(i).y+5),ballPaint);
+                canvas.drawRect(makeGraphicsRect(targetBalls.get(i), scaleBmpPxToCanvasPx),ballPaint );
+                i++;
             }
         }
 
@@ -237,7 +299,7 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
             return centerPixelColorRGB;
         }
     }
-    public Rect getObjectsDetected(ArrayList<MatOfPoint> contours){
+    public Rect getObjectsDetected(ArrayList<MatOfPoint> contours, int color){
         if (!contours.isEmpty()) {
             MatOfPoint largestContour = findLargestContour(contours);
           //  MatOfPoint2f largestContour2f = new MatOfPoint2f();
@@ -251,6 +313,11 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
                 if (!rects.isEmpty()) {
                     this.largestRect = VisionUtils.sortRectsByMaxOption(1, VisionUtils.RECT_OPTION.AREA, rects).get(0);
                     targetDetected = true;
+                    if(color == GREEN){ //this is the world's goofiest code but it works ig
+                        greenRects=VisionUtils.sortRectsByMaxOption(1, VisionUtils.RECT_OPTION.AREA, rects);
+                    } else if (color == MAGENTA) {
+                        purpleRects=VisionUtils.sortRectsByMaxOption(1, VisionUtils.RECT_OPTION.AREA, rects);
+                    }
                 } else {
                     largestRect = null;
                     targetDetected = false;
