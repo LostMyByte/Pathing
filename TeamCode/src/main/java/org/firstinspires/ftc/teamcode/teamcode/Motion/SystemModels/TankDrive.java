@@ -266,7 +266,7 @@ public class TankDrive implements SystemModel{
     }
 
     public Matrix VdF2dUdU(Vector state, Vector control, Vector V, double deltaTime) {
-        /*Matrix i1 = new GeneralMatrix(2, 2);
+        Matrix i1 = new GeneralMatrix(2, 2);
         Matrix i2 = new GeneralMatrix(2, 2);
         i1.put(0, 0, -2*Math.tanh(control.get(0))/(Math.pow(Math.cosh(control.get(0)), 2)));
         i2.put(1, 1, -2*Math.tanh(control.get(1))/(Math.pow(Math.cosh(control.get(1)), 2)));
@@ -284,7 +284,7 @@ public class TankDrive implements SystemModel{
         }
 
         result.multiply(deltaTime);
-        */
-        return new GeneralMatrix(2,2);
+
+        return result;
     }
 }

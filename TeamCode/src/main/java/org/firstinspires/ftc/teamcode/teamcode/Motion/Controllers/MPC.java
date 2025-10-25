@@ -229,7 +229,7 @@ public class MPC {
             Vector Qu = dCdU(control, dt).added(dfduT.multiplied(vx));
             Matrix Qxx = dCdX2(dt).added(dfdxT.multiplied(vxx).multiplied(dfdx));//.added(model.VdF2dXdX(state, control, vx, dt));
             Matrix Qux = dfduT.multiplied(vxx).multiplied(dfdx);//.added(model.VdF2dXdU(state, control, vx, dt));
-            GeneralMatrix Quu = (GeneralMatrix) dCdU2(dt).added(dfduT.multiplied(vxx).multiplied(dfdu)).added(model.VdF2dUdU(state,control,vx, dt));
+            GeneralMatrix Quu = (GeneralMatrix) dCdU2(dt).added(dfduT.multiplied(vxx).multiplied(dfdu));//.added(model.VdF2dUdU(state,control,vx, dt));
 
             DMatrixRMaj Quu2 = new DMatrixRMaj(this.numControls, this.numControls, true, Quu.getData());
 
