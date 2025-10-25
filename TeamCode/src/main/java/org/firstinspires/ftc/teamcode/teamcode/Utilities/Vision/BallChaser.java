@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision;
 
 import static android.graphics.Color.GREEN;
 import static android.graphics.Color.MAGENTA;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.motif;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser.visionDash.maxS_green;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser.visionDash.maxS_purple;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser.visionDash.minV_purple;
@@ -41,7 +42,10 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BallChaser implements VisionProcessor, CameraStreamSource {
@@ -152,7 +156,7 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
         largestGreenRect = getObjectsDetected(contoursGreen, GREEN);
 
         if(targetDetected){
-            if(Constants.motif.equals(Constants.Motif.GPP)){
+            if(motif.equals(Constants.Motif.GPP)){
               if(greenRects.get(0)!=null){
                  targetBalls.add(greenRects.get(0));
                 }else{targetBalls.add(null);}
@@ -162,7 +166,7 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
                  if (purpleRects.get(1)!=null){
                 targetBalls.add(purpleRects.get(1));
              }else{targetBalls.add(null);}}
-            if(Constants.motif.equals(Constants.Motif.PGP)){
+            if(motif.equals(Constants.Motif.PGP)){
                 if(purpleRects.get(0)!=null){
                     targetBalls.add(purpleRects.get(0));
                 }else{targetBalls.add(null);}
@@ -172,7 +176,7 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
                 if (purpleRects.get(1)!=null){
                     targetBalls.add(purpleRects.get(1));
                 }else{targetBalls.add(null);}}
-            if(Constants.motif.equals(Constants.Motif.PPG)){
+            if(motif.equals(Constants.Motif.PPG)){
                 if(purpleRects.get(0)!=null){
                     targetBalls.add(purpleRects.get(0));
                 }else{targetBalls.add(null);}
@@ -411,10 +415,51 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
     }
 
     public void checkMotif(){
-        
+        int i=0;
+        TreeMap<Integer, Integer> orderedList= new TreeMap<>();
+        orderedList.comparator().reversed();
+        List <Boolean> matchesMotif = new ArrayList<>();
+        List<Integer> motifPattern = new ArrayList<>();
+        for(Rect rect: greenRects){
+            i++;
+            orderedList.put(greenRects.get(i).y, GREEN);
+        }
+        for(Rect rect: purpleRects){
+            i++;
+            orderedList.put(purpleRects.get(i).y, MAGENTA);
+        }
 
-        //veiw num already in space, make into array list w/ three arrays, then compare array with motif
+        List <Integer> artifactColor = new ArrayList<>(orderedList.values());
+
+        if(motif == Constants.Motif.GPP){
+            motifPattern.add(GREEN);
+            motifPattern.add(MAGENTA);
+            motifPattern.add(MAGENTA);
+        }else if (motif == Constants.Motif.PGP){
+            motifPattern.add(MAGENTA);
+            motifPattern.add(GREEN);
+            motifPattern.add(MAGENTA);
+        }else if (motif == Constants.Motif.PPG){
+            motifPattern.add(MAGENTA);
+            motifPattern.add(MAGENTA);
+            motifPattern.add(GREEN);
+        }
+
+        //list of green detections
+        //list of purple detections
+        //get y value of all detections and order by y value
+        //in overall list, store color values in order [gpp, pgp, ppg]
+        //make list of ideal motif pattern (we have that constant already, just check*3)
+        //compare if equal. if not, set index to false, if yes, true
+        //gives array of booleans to see if matches
         //return boolean[] (the silliest return type)
     }
+   /* class CustomKeyComparator implements Comparator<Integer>{
+        @Override
+        public int compare(Integer key1, Integer key2){
+            //should be reverse order maybe?
+            return key2.compareTo(key1);
+        }
+    }*/
 
 }
