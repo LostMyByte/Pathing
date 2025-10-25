@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes;
+package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp;
 
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
-@TeleOp(name="controllerTest")
+
+//@TeleOp(name="controllerTest")
 public class ControllerTest extends BaseOpMode {
     @Override
     public void externalInit() {

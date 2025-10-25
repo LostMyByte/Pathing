@@ -4,20 +4,16 @@ import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hardware.camera
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Movement;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector;
 import org.firstinspires.ftc.vision.VisionPortal;
-
+import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 @TeleOp (name = "AAA visionTest")
 public class VisionTestingButWithAchassis extends BaseOpMode {
     private FtcDashboard dash;
-    Drivetrain drive;
+    Movement drive;
 
     WebcamName webcam1;
     BallDetector ballDetector;
@@ -41,7 +37,7 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
                 .setCameraResolution(cameraResolution)
                 .build();
 
-        drive = new Drivetrain(hardwareMap, 0);
+        //drive = new Drivetrain(hardwareMap, 0);
 
         FtcDashboard.getInstance().startCameraStream(visionPortal, 0);
         //this is what allows ftc dashboard to work
@@ -54,7 +50,7 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
     @Override
     public void externalLoop() {
         if(!driver1.circle.isTapped()){
-     drive.ballFollow();
+     //drive.ballFollow();
     }
     }
 

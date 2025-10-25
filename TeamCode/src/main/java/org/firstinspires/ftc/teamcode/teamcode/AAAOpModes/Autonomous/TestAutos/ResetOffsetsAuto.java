@@ -3,10 +3,7 @@ package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.TestAutos;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.teamcode.KCP.Localization.GoBildaPinpointDriver;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hardware;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake;
+
 
 @Autonomous(name = "Reset Stufsf")
 public class ResetOffsetsAuto extends BaseOpMode {
@@ -14,8 +11,7 @@ public class ResetOffsetsAuto extends BaseOpMode {
     public void externalInit() {
 
 
-        MainIntake intake = new MainIntake(hardware);
-        intake.setState(MainIntake.IntakeStates.HOMEUP);
+
     }
 
     @Override

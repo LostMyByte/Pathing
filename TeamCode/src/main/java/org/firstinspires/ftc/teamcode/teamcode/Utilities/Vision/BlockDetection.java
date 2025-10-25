@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision;
 
 import android.util.Size;
@@ -5,9 +6,8 @@ import android.util.Size;
 import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hardware;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.teamcode.Math.Vector;
 import org.firstinspires.ftc.vision.VisionPortal;
 
 @Config
@@ -60,7 +60,8 @@ public class BlockDetection {
     }
 
     public void update() {
-        /*LLResult result = limelight.getLatestResult();
+        */
+/*LLResult result = limelight.getLatestResult();
 
         if (result !=null) {
             double[] limelightOutput = result.getPythonOutput();
@@ -71,10 +72,12 @@ public class BlockDetection {
 
         }
 
-         */
+         *//*
+
 
         displacement = processor.getDisplacement(true);
 
 
     }
 }
+*/

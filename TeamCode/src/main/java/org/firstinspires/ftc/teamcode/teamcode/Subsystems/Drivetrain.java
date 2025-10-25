@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
 
@@ -13,14 +14,13 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.teamcode.KCP.DriveClasses.MecanumDrive;
+*/
+/*import org.firstinspires.ftc.teamcode.teamcode.KCP.DriveClasses.MecanumDrive;
 import org.firstinspires.ftc.teamcode.teamcode.KCP.DriveClasses.TankDrivetrain;
-import org.firstinspires.ftc.teamcode.teamcode.KCP.Localization.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.teamcode.KCP.Localization.GoBildaPinpointDriver;*//*
+
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.RingBuffer;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
@@ -81,7 +81,8 @@ public class Drivetrain extends Subsystem {
         driveWheels2 = new TankDrivetrain();
         //driveWheels = new MecanumDrive();
         visionTurnPID = new PID(DrivetrainDash.kP, DrivetrainDash.kI, kD);
-       /* gyro = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
+       */
+/* gyro = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
         if (Double.isNaN(Constants.startAngle)) {
             gyro.resetPosAndIMU();
             gyro.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, heading));
@@ -90,7 +91,8 @@ public class Drivetrain extends Subsystem {
 
             gyro.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, gyro.getHeading()- PI/2));;
         }
-        pid = new PID(HP,0, HD);*/
+        pid = new PID(HP,0, HD);*//*
+
 
 
     }
@@ -144,13 +146,15 @@ public class Drivetrain extends Subsystem {
 
 //        updatePID();
 
-        /*
+        */
+/*
         motorfl.setPower(-(drive - strafe + turn) * speed);
         motorfr.setPower((drive + strafe - turn) * speed);
         motorbl.setPower(-(drive + strafe + turn) * speed);
         motorbr.setPower((drive - strafe - turn) * speed);
 
-         */
+         *//*
+
         driveWheels.veryDirectDrive((drive + strafe - turn) * speed,-(drive - strafe + turn) * speed,(drive - strafe - turn) * speed,-(drive + strafe + turn) * speed);
     }
 
@@ -173,10 +177,12 @@ public class Drivetrain extends Subsystem {
 
         double drive = 0;
 
-      /*  if ((rectangle.height)/2 < 120){
+      */
+/*  if ((rectangle.height)/2 < 120){
             //drive up to box
             drive = 1;
-        }*/
+        }*//*
+
 
 
        // double strafe = 0; //this ain't meccanum
@@ -223,10 +229,12 @@ public class Drivetrain extends Subsystem {
 
         driveWheels2.veryVeryDirectDrive(drive,-turn);
       //  driveWheels.veryDirectDrive(drive +strafe -turn,drive -strafe +turn,drive -strafe -turn,drive +strafe +turn);
-      /* fl.setPower((drive -strafe +turn));
+      */
+/* fl.setPower((drive -strafe +turn));
        fr.setPower((drive +strafe -turn));
         bl.setPower((drive +strafe +turn));
-        br.setPower((drive -strafe -turn));*/
+        br.setPower((drive -strafe -turn));*//*
+
     }
     public double distance(double widthPixels){
         //double angleDeg = ((120*widthPixels)/320) /2;
@@ -253,4 +261,4 @@ public class Drivetrain extends Subsystem {
         gyro.resetPosAndIMU();
     }
 
-}
+}*/

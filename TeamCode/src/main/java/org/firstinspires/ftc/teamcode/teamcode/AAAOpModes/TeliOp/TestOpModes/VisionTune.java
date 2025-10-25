@@ -6,11 +6,9 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector;
 import org.firstinspires.ftc.vision.VisionPortal;
-
+import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 @TeleOp (name = "visionTune")
 public class VisionTune extends BaseOpMode {
 

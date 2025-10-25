@@ -1,20 +1,20 @@
+/*
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.teamcode.KCP.Movement;
+
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake;
-
+import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 @TeleOp(name="Dimitri Teleop")
 public class DimitriTeleop extends BaseOpMode{
 
     //Drivetrain drivetrain;
 
-    Movement autoDrive;
+    //Movement autoDrive;
     double turretAngle = 0;
     double slidesLength = 0;
     double slidesSensitivityConstant = .65;
@@ -30,7 +30,7 @@ public class DimitriTeleop extends BaseOpMode{
     public void externalInit() {
 
 
-        autoDrive = new Movement(0,0,0);
+        //autoDrive = new Movement(0,0,0);
         BaseOpMode.addData("endAngle", Constants.startAngle);
 
 
@@ -53,7 +53,7 @@ public class DimitriTeleop extends BaseOpMode{
     @Override
     public void externalStart(){
 
-        autoDrive.stopDrive();
+        //autoDrive.stopDrive();
         intake.setState(MainIntake.IntakeStates.HOMEUP);
 
     }
@@ -105,10 +105,10 @@ public class DimitriTeleop extends BaseOpMode{
         }
 
         if (driver1.dpad_up.isTapped()) {
-            autoDrive.setHeading(0);
+            //autoDrive.setHeading(0);
         }
 
-        autoDrive.drive(drive, strafe,turn,speed, lockHeading);
+        //autoDrive.drive(drive, strafe,turn,speed, lockHeading);
 
         if (intake.getState() == MainIntake.IntakeStates.HOMEUP && driver2.triangle.isTapped()){
             intake.setState(MainIntake.IntakeStates.EXTENDEDUP);
@@ -127,6 +127,7 @@ public class DimitriTeleop extends BaseOpMode{
 
 
         }
+*/
 /*
         else if (intake.getState() == MainIntake.IntakeStates.EXTENDEDUP && driver2.rightTrigger.isPressed()){
             intake.setState(MainIntake.IntakeStates.EXTENDEDACTIVE);
@@ -147,7 +148,8 @@ public class DimitriTeleop extends BaseOpMode{
         }
 
 
- */
+ *//*
+
 
         if (intake.getState() == MainIntake.IntakeStates.EXTENDEDNOTACTIVE || intake.getState() == MainIntake.IntakeStates.EXTENDEDACTIVE){
             if (driver2.rightTrigger.isPressed()){
@@ -201,8 +203,8 @@ public class DimitriTeleop extends BaseOpMode{
         }
 
         if(driver1.playstation.isTapped()){
-            autoDrive.setHeading(Math.PI/2);
-            autoDrive.setPosition(45, 90);
+            //autoDrive.setHeading(Math.PI/2);
+            //autoDrive.setPosition(45, 90);
             setState(TeleStates.CYCLEINTAKE);
         }
 
@@ -219,7 +221,7 @@ public class DimitriTeleop extends BaseOpMode{
     }
 
     public void cycleScore(){
-        autoDrive.holdPosition(45, 73 + cycles*2,Math.PI/2, .45);
+        //autoDrive.holdPosition(45, 73 + cycles*2,Math.PI/2, .45);
         if (timeWaste.seconds() > 1.9){
             cycles++;
 
@@ -239,11 +241,11 @@ public class DimitriTeleop extends BaseOpMode{
 
     public void cycleIntake(){
         if(timeWaste.seconds() < 1.8 && timeWaste.seconds() > .3) {
-            autoDrive.holdPosition(20, 36, Math.PI/2,.7);
+            //autoDrive.holdPosition(20, 36, Math.PI/2,.7);
         } else if(timeWaste.seconds() > 1.8) {
-            autoDrive.holdPosition(3.5, 36, Math.PI/2, .5);
+            //autoDrive.holdPosition(3.5, 36, Math.PI/2, .5);
         } else if(timeWaste.seconds() < .3){
-            autoDrive.holdPosition(30, 70, Math.PI/2, .7);
+            //autoDrive.holdPosition(30, 70, Math.PI/2, .7);
         }
 
         if (timeWaste.seconds() > .3 && !done1){
@@ -268,3 +270,4 @@ public class DimitriTeleop extends BaseOpMode{
 
 
 }
+*/

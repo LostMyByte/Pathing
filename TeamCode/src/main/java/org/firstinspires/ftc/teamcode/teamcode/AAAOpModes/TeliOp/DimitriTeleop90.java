@@ -1,13 +1,13 @@
+/*
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake;
-
+import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 @TeleOp(name="Dimitri Teleop 90")
 @Disabled
 public class DimitriTeleop90 extends BaseOpMode{
@@ -86,6 +86,7 @@ public class DimitriTeleop90 extends BaseOpMode{
         }
 
 
+*/
 /*
         else if (intake.getState() == MainIntake.IntakeStates.EXTENDEDUP && driver2.rightTrigger.isPressed()){
             intake.setState(MainIntake.IntakeStates.EXTENDEDACTIVE);
@@ -106,7 +107,8 @@ public class DimitriTeleop90 extends BaseOpMode{
         }
 
 
- */
+ *//*
+
 
 
         if (intake.getState() == MainIntake.IntakeStates.EXTENDEDACTIVE || intake.getState() == MainIntake.IntakeStates.EXTENDEDREVERSED  || intake.getState() == MainIntake.IntakeStates.EXTENDEDUP || intake.getState() == MainIntake.IntakeStates.EXTENDEDNOTACTIVE){
@@ -138,3 +140,4 @@ public class DimitriTeleop90 extends BaseOpMode{
 
     }
 }
+*/

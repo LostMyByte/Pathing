@@ -1,20 +1,13 @@
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes;
 
-import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes.ShooterTest.ShooterDash.ticksPerRotation;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.DashPositions;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.ShooterDashClass;
-
+import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 @TeleOp (name = "ShooterTest")
 public class ShooterTest extends BaseOpMode {
 

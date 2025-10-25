@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.teamcode.Utilities.Learning;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 public abstract class Learnable {
 
