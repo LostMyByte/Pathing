@@ -259,7 +259,7 @@ public class Shooter extends Subsystem{
         //This is the target angle relative to facing directly at the aprilTag
         //yaw is current angle of the aprilTag relative to the shooter
         //This uses the law of sines to find the target angle of the robot relative to the april tag
-        turretTargetAngle = Math.asin((0.46*Math.sin(yaw)/distanceAway));
+        //turretTargetAngle = Math.asin((0.46*Math.sin(yaw)/distanceAway));
         turretError = Math.toRadians(turretTargetAngle - tx);
 
 
