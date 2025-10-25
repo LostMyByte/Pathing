@@ -410,4 +410,11 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
         return new android.graphics.Rect(left, top, right, bottom);
     }
 
+    public void checkMotif(){
+        
+
+        //veiw num already in space, make into array list w/ three arrays, then compare array with motif
+        //return boolean[] (the silliest return type)
+    }
+
 }
