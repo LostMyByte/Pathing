@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teamcode.Motion.SystemModels;
+package org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels;
 
 
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveConfig;

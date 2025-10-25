@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers;
+package org.firstinspires.ftc.teamcode.teamcode.Motion.Signals;
 
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 

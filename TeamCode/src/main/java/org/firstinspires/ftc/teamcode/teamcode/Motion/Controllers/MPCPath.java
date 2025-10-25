@@ -8,8 +8,11 @@ import com.google.gson.stream.JsonReader;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.SystemModels.SystemModel;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.SystemModels.TankDrive;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.SystemModel;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ConstantSignal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ReferenceSignal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveConfig;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;

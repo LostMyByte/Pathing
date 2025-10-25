@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration;
 import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.MPCPath;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.PIDCoefficients;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.PID;
 
 @Config
 public class DriveConfig {
@@ -83,7 +83,7 @@ public class DriveConfig {
             public static double h = -1;
 
         }
-        public static PIDCoefficients driveConstants = new PIDCoefficients(0.03, 0.01, 0, 0.03, 0.01);
+        public static PID.PIDCoefficients driveConstants = new PID.PIDCoefficients(0.03, 0.01, 0, 0.03, 0.01);
         public static double driveAcceleration = 900;
 
 

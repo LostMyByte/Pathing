@@ -9,7 +9,9 @@ import org.ejml.dense.row.factory.DecompositionFactory_DDRM;
 import org.ejml.interfaces.decomposition.EigenDecomposition_F64;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 
-import org.firstinspires.ftc.teamcode.teamcode.Motion.SystemModels.SystemModel;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.SystemModel;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ReferenceSignal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
@@ -20,10 +22,10 @@ public class MPC {
     public Matrix R; // Control cost
     public Matrix QF; // Terminal Distance Cost
 
-    private double lr;
-    private double lambda = 1;
+    private double lr; // Learning Rate
+    private double lambda = 1; // Current step size
     private double lambda_max = 1000;
-    private double threshold;
+    private double threshold; // Threshold for path being considered good
 
 
     public Vector[] currentControls;

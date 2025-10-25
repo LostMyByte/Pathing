@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.MPCPath;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.SystemModels.TankDrive;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveConfig;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 

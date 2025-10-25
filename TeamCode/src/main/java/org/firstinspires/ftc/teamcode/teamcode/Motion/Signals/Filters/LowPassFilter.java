@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.teamcode.Motion.Filters;
+package org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Filters;
 
-import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.Signal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 
 public class LowPassFilter extends Signal {
 
