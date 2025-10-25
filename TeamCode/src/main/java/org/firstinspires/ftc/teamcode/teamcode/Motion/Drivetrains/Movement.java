@@ -1,14 +1,14 @@
-package org.firstinspires.ftc.teamcode.teamcode.Motion;
+package org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains;
 
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.Controller;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.MotionProfile;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.MotionProfile;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.PID;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.ReferenceSignal;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.Signal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ReferenceSignal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Paths.Path;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Subsystem;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveConfig;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
@@ -27,7 +27,7 @@ public abstract class Movement extends Subsystem {
             activePath = path;
             if (path != null) {
                 profile = new MotionProfile(activePath, speed);
-                correctionSignal = new PID(profile, loc, DriveConfig.DriveWheels.driveConstants);
+                correctionSignal = new PID(profile, loc, DriveWheels.driveConstants);
             }
         }
     }

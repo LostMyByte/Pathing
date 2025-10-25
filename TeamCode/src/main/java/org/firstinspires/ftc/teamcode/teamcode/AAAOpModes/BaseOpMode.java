@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.Signal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Controller;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;

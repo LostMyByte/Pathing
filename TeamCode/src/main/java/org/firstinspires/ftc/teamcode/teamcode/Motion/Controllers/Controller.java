@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers;
 
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.DifferenceSignal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ReferenceSignal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 public abstract class Controller {

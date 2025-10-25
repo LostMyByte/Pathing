@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.MPCPath;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.SystemModels.TankDrive;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveConfig;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 import java.io.FileNotFoundException;
@@ -46,7 +46,7 @@ public class MPCTest extends BaseOpMode {
         test.setAccuracy(TestMPCParams.threshold);
         test.setMoveTime(TestMPCParams.Horizon);
         test.setResolution(((double) TestMPCParams.N)/TestMPCParams.Horizon);
-        test.setParams(DriveConfig.DriveWheels.defaultParams);
+        test.setParams(DriveWheels.defaultParams);
         test.setModel(new TankDrive());
         test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
         test.setName("Test Path");

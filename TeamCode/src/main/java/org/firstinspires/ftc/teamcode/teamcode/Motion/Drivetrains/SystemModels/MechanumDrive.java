@@ -1,7 +1,7 @@
-package org.firstinspires.ftc.teamcode.teamcode.Motion.SystemModels;
+package org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels;
 
 
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveConfig;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.TrigAngle;
@@ -13,9 +13,9 @@ public class MechanumDrive implements SystemModel {
             0 ,0, 0, 1, 0, 0,
             0 ,0, 0, 0, 1, 0,
             0 ,0, 0, 0, 0, 1,
-            0 ,0, 0, 1- DriveConfig.DriveWheels.Ex, 0, 0,
-            0 ,0, 0, 0, 1- DriveConfig.DriveWheels.Ey, 0,
-            0 ,0, 0, 0, 0, 1- DriveConfig.DriveWheels.Eh,
+            0 ,0, 0, 1- DriveWheels.Ex, 0, 0,
+            0 ,0, 0, 0, 1- DriveWheels.Ey, 0,
+            0 ,0, 0, 0, 0, 1- DriveWheels.Eh,
     });
 
     private static Matrix B = new GeneralMatrix(6, 3, new double[] {
@@ -25,7 +25,7 @@ public class MechanumDrive implements SystemModel {
             1, 0, 0,
             0, 1, 0,
             0, 0, 1,
-    }).multiplied(DriveConfig.DriveWheels.driveAcceleration);
+    }).multiplied(DriveWheels.driveAcceleration);
 
 
 
@@ -34,9 +34,9 @@ public class MechanumDrive implements SystemModel {
                 0 ,0, 0, 1, 0, 0,
                 0 ,0, 0, 0, 1, 0,
                 0 ,0, 0, 0, 0, 1,
-                0 ,0, 0, 1- DriveConfig.DriveWheels.Ex, 0, 0,
-                0 ,0, 0, 0, 1- DriveConfig.DriveWheels.Ey, 0,
-                0 ,0, 0, 0, 0, 1- DriveConfig.DriveWheels.Eh,
+                0 ,0, 0, 1- DriveWheels.Ex, 0, 0,
+                0 ,0, 0, 0, 1- DriveWheels.Ey, 0,
+                0 ,0, 0, 0, 0, 1- DriveWheels.Eh,
         });
 
         B = new GeneralMatrix(6, 3, new double[] {
@@ -46,11 +46,11 @@ public class MechanumDrive implements SystemModel {
                 1, 0, 0,
                 0, 1, 0,
                 0, 0, 1,
-        }).multiplied(DriveConfig.DriveWheels.driveAcceleration);
+        }).multiplied(DriveWheels.driveAcceleration);
     }
 
     public Matrix getBLeftInverse(Vector state) {
-        return B.transposed().multiplied(1/(DriveConfig.DriveWheels.driveAcceleration * DriveConfig.DriveWheels.driveAcceleration)).multiplied(h(state).inverted());
+        return B.transposed().multiplied(1/(DriveWheels.driveAcceleration * DriveWheels.driveAcceleration)).multiplied(h(state).inverted());
     }
 
     public static Matrix h(TrigAngle angle) {

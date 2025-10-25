@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.teamcode.Motion.SystemModels;
+package org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels;
 
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveConfig;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.TrigAngle;
@@ -11,29 +11,29 @@ public class TankDrive implements SystemModel{
             0 ,0, 0, 0, 0,
             0 ,0, 0, 1, 0,
             0 ,0, 0, 0, 1,
-            0 ,0, 0, DriveConfig.DriveWheels.Ed, 0,
-            0 ,0, 0, 0, DriveConfig.DriveWheels.Eh,
+            0 ,0, 0, DriveWheels.Ed, 0,
+            0 ,0, 0, 0, DriveWheels.Eh,
     });
 
     private static Matrix B = new GeneralMatrix(5, 2, new double[] {
             0 ,0,
             0 ,0,
             0 ,0,
-            DriveConfig.DriveWheels.driveAcceleration/2, DriveConfig.DriveWheels.driveAcceleration/2,
-            -DriveConfig.DriveWheels.angularAcceleration/2, DriveConfig.DriveWheels.angularAcceleration/2,
+            DriveWheels.driveAcceleration/2, DriveWheels.driveAcceleration/2,
+            -DriveWheels.angularAcceleration/2, DriveWheels.angularAcceleration/2,
     });
 
     public static Matrix getBLeftInverse(Vector state) {
         return new GeneralMatrix(2, 5, new double[] {
-                0, 0, 0, 1/DriveConfig.DriveWheels.driveAcceleration, -1/DriveConfig.DriveWheels.angularAcceleration,
-                0, 0, 0, 1/DriveConfig.DriveWheels.driveAcceleration, 1/DriveConfig.DriveWheels.angularAcceleration,
+                0, 0, 0, 1/ DriveWheels.driveAcceleration, -1/ DriveWheels.angularAcceleration,
+                0, 0, 0, 1/ DriveWheels.driveAcceleration, 1/ DriveWheels.angularAcceleration,
         }).multiplied(hinv(state));
     }
 
     public static Matrix getWheelVelocity() {
         return new GeneralMatrix(2, 5, new double[] {
-                0, 0, 0, 1, -DriveConfig.DriveWheels.LeverArm,
-                0, 0, 0, 1, DriveConfig.DriveWheels.LeverArm,
+                0, 0, 0, 1, -DriveWheels.LeverArm,
+                0, 0, 0, 1, DriveWheels.LeverArm,
         });
     }
 
@@ -44,16 +44,16 @@ public class TankDrive implements SystemModel{
                 0 ,0, 0, 0, 0,
                 0 ,0, 0, 1, 0,
                 0 ,0, 0, 0, 1,
-                0 ,0, 0, DriveConfig.DriveWheels.Ed, 0,
-                0 ,0, 0, 0, DriveConfig.DriveWheels.Eh,
+                0 ,0, 0, DriveWheels.Ed, 0,
+                0 ,0, 0, 0, DriveWheels.Eh,
         });
 
         B =  new GeneralMatrix(5, 2, new double[] {
                 0 ,0,
                 0 ,0,
                 0 ,0,
-                DriveConfig.DriveWheels.driveAcceleration/2, DriveConfig.DriveWheels.driveAcceleration/2,
-                -DriveConfig.DriveWheels.angularAcceleration/2, DriveConfig.DriveWheels.angularAcceleration/2,
+                DriveWheels.driveAcceleration/2, DriveWheels.driveAcceleration/2,
+                -DriveWheels.angularAcceleration/2, DriveWheels.angularAcceleration/2,
         });
     }
 
@@ -132,7 +132,7 @@ public class TankDrive implements SystemModel{
 
     public Vector controlLimit(Vector u) {
         Vector result = new Vector(2/(Math.exp(-u.get(0)) + 1) - 1, 2/(Math.exp(-u.get(1)) + 1) - 1);
-        result.multiply(DriveConfig.DriveWheels.controlLimit);
+        result.multiply(DriveWheels.controlLimit);
         return result;
     }
 
@@ -140,7 +140,7 @@ public class TankDrive implements SystemModel{
     public Matrix dSdU(Vector u) {
         GeneralMatrix result = new GeneralMatrix(2, 2);
 
-        double cl = DriveConfig.DriveWheels.controlLimit;
+        double cl = DriveWheels.controlLimit;
         for (int index = 0; index < 2; index ++ ) {
             result.put(index, index,  Math.exp(-u.get(index))/(Math.exp(-u.get(index)) + 1));
         }
@@ -174,11 +174,11 @@ public class TankDrive implements SystemModel{
         Vector wheelVelocities = TankDrive.getWheelVelocity().multiplied(pos);
          Vector frictionCorrection = new Vector(0,0);
 
-        frictionCorrection.put(0, DriveConfig.DriveWheels.Lhk * Math.tanh(DriveConfig.DriveWheels.tsh * pos.get(4)));
-        frictionCorrection.put(1, -DriveConfig.DriveWheels.Lhk * Math.tanh(DriveConfig.DriveWheels.tsh * pos.get(4)));
+        frictionCorrection.put(0, DriveWheels.Lhk * Math.tanh(DriveWheels.tsh * pos.get(4)));
+        frictionCorrection.put(1, -DriveWheels.Lhk * Math.tanh(DriveWheels.tsh * pos.get(4)));
 
-        frictionCorrection.add(0, Math.tanh(DriveConfig.DriveWheels.tsv * wheelVelocities.get(0)) * DriveConfig.DriveWheels.Lml);
-        frictionCorrection.add(1, Math.tanh(DriveConfig.DriveWheels.tsv * wheelVelocities.get(1)) * DriveConfig.DriveWheels.Lmr);
+        frictionCorrection.add(0, Math.tanh(DriveWheels.tsv * wheelVelocities.get(0)) * DriveWheels.Lml);
+        frictionCorrection.add(1, Math.tanh(DriveWheels.tsv * wheelVelocities.get(1)) * DriveWheels.Lmr);
 
 
         return frictionCorrection;

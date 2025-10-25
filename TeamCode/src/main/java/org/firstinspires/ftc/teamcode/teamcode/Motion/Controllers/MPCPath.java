@@ -8,9 +8,12 @@ import com.google.gson.stream.JsonReader;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.SystemModels.SystemModel;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.SystemModels.TankDrive;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveConfig;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.SystemModel;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ConstantSignal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ReferenceSignal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
@@ -235,16 +238,16 @@ public class MPCPath {
         Matrix feedback = new GeneralMatrix(5, 2, new double[] {
                 0, 0,
                 0, 0,
-                DriveConfig.DriveWheels.Kih, -DriveConfig.DriveWheels.Kih,
-                DriveConfig.DriveWheels.Kpv, DriveConfig.DriveWheels.Kpv,
-                DriveConfig.DriveWheels.Kvh, -DriveConfig.DriveWheels.Kvh,
+                DriveWheels.Kih, -DriveWheels.Kih,
+                DriveWheels.Kpv, DriveWheels.Kpv,
+                DriveWheels.Kvh, -DriveWheels.Kvh,
         }).transposed();
 
         Matrix K = model.dSdU(correction).inverted().multiplied(controller.getInterpolatedK(time));
 
         sensorData = model.h(sensorData.multiplied(-1)).multiplied(sensorData);
 
-        correction.add(K.multiplied(DriveConfig.DriveWheels.strength).multiplied(sensorData));
+        correction.add(K.multiplied(DriveWheels.strength).multiplied(sensorData));
 
         return correction.added(feedback.multiplied(sensorData)).added(TankDrive.getLoopback(target));
     }

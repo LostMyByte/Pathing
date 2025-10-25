@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers;
+package org.firstinspires.ftc.teamcode.teamcode.Motion.Signals;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -13,7 +13,7 @@ public abstract class Signal {
     public static ArrayList<Signal> signals = new ArrayList<>();
     public static double deltaTime = 0.1;
 
-    int size;
+    public int size;
 
     public Signal(int size) {
         signals.add(this);

@@ -7,9 +7,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.MPCPath;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.SystemModels.SystemModel;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.SystemModels.TankDrive;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveConfig;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.SystemModel;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 import java.io.FileNotFoundException;
@@ -145,7 +145,7 @@ public class RedFrontAuto extends BaseOpMode {
             path.setAccuracy(RedPositions.accuracy);
             path.setResolution(RedPositions.resolution);
             path.setStopTime(1);
-            path.setParams(DriveConfig.DriveWheels.defaultParams);
+            path.setParams(DriveWheels.defaultParams);
             path.setModel(driveModel);
         }
     }

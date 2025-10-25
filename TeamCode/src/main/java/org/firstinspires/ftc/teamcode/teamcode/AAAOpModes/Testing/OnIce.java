@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.SystemModels.TankDrive;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveConfig;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 @TeleOp(name = "Wolfpack on Ice")
@@ -32,7 +32,7 @@ public class OnIce extends BaseOpMode {
         Vector sensorData = sensorSignal.getPositionForTankDrive();
         Vector target = Vector.length(5);
 
-        Vector additional = new Vector(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x).multiplied(DriveConfig.DriveWheels.driveAcceleration);
+        Vector additional = new Vector(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x).multiplied(DriveWheels.driveAcceleration);
 
         for (int i = 3; i < 5; i++) {
             target.put(i, sensorData.get(i));
