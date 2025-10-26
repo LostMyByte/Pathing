@@ -1,3 +1,4 @@
+// Primary Author: Kieran Mattingly
 package org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels;
 
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;

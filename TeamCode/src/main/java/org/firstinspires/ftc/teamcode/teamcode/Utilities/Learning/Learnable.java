@@ -1,8 +1,11 @@
+// Primary Author: Kieran Mattingly
 package org.firstinspires.ftc.teamcode.teamcode.Utilities.Learning;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
+// A class to do basic machine learning.
+@Deprecated
 public abstract class Learnable {
 
 

@@ -1,3 +1,4 @@
+// Primary Author: External source, Brushland Labs (https://brushlandlabs.com/)
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp;
 
 import com.qualcomm.hardware.rev.RevColorSensorV3;

@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.BLUE;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.RED;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.Team.BLUE;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.Team.RED;
 
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.biasterm;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.goalAprilTagHeight;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.limelightAngleOffset;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.limelightLensHeightFromGround;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.tyAlpha;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.tyFiltered;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.biasterm;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.goalAprilTagHeight;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.limelightAngleOffset;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.limelightLensHeightFromGround;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.tyAlpha;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.tyFiltered;
 
 
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -22,6 +22,8 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes.ShooterTest;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.ShooterDashClass;

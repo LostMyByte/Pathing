@@ -1,3 +1,4 @@
+// Primary Author: Dylan Cook, Mixed
 /*
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp;
 
@@ -6,7 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.MainIntake;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 @TeleOp(name="Dimitri Teleop")

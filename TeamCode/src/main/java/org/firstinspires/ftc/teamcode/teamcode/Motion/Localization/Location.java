@@ -1,3 +1,4 @@
+// Primary Author: Kieran Mattingly
 package org.firstinspires.ftc.teamcode.teamcode.Motion.Localization;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -5,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
@@ -20,11 +22,11 @@ public class Location extends Signal {
 
     public static double xOffset = 0;
     public static double yOffset = 21;
-
-
     public static double alpha = 1;
 
     double oldAngle;
+
+    double driveVelocity = 0;
 
     private void initialize() {
 
@@ -75,6 +77,9 @@ public class Location extends Signal {
         }
 
         oldAngle = angle;
+
+        driveVelocity = new Vector(Math.cos(-angle), Math.sin(-angle)).dotProduct(new Vector(data.get(1), data.get(0)));
+        BaseOpMode.addData("Velocity Drive", driveVelocity);
     }
 
 
@@ -92,8 +97,6 @@ public class Location extends Signal {
     public void telemetry() {
 
         Vector pos = getPosition();
-        double angle = pos.get(2);
-
 
         BaseOpMode.addData("Velocity X", data.getData()[0]);
         BaseOpMode.addData("Velocity Y", data.getData()[1]);
@@ -110,20 +113,34 @@ public class Location extends Signal {
 
     public Vector getPositionForTankDrive() {
         Vector pos = getPosition();
-        double angle = pos.get(2);
-        double v = new Vector(Math.cos(-angle), Math.sin(-angle)).dotProduct(new Vector(data.get(1), data.get(0)));
-        BaseOpMode.addData("Velocity Drive", v);
+
         return new Vector(new double[] {
                 pos.get(0),
                 pos.get(1),
                 pos.get(2),
-                v,
+                driveVelocity,
                 data.get(2)
         });
     }
 
     public void updateOffsets() {
         odoPods.setOffsets(xOffset, yOffset);
+    }
+
+    public double getPosX() {
+        return odoPods.getPosX(DistanceUnit.CM);
+    }
+    public double getPosY() {
+        return odoPods.getPosY(DistanceUnit.CM);
+    }
+    public double getPosH() {
+        return odoPods.getHeading(AngleUnit.RADIANS);
+    }
+    public double getVelDrive() {
+        return driveVelocity;
+    }
+    public double getVelH() {
+        return odoPods.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS);
     }
 
 }

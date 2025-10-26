@@ -1,3 +1,4 @@
+// Primary Author: Mixed
 package org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration;
 
 //hardware variables followed by hardware objects
@@ -17,19 +18,21 @@ public class Hardware{
     public static final String sparkFun = "OTOS";
     public static final Size cameraResolution = new Size(1280,720);
     public static String
-            extendo = "chub2gray";
+    extendo = "chub2gray", boxTubeL = "motorL", boxTubeR = "motorR";
 
     public static final String
-            //         verticalEncoder = "bl", horizontalEncoder = "fr";
-            //V2:
-            verticalEncoder = "fr", horizontalEncoder = "br";
+   //         verticalEncoder = "bl", horizontalEncoder = "fr";
+    //V2:
+    verticalEncoder = "fr", horizontalEncoder = "br";
 
     public static final String
             depositorServo = "depositor";
     //                                        ehub 5
+    public static final String
+            transfer = "transfer";
 
     public static final String
-            headlight = "ehub1none";
+            indicatorLight = "ehub1none", angleWrapWarningLight = "angleWrapWarningLight",shooter1 = "left", shooter2 = "right";
 
     public static final String
             grabLeft = "grabL", grabRight = "grabR";
@@ -40,10 +43,11 @@ public class Hardware{
             clawLeft = "clawL", clawRight = null; // Trust
 
     public static final  String
-            v4bEncoder = "v4bSensor", wristEncoder =  "wristSensor";
+            v4bEncoder = "v4bSensor", wristEncoder =  "wristSensor", hood = "hood", turret = "turret";
 
     public static final String
             climb1 = "launcher", climb2 = "climb";
+
 
     public static final String
             differentialLeft = "ehub3brown", differentialRight = "chub1green", intakeArmRight = "shub4purple", intakeLeft = "shub1black", intakeRight = "shub3white", intakeArmLeft = "shub2gray", deposotorArmLeft = "ehub5orange", bottomSweeper = "ehub0",  depositorArmRight = "chub5blue", depositorClaw = "ehub4yellow";
@@ -58,8 +62,8 @@ public class Hardware{
 
 
     public static final String
-            leftFront = "fl", rightFront  = "fr",
-            leftBack = "bl", rightBack = "br";
+            leftFront = "chub1orange", rightFront  = "ehub1blue",
+            leftBack = "chub0white", rightBack = "ehub0red";
 
 
 
@@ -73,7 +77,6 @@ public class Hardware{
     public static String specimenClaw = "claw";
     public static String blockCam = "BlockCam";
     public static String depositorDoor = "depositorDoor";
-    public static String imu = "imu";
 }
 
 //EHUB

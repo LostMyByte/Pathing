@@ -1,3 +1,4 @@
+// Primary Author: Kieran Mattingly, Mixed
 package org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration;
 
 import com.acmerobotics.dashboard.config.Config;

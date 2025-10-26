@@ -1,9 +1,10 @@
+// Primary Author: Dylan Cook
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.ShooterDashClass;

@@ -1,3 +1,5 @@
+// Primary Author: FTC SDK / Robert Atkinson
+// Minor adjustments by Kieran Mattingly
 /*
 Copyright (c) 2016 Robert Atkinson
 

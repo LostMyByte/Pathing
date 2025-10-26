@@ -1,6 +1,7 @@
+// Primary Author: Caroline Oringer
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes;
 
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hardware.cameraResolution;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware.cameraResolution;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;

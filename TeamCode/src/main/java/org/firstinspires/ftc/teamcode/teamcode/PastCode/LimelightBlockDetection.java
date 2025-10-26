@@ -5,7 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hardware;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Servo;
 

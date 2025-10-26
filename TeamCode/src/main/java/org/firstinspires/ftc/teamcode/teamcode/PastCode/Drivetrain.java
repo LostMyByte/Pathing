@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
 
 import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode.multTelemetry;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.focalLengthMM;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.fx;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.focalLengthMM;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.fx;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain.DrivetrainDash.kD;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HD;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HP;

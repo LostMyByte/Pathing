@@ -1,10 +1,10 @@
 /*
 package org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision;
 
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.BLUE;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.RED;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.Team.BLUE;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.Team.RED;
 
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.team;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.team;
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.CvType.CV_8U;
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
@@ -31,7 +31,7 @@ import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
 
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.android.Utils;

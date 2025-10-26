@@ -1,3 +1,4 @@
+// Primary Author: Kieran Mattingly
 package org.firstinspires.ftc.teamcode.teamcode.Motion.Signals;
 
 import com.qualcomm.robotcore.util.ElapsedTime;

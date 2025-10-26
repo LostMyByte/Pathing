@@ -1,4 +1,5 @@
-package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
+// Primary Author: Mixed
+package org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 

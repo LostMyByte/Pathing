@@ -1,3 +1,4 @@
+// Primary Author: Dylan Cook, Mixed
 /*
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;

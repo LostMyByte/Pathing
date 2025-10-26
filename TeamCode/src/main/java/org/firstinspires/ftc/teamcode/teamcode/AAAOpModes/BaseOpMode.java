@@ -1,3 +1,4 @@
+// Primary Author: Mixed
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -10,8 +11,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Controller;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Gyro;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.MotorEncoder;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Servo;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Telemetry.RobotLogTelemetry;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Telemetry.ThrowbackTelemetry;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Telemetry.VoidTelemetry;
 /*import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Controller;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Gyro;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
@@ -126,10 +132,10 @@ public abstract class BaseOpMode extends LinearOpMode {
         Signal.signals.clear();
         Subsystem.resetSubsystemList();
         Motor.resetMotorList();
-        /*Servo.resetServoList();
+        Servo.resetServoList();
 
         MotorEncoder.resetEncoderList();
-        Gyro.resetGyroList();*/
+        Gyro.resetGyroList();
 
         setOpMode(this);
     }
@@ -141,12 +147,12 @@ public abstract class BaseOpMode extends LinearOpMode {
         //lastly command powers
         Subsystem.updateSubsystems();
         Motor.commandPowers();
-        /*Servo.commandPositions();*/
+        Servo.commandPositions();
         //begin by updating sensors
         updateControllers();
         Subsystem.pingSensors();
-        /*MotorEncoder.updateEncoders();
-        Gyro.updateAngles();*/
+        MotorEncoder.updateEncoders();
+        Gyro.updateAngles();
 
     }
 
@@ -156,7 +162,7 @@ public abstract class BaseOpMode extends LinearOpMode {
      * @param o - data
      */
     public static void addData(String s, Object o){
-        //multTelemetry.addData(s, o);
+        multTelemetry.addData(s, o);
         dashboardTelemetry.addData(s, o);
     }
 
@@ -165,7 +171,7 @@ public abstract class BaseOpMode extends LinearOpMode {
      * @param o - string
      */
     public static void addLine(Object o){
-        //multTelemetry.addLine((String) o);
+        multTelemetry.addLine((String) o);
         dashboardTelemetry.addLine((String) o);
     }
 
@@ -189,11 +195,11 @@ public abstract class BaseOpMode extends LinearOpMode {
     }
 
     public static void setNoTelemetry(){
-        //multTelemetry.setTelemetry(new VoidTelemetry());
+        multTelemetry.setTelemetry(new VoidTelemetry());
     }
 
     public static void setRobotLogTelemetry(){
-        //multTelemetry.setTelemetry(new RobotLogTelemetry());
+        multTelemetry.setTelemetry(new RobotLogTelemetry());
     }
     public static void updateTelemetry(){
         multTelemetry.update();
@@ -201,7 +207,7 @@ public abstract class BaseOpMode extends LinearOpMode {
     }
 
     public static void updateControllers(){
-        //driver1.update(); driver2.update();
+        driver1.update(); driver2.update();
     }
 
     public static HardwareMap getHardwareMap(){

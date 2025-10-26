@@ -11,6 +11,7 @@ import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos.ServosDa
 
 import com.acmerobotics.dashboard.config.Config;
 
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.DashPositions;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Servo;
 

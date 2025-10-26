@@ -6,7 +6,7 @@ import android.util.Size;
 import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hardware;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Math.Vector;
 import org.firstinspires.ftc.vision.VisionPortal;
 

@@ -1,15 +1,16 @@
+// Primary Author: Caroline Oringer
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes;
 
 
 import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes.VisionOpMode.VisionPIDDash.visionConstant;
 import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes.VisionOpMode.VisionPIDDash.visionKP;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.BLUE;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.RED;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.goalAprilTagHeight;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.Team.BLUE;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.Team.RED;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.goalAprilTagHeight;
 
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.limelightAngleOffset;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.limelightLensHeightFromGround;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.team;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.limelightAngleOffset;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.limelightLensHeightFromGround;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.team;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -21,7 +22,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
 
 
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
