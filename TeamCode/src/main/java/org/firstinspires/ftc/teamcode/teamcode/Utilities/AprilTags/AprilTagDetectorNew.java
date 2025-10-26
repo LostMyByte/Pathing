@@ -1,3 +1,4 @@
+// Primary Author: Caroline Oringer, Past Team Members
 package org.firstinspires.ftc.teamcode.teamcode.Utilities.AprilTags;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;

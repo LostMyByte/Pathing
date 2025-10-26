@@ -1,3 +1,4 @@
+// Primary Author: Caroline Oringer, Past Team Members
 /*
  * Copyright (c) 2021 OpenFTC Team
  *
