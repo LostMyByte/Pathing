@@ -3,14 +3,21 @@ package org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 
-// A general fixed-wheel Holonomic drivetrain class
+/**
+ * A general, fixed-wheel drivetrain class
+ */
 public class FixedDriveTrain extends Movement {
 
+    protected Motor[] driveWheels;
+
+    // Converts from target powers to wheel powers
     public static Matrix toPowers = new GeneralMatrix(4, 3, new double[] {
             DriveWheels.FR.x, DriveWheels.FR.y, DriveWheels.FR.h,
             DriveWheels.FL.x, DriveWheels.FL.y, DriveWheels.FL.h,
@@ -19,6 +26,11 @@ public class FixedDriveTrain extends Movement {
     });
 
 
+    /**
+     * Position-only heading transform
+     * @param angle
+     * @return
+     */
     public static Matrix h(double angle) {
         return new GeneralMatrix(3, 3,new double[]{
             Math.cos(angle), -Math.sin(angle), 0,
@@ -30,14 +42,26 @@ public class FixedDriveTrain extends Movement {
 
     public FixedDriveTrain(Vector startState) {
         super(startState);
+
+        driveWheels = new Motor[4];
+        driveWheels[0] = new Motor(Hardware.rightFront);
+        driveWheels[1] = new Motor(Hardware.leftFront);
+        driveWheels[2] = new Motor(Hardware.rightBack);
+        driveWheels[3] = new Motor(Hardware.leftBack);
     }
 
+    @Override
     public void move(Vector target) {
-        move(target, false);
+        move(target, false, true);
     }
 
-    // Sets drivetrain power to a target power vector
-    public void move(Vector target, boolean useFullPower) {
+    /**
+     * Sets drivetrain power to a target power (x, y, h) vector
+     * @param target        Target power
+     * @param useFullPower  Whether or not to use the max power
+     * @param scalePowers   Scale powers down if they exceed 1
+     */
+    public void move(Vector target, boolean useFullPower, boolean scalePowers) {
 
         double angle = loc.getPosition().get(2);
         Matrix h = h(-angle);
@@ -53,7 +77,7 @@ public class FixedDriveTrain extends Movement {
         Vector powers = Ph.multiplied(target);
         powers.add(frictionCorrection);
 
-        /*double maxPower = 0;
+        double maxPower = 0;
 
 
         // Get power of each wheel with dot product
@@ -62,13 +86,13 @@ public class FixedDriveTrain extends Movement {
         }
 
         // Make sure that the speed is capped so that it doesn't go in the wrong direction
-        if (maxPower > 1 || useFullPower) {
+        if ((maxPower > 1 || useFullPower) && !scalePowers) {
             for (int i = 0; i < driveWheels.length; i++) {
-                powers[i] /= maxPower;
+                powers.put(i, powers.get(i)/ maxPower);
             }
         }
 
-        BaseOpMode.addData("Max Power", maxPower);*/
+        BaseOpMode.addData("Max Power", maxPower);
 
 
 
@@ -79,10 +103,21 @@ public class FixedDriveTrain extends Movement {
         }
     }
 
+    /**
+     * Move given a drive, strafe, turn, and speed command.
+     * @param drive
+     * @param strafe
+     * @param turn
+     * @param speed
+     */
     public void move(double drive, double strafe, double turn, double speed) {
         move(new Vector(drive, strafe, turn).multiplied(speed));
     }
 
+    /**
+     * Directly set wheel powers
+     * @param powers
+     */
     public void moveRaw(Vector powers) {
 
         for (int i =0; i < driveWheels.length; i++) {

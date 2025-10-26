@@ -21,8 +21,13 @@ public abstract class Movement extends Subsystem {
 
     public Location loc;
 
-    protected Motor[] driveWheels;
-
+    /**
+     * Follows a given path.
+     * Here for reference and potential future use, however the MPC path framework is more versatile and faster.
+     * @param path  Path to follow
+     * @param speed Speed to follow at
+     */
+    @Deprecated
     public void followPath(Path path, double speed) {
         if (activePath != path) {
             activePath = path;
@@ -33,8 +38,11 @@ public abstract class Movement extends Subsystem {
         }
     }
 
+    /**
+     * Move according to a power vector.
+     * @param target    Target power vector.
+     */
     public abstract void move(Vector target);
-
 
     @Override
     public void update() {

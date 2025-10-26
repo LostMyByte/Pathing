@@ -44,9 +44,6 @@ public class TankDriveTrain extends Movement {
     }
 
     public void moveRaw(Vector target) {
-
-
-
         setPowers(target);
     }
 

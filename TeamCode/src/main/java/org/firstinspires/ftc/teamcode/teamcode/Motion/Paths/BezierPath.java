@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teamcode.Motion.Paths;
 
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
+@Deprecated
 public class BezierPath extends Path {
 
     Vector start; // P0

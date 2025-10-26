@@ -30,6 +30,8 @@ public class OnIce extends BaseOpMode {
     @Override
     public void externalLoop() {
 
+        model = new TankDrive();
+
         Vector sensorData = sensorSignal.getPositionForTankDrive();
         Vector target = Vector.length(5);
 
@@ -45,7 +47,7 @@ public class OnIce extends BaseOpMode {
         BaseOpMode.addData("Correction L", powers.get(0));
         BaseOpMode.addData("Correction R", powers.get(1));
         drive.moveRaw(powers);
-        TankDrive.reInit();
+
 
     }
 }

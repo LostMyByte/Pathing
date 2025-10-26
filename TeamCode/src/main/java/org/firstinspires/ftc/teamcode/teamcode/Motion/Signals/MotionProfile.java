@@ -5,6 +5,9 @@ import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Paths.Path;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
+/**
+ * A signal generated from a path object
+ */
 public class MotionProfile extends ReferenceSignal {
 
 

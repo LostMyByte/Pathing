@@ -12,11 +12,13 @@ import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
+/**
+ * A Velocity-based Location class. (I.e velocity is the data, position the integral, and acceleration the derivative).
+ * Uses Velocity as that is the level upon which Motion Profiles/PIDs work
+ * Has convenience methods for x, y, etc. access. I'm not trying to give Dylan a headache.
+ */
 @Config
 public class Location extends Signal {
-    // A Velocity-based Location class
-    // Uses Velocity as that is the level upon which the Motion Profile/PIDs work
-    // Has convenience methods for x, y, etc. access. I'm not trying to give Dylan a headache.
 
     public GoBildaPinpointDriver odoPods;
 

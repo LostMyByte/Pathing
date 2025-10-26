@@ -146,7 +146,7 @@ public class MPCPath {
 
         this.state = ControllerStates.Ready;
 
-        controller = new MPC(referenceSignal, sensorSignal, start, Q, R, QF, (int) (resolution*horizonTime), horizonTime, threshold, params.lr,  params.lambdaMax, model);
+        controller = new MPC(referenceSignal, start, Q, R, QF, (int) (resolution*horizonTime), horizonTime, threshold, params.lr,  params.lambdaMax, model);
 
 
     }

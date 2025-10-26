@@ -37,18 +37,18 @@ public class MPCTest extends BaseOpMode {
     private MPCPath test;
     private TankDriveTrain drive;
 
+    TankDrive drivemodel;
+
     @Override
     public void externalInit() {
 
-        TankDrive.reInit();
-
-
+        drivemodel = new TankDrive();
         test = new MPCPath();
         test.setAccuracy(TestMPCParams.threshold);
         test.setMoveTime(TestMPCParams.Horizon);
         test.setResolution(((double) TestMPCParams.N)/TestMPCParams.Horizon);
         test.setParams(DriveWheels.defaultParams);
-        test.setModel(new TankDrive());
+        test.setModel(drivemodel);
         test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
         test.setName("Test Path");
         test.setStart(0, 0, Math.PI, 0, 0);
@@ -71,7 +71,8 @@ public class MPCTest extends BaseOpMode {
 
     @Override
     public void externalInitLoop() {
-        TankDrive.reInit();
+        drivemodel = new TankDrive();
+        test.setModel(drivemodel);
         test.start();
         Vector correction = test.getCorrection(drive.loc.getPositionForTankDrive());
 

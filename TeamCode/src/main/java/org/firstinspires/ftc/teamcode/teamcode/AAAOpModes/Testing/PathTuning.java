@@ -38,7 +38,7 @@ public class PathTuning extends BaseOpMode {
     @Override
     public void externalInit() {
         this.drive = new TankDriveTrain(new Vector(0, 0, 0));
-        TankDrive.reInit();
+
         model = new TankDrive();
         oldState = drive.loc.getPositionForTankDrive();
         this.timer = new ElapsedTime();

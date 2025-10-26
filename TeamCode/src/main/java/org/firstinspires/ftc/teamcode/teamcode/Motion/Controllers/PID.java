@@ -6,8 +6,11 @@ import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ReferenceSignal;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
+/**
+ * A Basic PID (Proportional - Integral - Derivative) Controller
+ * Also handles Feedforward, Constant, and Loopback terms.
+ */
 public class PID extends Controller {
-
 
     PIDCoefficients coeffs;
 
@@ -34,7 +37,6 @@ public class PID extends Controller {
         this.coeffs = coefficients;
     }
 
-    // Should these be matricies?
     public static class PIDCoefficients {
         public double kP;
         public double kI;

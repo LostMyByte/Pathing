@@ -8,6 +8,10 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 import java.util.ArrayList;
 
+/**
+ * A generic signal object for sensor/other data that varies over time.
+ * Automatically generates derivatives, integrals, etc.
+ */
 public abstract class Signal {
 
     private static ElapsedTime timer;

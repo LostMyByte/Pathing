@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode.teamcode.Motion.Signals;
 
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
+/**
+ * A predefined signal that can be predicted.
+ */
 public abstract class ReferenceSignal extends Signal {
 
     public ReferenceSignal(int size) {
