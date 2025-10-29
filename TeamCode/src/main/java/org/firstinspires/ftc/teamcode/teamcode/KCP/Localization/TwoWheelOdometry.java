@@ -77,7 +77,7 @@ public class TwoWheelOdometry extends Location{
         IMUMaxNum = 1/IMUMaximumPrecision;
 
         odoWheels = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
-        odoWheels.setOffsets(-175,41.25);
+        odoWheels.setOffsets(175,-41.25);
         odoWheels.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odoWheels.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
         odoWheels.recalibrateIMU();
@@ -115,7 +115,7 @@ public class TwoWheelOdometry extends Location{
     @Override
     public void setCurrentHeading(double heading) {
 
-        odoWheels.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, heading));
+        odoWheels.setPosition(new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.RADIANS, heading));
         Location.heading = heading;
     }
 
@@ -131,7 +131,7 @@ public class TwoWheelOdometry extends Location{
         if (!isSet && t.seconds() >0.5) {
 
             isSet = true;
-            odoWheels.setPosition(new Pose2D(DistanceUnit.INCH, startX, startY, AngleUnit.RADIANS, startHeading));
+            odoWheels.setPosition(new Pose2D(DistanceUnit.METER, startX, startY, AngleUnit.RADIANS, startHeading));
         }
         odoWheels.update();
         //AprilODOSource.update();
@@ -149,11 +149,11 @@ public class TwoWheelOdometry extends Location{
         BaseOpMode.addData("unwrappedHeading", newHeading);
 
 
-        location[0] = wheelPosition.getX(DistanceUnit.INCH); //guesstimator.getPosition();
-        location[1] = wheelPosition.getY(DistanceUnit.INCH);
+        location[0] = wheelPosition.getX(DistanceUnit.METER); //guesstimator.getPosition();
+        location[1] = wheelPosition.getY(DistanceUnit.METER);
 
-        velocity[0] += velocityFilterParameters.alphaVelocity* (wheelVelocity.getX(DistanceUnit.INCH) - velocity[0]);
-        velocity[1] += velocityFilterParameters.alphaVelocity* (wheelVelocity.getY(DistanceUnit.INCH) - velocity[1]);
+        velocity[0] += velocityFilterParameters.alphaVelocity* (wheelVelocity.getX(DistanceUnit.METER) - velocity[0]);
+        velocity[1] += velocityFilterParameters.alphaVelocity* (wheelVelocity.getY(DistanceUnit.METER) - velocity[1]);
         velocity[2] = wheelVelocity.getHeading(AngleUnit.RADIANS);
 
         Location.heading = newHeading; //guesstimator.getPosition();
