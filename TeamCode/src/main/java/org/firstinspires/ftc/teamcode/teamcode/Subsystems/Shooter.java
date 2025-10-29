@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.B;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.BLUE;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.Team.RED;
 
@@ -27,6 +28,8 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.ShooterDashClass;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Servo;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.zLibraries.Utilities.Vector2d;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,18 +94,22 @@ public class Shooter extends Subsystem{
         //shooter1 = new Motor(Hardware.shooter1);
         //shooter2 = new Motor(Hardware.shooter2);
         //hood = new Servos.Hood();
-        turret = new Motor(Hardware.turret, false, true);
+        //turret = new Motor(Hardware.turret, false, true);
 
         //turretEncoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
         shooterPDF = new PID(0,0,0);
         turretPDL = new PID(0,0,0);
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        //limelight = hardwareMap.get(Limelight3A.class, "limelight");
+
+        /*
         limelight.setPollRateHz(100); // make number higher to get more data
         limelight.pipelineSwitch(1);
         limelight.start();
 
         limelight.reloadPipeline();
         this.team = team;
+
+         */
 
         //pattern = new BallColors[3];
         shooterState = ShooterStates.OBELISK;
@@ -260,12 +267,12 @@ public class Shooter extends Subsystem{
         //yaw is current angle of the aprilTag relative to the shooter
         //This uses the law of sines to find the target angle of the robot relative to the april tag
         //turretTargetAngle = Math.asin((0.46*Math.sin(yaw)/distanceAway));
-        turretError = Math.toRadians(turretTargetAngle - tx);
+        //turretError = Math.toRadians(turretTargetAngle - tx);
 
 
 
 
-        updateTurret();
+        //updateTurret();
         /*
 
         if (canRobotShoot()){
@@ -430,6 +437,25 @@ public class Shooter extends Subsystem{
     }
 
 
+    public void getTargetTurretAngle(double x, double y, double h, Vector2d fieldRelativeVelocity){
+
+        //the angle the robot would need to face to hit the target
+        double angle = Math.atan(x/y);
+
+        //make it so that x velocity is perpendicular to the goal and y is parallel
+        Vector2d goalRelativeVelocity = fieldRelativeVelocity.rotate(angle);
+        double vX = goalRelativeVelocity.x;
+
+        //the angle the robot would need to turn to hit the target
+        angle += h;
+
+        //account for robot velocity
+        angle -= Math.asin(vX/getTargetBallSpeedX());
+        BaseOpMode.addData("angle", Math.toDegrees(angle));
+        BaseOpMode.addData("XVelocity", vX);
+    }
+
+
 
     public double getBallSpeed(){
         //invert the regression comparing ball exit velocity to shooter RPM
@@ -440,11 +466,8 @@ public class Shooter extends Subsystem{
         return ShooterDashClass.speedRegressionM * getTargetShooterRPM();
     }
 
-    public void setHoodAngleBasedOnTargetShotAngle(double angle){
-        //This ignores the effect initial velocity has on angle. If we are having issues targeting at very low or high velocities, try to account for that
-        //Values obtained from regression
-        //hood.setPositionInterpolated((Math.asin((angle-52.7762)/18.1541)-163.65723)/4.04363);
-        hood.setPositionInterpolated(angle);
+    public double getTargetBallSpeedX(){
+        return getTargetBallSpeed()*Math.cos(42);
     }
 
     double hoodAngle;
@@ -555,8 +578,8 @@ public class Shooter extends Subsystem{
 
     @Override
     public void update() {
-        work();
-        updateTagDistanceHybridCorrected();
+        //work();
+        //updateTagDistanceHybridCorrected();
         //updateTargeting();
     }
 
