@@ -788,6 +788,17 @@ public abstract class Matrix
 
     }
 
+    /**
+     * Returns a 2x2 rotation matrix through an angle
+     * @param angle angle to rotate through
+     * @return      rotation matrix
+     */
+    public static Matrix rotationMatrix(double angle) {
+        return new GeneralMatrix(2, 2, new double[] {
+                Math.cos(angle), -Math.sin(angle),
+                Math.sin(angle), Math.cos(angle)
+        });
+    }
 }
 
 

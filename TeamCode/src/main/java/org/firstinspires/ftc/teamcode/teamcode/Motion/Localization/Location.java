@@ -144,5 +144,8 @@ public class Location extends Signal {
     public double getVelH() {
         return odoPods.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS);
     }
+    public Vector getTranslationalVelocity() {
+        return new Vector(odoPods.getVelX(DistanceUnit.CM), odoPods.getVelY(DistanceUnit.CM));
+    }
 
 }

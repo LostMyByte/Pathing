@@ -19,7 +19,7 @@ public class TrigAngle {
         this.angle = angle;
         this.cos = Math.cos(angle);
         this.sin = Math.sin(angle);
-        /*
+
         if (angle == recent) {
             this.angle = angle;
             this.cos = recentcos;
@@ -31,7 +31,7 @@ public class TrigAngle {
             recentcos = this.cos;
             recentsin = this.sin;
             recent = angle;
-        }*/
+        }
 
     }
 }

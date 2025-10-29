@@ -348,4 +348,9 @@ public class Vector
         return new Vector(values);
     }
 
+    public Vector rotated(double angle) {
+        if (this.length() != 2) throw new RuntimeException("Cannot Rotate non 2x2 matrix");
+        return Matrix.rotationMatrix(angle).multiplied(this);
+    }
+
 }
