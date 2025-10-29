@@ -16,9 +16,11 @@ public abstract class ReferenceSignal extends Signal {
     * @param    time   time in the future to predict (seconds)
     * @return          predicted state
     */
-
     public abstract Vector predict(double time);
 
+    /** The signal target state (limit of the signal as time goes to infinity)
+     * @return          target state
+     */
     public abstract Vector target();
 
     
