@@ -23,6 +23,7 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
     VisionPortal visionPortal;
     ElapsedTime timewaste;
     public Boolean isTargeting = false;
+    Boolean isIntakeing = false;
 
 
 
@@ -59,18 +60,27 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
         if(driver1.triangle.isTapped()){
             isTargeting=!isTargeting;
         }
-        if(!driver1.circle.isTapped()&&isTargeting){
-     drive.ballFollow(138.0);
+        if(!driver1.circle.isTapped()&&isTargeting&&!isIntakeing){
+            drive.ballFollow(138.0);
     }
        if (driver1.square.isTapped()&&!driver1.circle.isTapped()&&isTargeting){
-            while (timewaste.seconds() < 5) {
-                drive.ballFollow(250.0);
+           isIntakeing=true;
+           int i=0;
+            while (timewaste.seconds() < 15) {
+                BaseOpMode.addData("i", i);
+                drive.ballFollow(200.0);
+                i++;
+                BaseOpMode.addData("time 2", timewaste);
+                drive.update();
+
             }
-            timewaste.reset();
+            isIntakeing=false;
+            i=0;
+           /* timewaste.reset();
             while (timewaste.milliseconds()<500){
-            drive.tankDrive(1,0,0.5);
-            isTargeting = false;
-        }}
+            drive.tankDrive(1,0,0.5);}
+           */
+       }
     }
 
 }
