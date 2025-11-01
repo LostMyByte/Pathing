@@ -1,3 +1,11 @@
+# My Pathing
+
+The SDK is set up a bit odd because it is based off an android app, and we don't have full control over the structure. The team's code is in the [teamcode](./TeamCode/src/main/java/org/firstinspires/ftc/teamcode/teamcode/) subdirectory.
+My pathing code is in the [teamcode/Motion](./TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Motion) subdirectory.
+
+
+Here's the README for the regular SDK, for more information:
+
 ## NOTICE
 
 This repository contains the public FTC SDK for the DECODE (2025-2026) competition season.
