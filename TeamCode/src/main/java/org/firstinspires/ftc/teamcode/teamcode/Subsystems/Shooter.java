@@ -24,6 +24,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes.ShooterTest;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.DashPositions;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.ShooterDashClass;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
@@ -437,7 +438,7 @@ public class Shooter extends Subsystem{
     }
 
 
-    public void getTargetTurretAngle(double x, double y, double h, Vector2d fieldRelativeVelocity){
+    public void getTargetTurretAngle(){
 
         //the angle the robot would need to face to hit the target
         double angle = Math.atan(x/y);
@@ -453,6 +454,26 @@ public class Shooter extends Subsystem{
         angle -= Math.asin(vX/getTargetBallSpeedX());
         BaseOpMode.addData("angle", Math.toDegrees(angle));
         BaseOpMode.addData("XVelocity", vX);
+    }
+
+    double x;
+    double y;
+    double h;
+    Vector2d fieldRelativeVelocity;
+
+    public void recieveOdoInputs(double x, double y, double h, Vector2d fieldRelativeVelocity){
+        this.x = x;
+        this.y = y;
+        this.h = h;
+        this.fieldRelativeVelocity = fieldRelativeVelocity;
+    }
+
+    public Vector2d getGoalRelativeVelocity(){
+        //the angle the robot would need to face to hit the target
+        double angle = Math.atan(x/y);
+        //make it so that x velocity is perpendicular to the goal and y is parallel
+        return fieldRelativeVelocity.rotate(angle);
+
     }
 
 
@@ -518,6 +539,47 @@ public class Shooter extends Subsystem{
         }
     }
 
+    public double getHoodAngleMovingCase(){
+        //This uses 2 iterations of the Newton-Rhapson method to approximate the angle we need to shoot at to hit the target
+        double a0 = Math.PI/4;
+        double a1 = a0 - fPrecomputed()/dfPrecomputed();
+        double a2 = a1 - f(a1)/df(a1);
+
+        return Math.toDegrees(a2);
+    }
+
+    //The original equation for newton's method
+    public double f(double a){
+        double t1 = (getTargetBallSpeed()*Math.sin(a)*distanceAway)/(getTargetBallSpeed()*Math.cos(a)+getGoalRelativeVelocity().y);
+        double t2 = (Constants.g/2)*Math.pow(distanceAway/(getTargetBallSpeed()*Math.cos(a)+getGoalRelativeVelocity().y),2);
+        double t3 = .99-limelightLensHeightFromGround;
+
+        return t1-t2-t3;
+    }
+
+    public double df(double a){
+        double t1 = (Constants.g*distanceAway*distanceAway*getTargetBallSpeed()*Math.sin(a))/Math.pow(getTargetBallSpeed()*Math.cos(a)+getGoalRelativeVelocity().y,3);
+        double t2 = (getTargetBallSpeed()*distanceAway*(getTargetBallSpeed()+getGoalRelativeVelocity().y*Math.cos(a)))/Math.pow(getTargetBallSpeed()*Math.cos(a)+getGoalRelativeVelocity().y,2);
+
+        return t2-t1;
+    }
+
+    public double fPrecomputed(){
+        //This precomputes the trig functions because every loop we get the sin and cos of 45, which is pointless
+        double t1 = (getTargetBallSpeed()*.7071*distanceAway)/(getTargetBallSpeed()*.7071+getGoalRelativeVelocity().y);
+        double t2 = (Constants.g/2)*Math.pow(distanceAway/(getTargetBallSpeed()*.7071+getGoalRelativeVelocity().y),2);
+        double t3 = .99-limelightLensHeightFromGround;
+
+        return t1-t2-t3;
+    }
+
+    public double dfPrecomputed(){
+        //This precomputes the trig functions because every loop we get the sin and cos of 45, which is pointless
+        double t1 = (Constants.g*distanceAway*distanceAway*getTargetBallSpeed()*.7071)/Math.pow(getTargetBallSpeed()*.7071+getGoalRelativeVelocity().y,3);
+        double t2 = (getTargetBallSpeed()*distanceAway*(getTargetBallSpeed()+getGoalRelativeVelocity().y*.7071))/Math.pow(getTargetBallSpeed()*.7071+getGoalRelativeVelocity().y,2);
+
+        return t2-t1;
+    }
 
     public void selectRPM(){
         //Populate this with all the RPM Ranges

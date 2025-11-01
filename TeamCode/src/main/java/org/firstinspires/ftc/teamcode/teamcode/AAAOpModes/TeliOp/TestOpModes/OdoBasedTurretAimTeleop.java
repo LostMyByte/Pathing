@@ -28,7 +28,8 @@ public class OdoBasedTurretAimTeleop extends BaseOpMode {
         odo.localize();
         Vector2d velocityVector = new Vector2d(odo.getVelocity()[0], odo.getVelocity()[1]);
         shooter.setTargetShooterRPM(1500);
-        shooter.getTargetTurretAngle(Location.x(), Location.y(), Location.heading(), velocityVector);
+        shooter.recieveOdoInputs(Location.x(), Location.y(), Location.heading(), velocityVector);
+        shooter.getTargetTurretAngle();
         BaseOpMode.addData("x",Location.x());
         BaseOpMode.addData("y",Location.y());
         BaseOpMode.addData("h",Location.heading());
