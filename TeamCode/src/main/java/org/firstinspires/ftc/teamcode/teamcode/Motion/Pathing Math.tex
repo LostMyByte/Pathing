@@ -5,12 +5,12 @@
 \usepackage[]{mathbbol}
 \usepackage[]{caption}
 \usepackage[]{subcaption}
-\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[]{hyperref}
 
 
 % Title Page
-\title{Pathing Math}
-\author{18438 Wolfpack Machina}
+\title{Pathing Math (Draft)}
+\author{Kieran Mattingly}
 \date{}
 
 
@@ -18,15 +18,15 @@
 \maketitle
 
 \section{Introduction}
-\textbf{The FTC game} this year is a shooter game, where we have to intake wiffle balls from the field, sometimes autonomously. Our team has decided to use a differential drivetrain, like a tank. As we can only move forwards/backwards and turn, a good pathing system is necessary to handle fast, precise movement along curved trajectories. For this design, five variables are needed to represent the robot state at a given time: $x$ and $y$ position, $\theta$, the robot heading, $v$, the one-dimensional velocity along the heading, and the angular velocity $\dot \theta$. We have two control parameters that correspond to the PWM duty cycle sent to the left and right motors.
+\textbf{The FTC game} this year is a shooter game, where we have to intake wiffle balls from the field, sometimes autonomously. Our team has decided to use a differential drivetrain, like a tank. As we can only move forwards/backwards and turn, a good pathing system is necessary to handle fast, precise movement along curved trajectories. For this design, five variables are needed to represent the robot state at a given time: $x$ and $y$ position, $\theta$, the robot heading, $v$, the one-dimensional velocity along the heading, and the angular velocity $\dot \theta$. I have two control parameters, that correspond to the PWM duty cycle sent to the left and right motors.
 
 \section{The Dynamical Model}
 \textbf{First, the robot} dynamics are specified as a Partial Differential Equation (PDE). This equation, in index notation using Einstein summation convention, is
 $$
 \dot x^a = h^a_b(x)(A^b_cx^c+B^b_is^i(u) )
-                                                                                                                            $$ where $x^a$ is the state vector, consisting of $\langle x, y, \theta, v, \dot \theta \rangle$. As explained in more detail later, $h^a_b(x)$, $A^b_c$, $B^b_i$, $s^i(u)$, and $u$, are the heading transformation, control-free state evolution, control response, control limiter, and control input (index has been suppressed for notational convenience), respectively. We computed these dynamics based off an (approximate) physical model of DC motors. Because mass and moment of inertia are approximately constant during play, the torque of the motors is directly proportional to the translational and rotational acceleration of the robot chassis. In theory, the proportionality constants could be calculated by weighing the robot, measuring it's moment of inertia, and looking up the motor torque, however in practice we find it simpler to tune this manually. Thus, by setting the torques on the wheels (or a value directly proportional to it), we can directly compute the acceleration. \\
+                                                                                                                            $$ where $x^a$ is the state vector, consisting of $\langle x, y, \theta, v, \dot \theta \rangle$. As explained in more detail later, $h^a_b(x)$, $A^b_c$, $B^b_i$, $s^i(u)$, and $u$, are the heading transformation, control-free state evolution, control response, control limiter, and control input (index has been suppressed for notational convenience), respectively. I computed these dynamics based off an (approximate) physical model of DC motors. Because mass and moment of inertia are approximately constant during play, the torque of the motors is directly proportional to the translational and rotational acceleration of the robot chassis. In theory, the proportionality constants could be calculated by weighing the robot, measuring it's moment of inertia, and looking up the motor torque, however in practice I find it simpler to tune this manually. Thus, by setting the torques on the wheels (or a value directly proportional to it), I can directly compute the acceleration. \\
 
-                                                                                                                        The other key component about the robot dynamics we've modeled is back EMF. This is caused by the magnetic field inside the DC motor inducing a counter-torque, so at higher velocities the motor has a lower maximum torque. For example, see Figure 1.
+                                                                                                                        The other key component about the robot dynamics I've modeled is back EMF. This is caused by the magnetic field inside the DC motor inducing a counter-torque, so at higher velocities the motor has a lower maximum torque. For example, see Figure 1.
 
 \begin{figure}[ht]
 \fbox {\includegraphics[width=\linewidth]{matrix-motor-curve-12V.png}}
@@ -34,7 +34,7 @@ $$
 % matrix-motor-curve-12V.webp: 0x0 px, 300dpi, 0.00x0.00 cm, bb=
 \end{figure}
 
-Notice that it follows a decreasing linear trend. We modeled this as Stokes' drag, where the drag force is directly proportional to the velocity. However, the torque due to the control input remains constant. Thus, at high velocities, the drag force balances out the motor power, resulting in net-zero torque, and at low velocity the motor has no drag and max torque, exactly the relationship witnessed in the yellow line of the graph. Friction is handled outside this model. \\
+Notice that it follows a decreasing linear trend. I modeled this as Stokes' drag, where the drag force is directly proportional to the velocity. However, the torque due to the control input remains constant. Thus, at high velocities, the drag force balances out the motor power, resulting in net-zero torque, and at low velocity the motor has no drag and max torque, exactly the relationship witnessed in the yellow line of the graph. Friction is handled outside this model. \\
 
 Mathematically, this effect is in the $A$ and $B$ matrices, defined as $$
 A = \begin{bmatrix}
@@ -43,9 +43,9 @@ A = \begin{bmatrix}
 	0 & 0 & 0 & 0 & 1\\
 	0 & 0 & 0 & B_d & 0\\
 	0 & 0 & 0 & 0 & B_\theta\\
-
-
-\end{bmatrix}, \
+	
+	
+\end{bmatrix}, \ 
 B = \begin{bmatrix}
 	0 & 0\\
 	0 & 0\\
@@ -63,7 +63,7 @@ $$h(x) = \begin{bmatrix}
 	0 & 0 & 0 & 0 & 1\\
 \end{bmatrix}$$
 
-To predict the future state, We approximate the integral of our robot dynamics equation, obtaining a state transition function $f^a(x, u) = x_{t+\Delta t}^a \approx x^a + \dot x^a \Delta t = x^a+ h^a_b(x)(A^b_cx^c + B^b_is^i(u) )\Delta t$. The $s^i(u)$ function is present to enforce control limits. There's a limit to the power we can send to the motors, so $s^i(u)$ is a sigmoid function (in this case, hyperbolic tangent) to smoothly map from $\mathbb{R} \rightarrow (-1, 1)$ (or whatever we want the control range to be). This is necessary as the control algorithm itself will assume the control input is unbounded, which results in infeasible trajectories. This concludes our dynamic model. To evaluate the accuracy, we generate a path to move forward 100 centimeters, and run it with no feedback control. Without spending too much time tuning (it was only a testing chassis), it was able to get withing 5cm of the target. In our testing, there was too much randomness (even with identical control inputs) to reliably get any closer. With feedback enabled, this shrunk to less than 3mm (Figure 2).
+To predict the future state, I approximated the integral of the robot dynamics equation, obtaining a state transition function $f^a(x, u) = x_{t+\Delta t}^a \approx x^a + \dot x^a \Delta t = x^a+ h^a_b(x)(A^b_cx^c + B^b_is^i(u) )\Delta t$. The $s^i(u)$ function is present to enforce control limits. I have a limit to the power I can send to the motor, so $s^i(u)$ is a sigmoid function (in this case, hyperbolic tangent) to smoothly map from $\mathbb{R} \rightarrow [-1, 1]$ (or whatever I want the control range to be). This is necessary as the control algorithm itself will assume the control input is unbounded, which results in infeasible trajectories. This concludes my dynamic model. To evaluate the accuracy, I generated a path to move forward 100 centimeters, and ran it with no feedback control. I was happy to see that, without spending too much time tuning (it was only a testing chassis), it was able to get withing 5cm of the target. In my testing, there was too much randomness (even with identical control inputs) to reliably get any closer. With feedback enabled, this shrunk to less than 3mm (Figure 2).
 \begin{figure}[ht]
 	\caption{Velocity vs. Time with and Without Feedback Control}
 	\begin{subfigure}[t]{0.48 \textwidth}
@@ -86,13 +86,13 @@ $$
 \ell_f(x) = (x_n - x_{target})^TQ_f(x_n - x_{target}),$$$$
 \ell(x, u) = (x_k - x_{target})^TQ(x_k - x_{target}).
 $$
-and $Q$ is the ongoing error cost matrix, $R$ is the control cost matrix, and $Q_f$ is the final cost matrix. This is what we currently use (although we do have ideas on how to alter this function to add obstacle avoidance and other features). Intuitively, this function makes sense; it punishes the robot for being far away from the target state for an extended period of time, but doesn't push it to the maximum control. This last part is important because it prevents the trajectory generation from resulting in a "Bang-Bang" controller, where the controls are set to their max power then minimum power. While this would be the theoretical fastest, it is not the best trajectory as it leaves no room for correction if there is an error in the model or, in this case, uncertainty. By adding in the control cost term $R$, the controller is discouraged from this behavior, helping to ensure controllability.
+and $Q$ is the ongoing error cost matrix, $R$ is the control cost matrix, and $Q_f$ is the final cost matrix. This is what I currently use (although I do have ideas on how to alter this function to add obstacle avoidance and other features). Intuitively, this function makes sense; it punishes the robot for being far away from the target state for an extended period of time, but doesn't push it to the maximum control. This last part is important because it prevents the trajectory generation from resulting in a "Bang-Bang" controller, where the controls are set to their max power then minimum power. While this would be the theoretical fastest, it is not the best trajectory as it leaves no room for correction if there is an error in the model or, in this case, uncertainty. By adding in the control cost term $R$, the controller is discouraged from this behavior, helping to ensure controllability.
 
 \section{Path Generation and Derivatives}
 \textbf{The primary component} of this algorithm is the generation of paths. This is done via a technique called \textbf{Differential Dynamic Programming}, developed by Dr. Richard Bellman in the 1950s. The key idea is to, at each time step, consider what change would be the most beneficial to the path, not just at the current state, but in the future. We can recursively construct a \textit{Value} function $V$ for the current time step, by saying that $$V_k(x) = \min_u [\ell(x, u) + V_{k+1}{f(x, u)}]$$
 where $f(x, u)$ is the state transition function. In effect, this means that the improvement at the current time step is how much it helps at that time step and how much it helps at the next time step. No recursion is complete without a base case, which is defined to be $V_n(x) = \ell_f(x)$, as the final cost function is itself a measure of the cost of being off at the final state. (This is a version of the \textit{Bellman equation}, restated in this particular view.)\\
 
-To now use this equation, we initialize a nominal stationary path, and repeatedly compute an update iterativley starting from $x_n$, using Differential Dynamic Programming. Briefly stated, another function $Q$ can be defined to be the quality of an update in both state and control, taking into account robot dynamics. This can be approximated with a second-order Taylor expansion, with the following derivatives:
+To now use this equation, I initialize a nominal stationary path, and repeatedly compute an update iterativley starting from $x_n$, using Differential Dynamic Programming. Briefly stated, another function $Q$ can be defined to be the quality of an update in both state and control, taking into account robot dynamics. This can be approximated with a second-order Taylor expansion, with the following derivatives:
 
 $$
 	\begin{aligned}
@@ -117,7 +117,7 @@ $$
 \end{aligned}
 $$
 
-In parts of the above math, you see the derivatives of our $\ell(x)$ and $f(x, u)$ functions appear, and while past work has calculated them using finite differences, we computed them all analytically from our model, shown below:
+In parts of the above math, you see the derivatives of my $\ell(x)$ and $f(x, u)$ functions appear, and while past work has calculated them using finite differences, I computed them all analytically from my model, shown below:
 $$
 \begin{aligned}
 f^a(x, u) &\approx x^a+ h^a_b(x)(A^b_cx^c + B^b_is^i(u) )\Delta t\\
@@ -128,7 +128,7 @@ f^a(x, u) &\approx x^a+ h^a_b(x)(A^b_cx^c + B^b_is^i(u) )\Delta t\\
 \frac{\partial^2f^a}{\partial u^j u^k} &= h^a_b(x)\left (B^b_i\frac{\partial^2 s^i}{\partial u^j\partial u^k} \right )\Delta t
 \end{aligned}
 $$
-We did the same with our cost function:
+I did the same with my cost function:
 $$
 \begin{aligned}
 	\ell(x, u) &= (t_a - x_a )Q^a_b(t^b-x^b)+u_cR_d^cu^d\\
@@ -143,9 +143,7 @@ $$
 
 Now, we can simulate forward the control sequence, and get a new path. We initialize $\hat x_1 = x_1$, and say $\hat u_k = u_k -\left (\frac {\partial^2 Q}{\partial u^k \partial u^l} \right)^{-1}\left(\frac {\partial Q}{\partial u^k} + \frac {\partial^2 Q}{\partial u^k \partial x^j} (\hat x_k - x_k)\right)$  per our rule above. We populate $\hat x$ with the system dynamics, $\hat x_k = f(x_{k-1} + u_{k-1})$. After several iterations of the backwards and forwards path, the trajectory reaches a minimal state. To improve convergence, however, a regularization term is added to the eigenvalues of the $\frac{\partial ^2 Q}{\partial u^k \partial u^l}$ Jacobian. When the update reduces the cost, the regularization term is decreased, as the approximation is closer to a true quadratic, and if it is not a better trajectory then the regularization term is increased. This is called a \textit{Levenberg-Marquardt} heuristic, and interpolates between using information from the second derivative, or ignoring it and only trusting the first derivative.
 
-While following the trajectory, it is not a good idea to recompute the optimal path, as we want our robot to be consistent, following the same trajectory every time, and we are also limited in processing power. Thus, we instead store the control update function, $\delta u^{l*}(\delta x^a)$, and use that to generate the feedback controller based off the robot's state error. This function is, in effect, a Taylor expansion of our optimal control input around our trajectory at every timestep. As our state contains both position and it's derivative, velocity, it can be thought of as a PD controller, which combined with our model feedforward and friction loopback correction, forms a time-varying PDFL controller. Given that we need to call this function at any time, not just at the set timestamps, we linearly interpolate between the nearest (in time) two points on the trajectory.
-
-However, due to our highly nonlinear model, the higher-order terms of the Taylor expansion have a sizeable effect. If we just used the first-order expansion, then consider what the behavior would be when the robot was $180 ^\circ$ offset from the target path (a particularly bad, but illustrating, example). Then, any error in the drivetrain direction would be conpensated for \textit{inversely}, moving backwards instead of forwards. To fix this, we use our heading transformation function on our error. This lets us, in effect, rotate our PDFL controller along with our robot, increasing it's domain of validity, even for small rotation errors. We also remove the other linearity in our model, the control imput function, by taking it's gradient around our predicted state and using that to adjust our PDFL, removing the nonlinearity as we're following the path.
+While following the trajectory, it is not a good idea to recompute the optimal path, as we want our robot to be consistent, following the same trajectory every time, and we are also limited in processing power. Thus, I instead store the control update function, $\delta u^{l*}(\delta x^a)$, and use that to generate the feedback controller based off the robot's state error. Given that I need to call this function at any time, not just at the set timestamps, I linearly interpolate between the nearest (in time) two points on the trajectory.
 
 
 \end{document}
