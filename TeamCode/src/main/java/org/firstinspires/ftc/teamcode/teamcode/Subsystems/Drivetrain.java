@@ -48,7 +48,9 @@ public class Drivetrain extends Subsystem {
         public static double visionStrafeDeadzone = 3;
         public static double visionDrive = 0.001;
         public static double visionDriveDeadzone = 5;
-        public static double visionDistanceTarget = 138; //pixels bc goofy
+
+     //   public static double visionDistanceTarget = 138; //pixels bc goofy
+
     }
     MecanumDrive driveWheels;
 
@@ -61,6 +63,7 @@ public class Drivetrain extends Subsystem {
     boolean pid_on_last_cycle = false;
     double setPoint = 0;
     double error = 0;
+
     double angleRad;
 
     PID visionTurnPID;
@@ -172,8 +175,11 @@ public class Drivetrain extends Subsystem {
     public void setTargetHeading(double heading){
         setPoint = heading;
     }
+    public void tankDrive(double drive, double turn, double speed){
+        driveWheels2.veryVeryDirectDrive(drive,turn, speed);
+    }
 
-    public void ballFollow(){
+    public void ballFollow(Double visionDistanceTarget){
 
         //Rect rectangle = TestPipelineBlue.getRectangle();
 
@@ -210,7 +216,7 @@ public class Drivetrain extends Subsystem {
          //   strafe = 0;
         }
 
-        double distanceError = scuffedDistance(BallChaser.getWidth(false));
+        double distanceError = scuffedDistance(BallChaser.getWidth(false), visionDistanceTarget);
         //double distanceError = distance(BallDetector.getWidth(false)) - DrivetrainDash.visionDistanceTarget;
         if(Math.abs(distanceError) > DrivetrainDash.visionDriveDeadzone && BallChaser.targetDetected&& BallChaser.getWidth(false)>30){
            visionDrivePID.setFeedForward(visionDrive);
@@ -230,7 +236,7 @@ public class Drivetrain extends Subsystem {
        // multTelemetry.addData("distance", distance(BallDetector.getWidth(false)));
         multTelemetry.addData("angle in radians", angleRad);
 
-       // driveWheels2.veryVeryDirectDrive(drive,-turn);
+        driveWheels2.veryVeryDirectDrive(drive,-turn);
       //  driveWheels.veryDirectDrive(drive +strafe -turn,drive -strafe +turn,drive -strafe -turn,drive +strafe +turn);
       /* fl.setPower((drive -strafe +turn));
        fr.setPower((drive +strafe -turn));
@@ -250,9 +256,9 @@ public class Drivetrain extends Subsystem {
         return distance;
     }
 
-    public double scuffedDistance(double widthPixels){
+    public double scuffedDistance(double widthPixels, Double visionDistanceTarget){
        double distance;
-           distance = DrivetrainDash.visionDistanceTarget-widthPixels;
+           distance = visionDistanceTarget-widthPixels;
 
         return distance;
         //gives dist in pixels, trust
@@ -263,3 +269,4 @@ public class Drivetrain extends Subsystem {
     }
 
 }
+

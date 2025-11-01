@@ -52,4 +52,14 @@ public class TankDrivetrain {
         R1.setPower(powerRight);
         R2.setPower(powerRight);
     }
+
+    public void veryVeryDirectDrive(double drive, double turn, double speed){
+        double powerLeft = (drive - turn)*speed;
+        double powerRight = (drive + turn)*speed;
+
+        L1.setPower(powerLeft);
+        L2.setPower(powerLeft);
+        R1.setPower(powerRight);
+        R2.setPower(powerRight);
+    }
 }

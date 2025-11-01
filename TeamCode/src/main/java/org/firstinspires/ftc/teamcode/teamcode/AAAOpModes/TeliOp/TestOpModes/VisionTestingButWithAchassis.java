@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hardware.camera
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
@@ -20,6 +21,9 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
     BallChaser ballChaser;
 
     VisionPortal visionPortal;
+    ElapsedTime timewaste;
+    public Boolean isTargeting = false;
+    Boolean isIntakeing = false;
 
 
 
@@ -39,7 +43,7 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
                 .build();
 
         drive = new Drivetrain(hardwareMap, 0);
-
+        timewaste = new ElapsedTime();
         FtcDashboard.getInstance().startCameraStream(visionPortal, 0);
         //this is what allows ftc dashboard to work
         //dash.startCameraStream(visionPortal, 0);
@@ -50,9 +54,33 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
 
     @Override
     public void externalLoop() {
-        if(!driver1.circle.isTapped()){
-     drive.ballFollow();
+        timewaste.reset();
+        BaseOpMode.addData("is targeting", isTargeting);
+        BaseOpMode.addData("time", timewaste);
+        if(driver1.triangle.isTapped()){
+            isTargeting=!isTargeting;
+        }
+        if(!driver1.circle.isTapped()&&isTargeting&&!isIntakeing){
+            drive.ballFollow(138.0);
     }
+       if (driver1.square.isTapped()&&!driver1.circle.isTapped()&&isTargeting){
+           isIntakeing=true;
+           int i=0;
+            while (timewaste.seconds() < 15) {
+                BaseOpMode.addData("i", i);
+                drive.ballFollow(200.0);
+                i++;
+                BaseOpMode.addData("time 2", timewaste);
+                drive.update();
+
+            }
+            isIntakeing=false;
+            i=0;
+           /* timewaste.reset();
+            while (timewaste.milliseconds()<500){
+            drive.tankDrive(1,0,0.5);}
+           */
+       }
     }
 
 }

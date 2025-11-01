@@ -155,7 +155,7 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
         largestPurpleRect = getObjectsDetected(contoursPurple, MAGENTA);
         largestGreenRect = getObjectsDetected(contoursGreen, GREEN);
 
-        if(targetDetected){
+       /* if(targetDetected){
             if(motif.equals(Constants.Motif.GPP)){
               if(greenRects.get(0)!=null){
                  targetBalls.add(greenRects.get(0));
@@ -186,7 +186,7 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
                 if(greenRects.get(0)!=null){
                     targetBalls.add(greenRects.get(0));
                 }else{targetBalls.add(null);}}
-        }
+        }*/
 
 
 
@@ -317,9 +317,9 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
                 if (!rects.isEmpty()) {
                     this.largestRect = VisionUtils.sortRectsByMaxOption(1, VisionUtils.RECT_OPTION.AREA, rects).get(0);
                     targetDetected = true;
-                    if(color == GREEN){ //this is the world's goofiest code but it works ig
+                    if(color == GREEN && !rects.isEmpty()){ //this is the world's goofiest code but it works ig
                         greenRects=VisionUtils.sortRectsByMaxOption(1, VisionUtils.RECT_OPTION.AREA, rects);
-                    } else if (color == MAGENTA) {
+                    } else if (color == MAGENTA && !rects.isEmpty()) {
                         purpleRects=VisionUtils.sortRectsByMaxOption(1, VisionUtils.RECT_OPTION.AREA, rects);
                     }
                 } else {
