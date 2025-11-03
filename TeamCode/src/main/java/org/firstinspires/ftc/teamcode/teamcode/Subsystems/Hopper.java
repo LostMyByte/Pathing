@@ -1,4 +1,5 @@
 // Primary Author: Caroline Oringer
+/*
 package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper.HopperDash.ki;
@@ -229,3 +230,4 @@ public class Hopper extends Subsystem {
         BaseOpMode.updateTelemetry();
     }
 }
+*/
