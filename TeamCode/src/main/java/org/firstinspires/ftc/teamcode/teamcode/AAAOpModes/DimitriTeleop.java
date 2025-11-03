@@ -10,6 +10,4 @@ public class DimitriTeleop {
 
     Shooter shooter;
     IntakeMagazine intake;
-
-
 }

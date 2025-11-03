@@ -71,10 +71,7 @@ public class Shooter extends Subsystem{
 
     double turretMaxRotation;
     ElapsedTime warningLightTimer;
-    BallColors[] pattern;
     Constants.Team team;
-
-    ArrayList<BallColors> currentRamp;
 
     double degreesYtoApriltag;
     double radsYtoApriltag;
@@ -154,28 +151,15 @@ public class Shooter extends Subsystem{
         shooter2.setPower(-correction);
     }
 
-    public void getPattern(){
+    public int getPattern(){
         int id = 0;
         LLResult result = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
             id = fiducial.getFiducialId();
         }
-        if(id == 21){
-            pattern[0] = BallColors.GREEN;
-            pattern[1] = BallColors.PURPLE;
-            pattern[2] = BallColors.PURPLE;
-        }
-        else if(id == 22){
-            pattern[0] = BallColors.PURPLE;
-            pattern[1] = BallColors.GREEN;
-            pattern[2] = BallColors.PURPLE;
-        }
-        else if(id == 23){
-            pattern[0] = BallColors.PURPLE;
-            pattern[1] = BallColors.PURPLE;
-            pattern[2] = BallColors.GREEN;
-        }
+        return id;
+
     }
 
     double turretResetTargetAngle = 0;
@@ -492,46 +476,6 @@ public class Shooter extends Subsystem{
         return (hoodCanShoot && turretCanShoot);
     }
 
-    public ArrayList<BallColors> getCurrentRamp(){
-        return currentRamp;
-    }
-    public boolean addBall(BallColors ballColor){
-        if (currentRamp.size() > 9){
-            currentRamp.add(ballColor);
-            return true;
-        }
-        return false;
-    }
-
-    public void removeLastBall(){
-        currentRamp.remove(currentRamp.size()-1);
-    }
-
-    public void clearRamp(){
-        currentRamp.clear();
-    }
-
-    public BallColors[] getNextThree(){
-        BallColors[] nextThree;
-        nextThree = new BallColors[3];
-        if (currentRamp.size() == 0 || currentRamp.size() == 3 || currentRamp.size() == 6){
-            nextThree[0] = pattern[0];
-            nextThree[1] = pattern[1];
-            nextThree[2] = pattern[2];
-        }
-        else if (currentRamp.size() == 1 || currentRamp.size() == 4 || currentRamp.size() == 7){
-            nextThree[0] = pattern[1];
-            nextThree[1] = pattern[2];
-            nextThree[2] = pattern[0];
-        }
-        else if (currentRamp.size() == 2 || currentRamp.size() == 5 || currentRamp.size() == 8){
-            nextThree[0] = pattern[2];
-            nextThree[1] = pattern[0];
-            nextThree[2] = pattern[1];
-        }
-
-        return nextThree;
-    }
 
 
     @Override
@@ -563,9 +507,5 @@ public class Shooter extends Subsystem{
 
     public enum TurretState{
         ACTIVE, RESETTING
-    }
-
-    public enum ShotType{
-        HIGH, LOW
     }
 }
