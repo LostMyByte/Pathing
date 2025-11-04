@@ -88,8 +88,8 @@ public class Shooter extends Subsystem{
     public Shooter(HardwareMap hardwareMap, double turretStartAngle, Constants.Team team){
         //Things are commented to prepare for the first tests of the shooter where we will only have the flywheel.
 
-        shooter1 = new Motor(Hardware.shooter1);
-        shooter2 = new Motor(Hardware.shooter2);
+        shooter1 = new Motor(Hardware.shooter1,false, true);
+        shooter2 = new Motor(Hardware.shooter2, false, true);
         hood = new Servos.Hood();
         //turret = new Motor(Hardware.turret);
         //turretEncoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
@@ -148,7 +148,7 @@ public class Shooter extends Subsystem{
 
 
         shooter1.setPower(correction);
-        shooter2.setPower(-correction);
+        shooter2.setPower(correction);
     }
 
     public int getPattern(){
@@ -235,13 +235,13 @@ public class Shooter extends Subsystem{
         //This is the target angle relative to facing directly at the aprilTag
         //yaw is current angle of the aprilTag relative to the shooter
         //This uses the law of sines to find the target angle of the robot relative to the april tag
-        turretTargetAngle = Math.asin((0.46*Math.sin(yaw)/distanceAway));
-        turretError = turretTargetAngle - tx;
+        //turretTargetAngle = Math.asin((0.46*Math.sin(yaw)/distanceAway));
+        //turretError = turretTargetAngle - tx;
 
 
 
 
-        updateTurret();
+        //updateTurret();
         /*
 
         if (canRobotShoot()){
