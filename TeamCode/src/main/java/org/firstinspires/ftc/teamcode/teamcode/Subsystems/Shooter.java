@@ -1,15 +1,14 @@
-// Primary Author: Dylan Cook
 package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
+
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.goalAprilTagHeight;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.limelightAngleOffset;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.limelightLensHeightFromGround;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.tyAlpha;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Constants.tyFiltered;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.Team.BLUE;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.Team.RED;
-
-import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.biasterm;
-import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.goalAprilTagHeight;
-import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.limelightAngleOffset;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.limelightLensHeightFromGround;
-import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.tyAlpha;
-import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.tyFiltered;
 
 
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -24,12 +23,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes.ShooterTest;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.DashPositions;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.ShooterDashClass;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Servo;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.LinearAlgebra.Vector;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.zLibraries.Utilities.Vector2d;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ public class Shooter extends Subsystem{
     double tx;
     ShooterStates shooterState;
     TurretState turretState;
-    double ticksPerRotation;
+    double ticksPerRotation = 636;
     double turretStartAngle;
     double turretTargetAngle;
     double turretError;
@@ -63,7 +64,7 @@ public class Shooter extends Subsystem{
 
     boolean hoodCanShoot = false;
     boolean turretCanShoot = false;
-    double turretMarginForError = .15;
+    double turretMarginForError = .1;
 
     //This has the middle of its range of motion as zero, and it can go this far in EITHER DIRECTION,
     //notated by setting it as negative or positive
@@ -71,7 +72,10 @@ public class Shooter extends Subsystem{
 
     double turretMaxRotation;
     ElapsedTime warningLightTimer;
+    BallColors[] pattern;
     Constants.Team team;
+
+    ArrayList<BallColors> currentRamp;
 
     double degreesYtoApriltag;
     double radsYtoApriltag;
@@ -88,19 +92,25 @@ public class Shooter extends Subsystem{
     public Shooter(HardwareMap hardwareMap, double turretStartAngle, Constants.Team team){
         //Things are commented to prepare for the first tests of the shooter where we will only have the flywheel.
 
-        shooter1 = new Motor(Hardware.shooter1,false, true);
-        shooter2 = new Motor(Hardware.shooter2, false, true);
-        hood = new Servos.Hood();
-        //turret = new Motor(Hardware.turret);
+        //shooter1 = new Motor(Hardware.shooter1);
+        //shooter2 = new Motor(Hardware.shooter2);
+        //hood = new Servos.Hood();
+        //turret = new Motor(Hardware.turret, false, true);
+
         //turretEncoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
         shooterPDF = new PID(0,0,0);
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        turretPDL = new PID(0,0,0);
+        //limelight = hardwareMap.get(Limelight3A.class, "limelight");
+
+        /*
         limelight.setPollRateHz(100); // make number higher to get more data
         limelight.pipelineSwitch(1);
         limelight.start();
 
         limelight.reloadPipeline();
         this.team = team;
+
+         */
 
         //pattern = new BallColors[3];
         shooterState = ShooterStates.OBELISK;
@@ -127,6 +137,7 @@ public class Shooter extends Subsystem{
                 break;
             case SHOOTERTESTING:
                 updateTagDistanceHybridCorrected();
+                aim();
                 break;
         }
     };
@@ -137,7 +148,7 @@ public class Shooter extends Subsystem{
         shooterPDF.setConstants(PIDTuningDash.ShooterP,0,PIDTuningDash.ShooterD);
         //sets the feedforward to the voltage needed to hold the target velocity. Values ob
         if (targetShooterRPM > 0){
-        shooterPDF.setFeedForward(((targetShooterRPM * 0.00318451)+1.48267)/12);
+            shooterPDF.setFeedForward(((targetShooterRPM * 0.00318451)+1.48267)/12);
         } else {
             shooterPDF.setFeedForward(0);
         }
@@ -148,18 +159,31 @@ public class Shooter extends Subsystem{
 
 
         shooter1.setPower(correction);
-        shooter2.setPower(correction);
+        shooter2.setPower(-correction);
     }
 
-    public int getPattern(){
+    public void getPattern(){
         int id = 0;
         LLResult result = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
             id = fiducial.getFiducialId();
         }
-        return id;
-
+        if(id == 21){
+            pattern[0] = BallColors.GREEN;
+            pattern[1] = BallColors.PURPLE;
+            pattern[2] = BallColors.PURPLE;
+        }
+        else if(id == 22){
+            pattern[0] = BallColors.PURPLE;
+            pattern[1] = BallColors.GREEN;
+            pattern[2] = BallColors.PURPLE;
+        }
+        else if(id == 23){
+            pattern[0] = BallColors.PURPLE;
+            pattern[1] = BallColors.PURPLE;
+            pattern[2] = BallColors.GREEN;
+        }
     }
 
     double turretResetTargetAngle = 0;
@@ -171,16 +195,20 @@ public class Shooter extends Subsystem{
 
         //DONT angle wrap because the wiring means we can't actually spin around multiple times
 
-        turretPDL.setConstants(0,0,0);
+        turretPDL.setConstants(PIDTuningDash.TurretP,0,PIDTuningDash.TurretD);
+        turretPDL.setLowerLimit(PIDTuningDash.TurretL);
+        turretPDL.setDeadZone(PIDTuningDash.TurretDeadzone);
         switch (turretState){
             case ACTIVE:
                 //if it is attempting to go outside its range of motion, switch to the resetting state
                 if ((turretError + currentTurretAngle) > turretRangeOfMotion){
                     turretResetTargetAngle = turretRangeOfMotion-(2*Math.PI);
-                    setTurretState(TurretState.RESETTING);
+                    BaseOpMode.addData("RangeOfMotion Exception","High");
+                    //setTurretState(TurreState.RESETTING);
                 } else if ((turretError + currentTurretAngle) < -turretRangeOfMotion)  {
                     turretResetTargetAngle = -turretRangeOfMotion+(2*Math.PI);
-                    setTurretState(TurretState.RESETTING);
+                    BaseOpMode.addData("RangeOfMotion Exception", "Low");
+                    //setTurretState(TurretState.RESETTING);
                 } else {
                     correction = turretPDL.getCorrection(turretError);
                     turret.setPower(correction);
@@ -191,13 +219,17 @@ public class Shooter extends Subsystem{
                         turretCanShoot = false;
                     }
                 }
+
+                BaseOpMode.addData("correction", correction);
+                BaseOpMode.addData("turretError", turretError);
+                BaseOpMode.addData("currentAngle", currentTurretAngle);
                 break;
             case RESETTING:
-                if (false){
-
+                if ((turretResetTargetAngle + turretMarginForError > currentTurretAngle) || (turretResetTargetAngle - turretMarginForError < currentTurretAngle)){
+                    setState(ShooterStates.ACTIVE);
                 } else {
                     correction = turretPDL.getCorrection(currentTurretAngle, turretResetTargetAngle);
-                    
+
                 }
         }
     }
@@ -212,7 +244,7 @@ public class Shooter extends Subsystem{
 
         filteredRPM = alpha*(rpm) + (1-rpmAlpha) * filteredRPM;
         if(shooter1.getVelocity() > 0){
-        return filteredRPM;
+            return filteredRPM;
         } else {return 0;}
     }
 
@@ -230,13 +262,13 @@ public class Shooter extends Subsystem{
 
     public void aim(){
 
-        hood.setPositionInterpolated(getHoodAngle());
+        //hood.setPositionInterpolated(getHoodAngle());
 
         //This is the target angle relative to facing directly at the aprilTag
         //yaw is current angle of the aprilTag relative to the shooter
         //This uses the law of sines to find the target angle of the robot relative to the april tag
         //turretTargetAngle = Math.asin((0.46*Math.sin(yaw)/distanceAway));
-        //turretError = turretTargetAngle - tx;
+        //turretError = Math.toRadians(turretTargetAngle - tx);
 
 
 
@@ -270,12 +302,13 @@ public class Shooter extends Subsystem{
 
     private  double actualDistance = 0;
     private double alpha = 0.2;
+
+    /*
     public void updateTargeting(){
         int id = 0;
         double tx = 0;
         double ty = 0;
         double distance = 0;
-        double yaw = 0;
         double pitch = 0;
         double roll = 0;
         LLResult result = limelight.getLatestResult();
@@ -289,15 +322,13 @@ public class Shooter extends Subsystem{
             //distance = distance + 0.0764839 * Math.sin(2.06539 * distance - 2.68937) + 0.158071;
             ty = limelight.getLatestResult().getTy(); // gets degrees to crosshair from primary target along y axis
             tx = limelight.getLatestResult().getTx();// gets degrees to crosshair from primary target along x axis
-            yaw = fiducial.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES) + 90;
-            if (yaw < 93){
-                yaw += 87;
+            if (team == BLUE) {
+                yaw = 180 - Math.abs(fiducial.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES) - 3);
+                yaw = Math.toRadians(yaw);
+            } else if (team == RED){
+                yaw = 180 - Math.abs(fiducial.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES) - 3);
+                yaw = Math.toRadians(yaw);
             }
-            else if (yaw > 93){
-                yaw += 3;
-            } else { yaw += 90;}
-
-            yaw = Math.toRadians(yaw);
           //  roll = fiducial.getCameraPoseTargetSpace().getOrientation().getRoll(AngleUnit.DEGREES);
            // yaw = fiducial.getCameraPoseTargetSpace().getOrientation().getYaw(AngleUnit.DEGREES);
 //roll is pitch, pitch is roll and yaw is roll
@@ -313,19 +344,15 @@ public class Shooter extends Subsystem{
         }
         BaseOpMode.addData("tagDistance", actualDistance);
 
-        if( team == BLUE && id == 20){
-            this.tx = tx;
-            distanceAway = Math.sqrt(Math.pow(0.46,2)+Math.pow(actualDistance,2)-(2*0.46*actualDistance*Math.cos(yaw)));
-        } else if (team == RED && id == 24){
-            this.tx = tx;
-            distanceAway = actualDistance;
-        }else{
-            this.tx =0;
-        }
+
+        this.tx = tx;
+
 
 
         BaseOpMode.addData("distanceAway",distanceAway);
     }
+
+     */
 
     double yaw;
     public void updateTagDistanceHybridCorrected() {
@@ -343,8 +370,8 @@ public class Shooter extends Subsystem{
 
 
                 // Smooth ty
-                double tx = result.getTx();
-                tyFiltered = tyAlpha * tx + (1 - tyAlpha) * tyFiltered;
+                double ty = result.getTy();
+                tyFiltered = tyAlpha * ty + (1 - tyAlpha) * tyFiltered;
 
                 // Dynamic angle compensation beyond ~2.8 m
                 // Start with baseline Limelight mount angle
@@ -359,13 +386,14 @@ public class Shooter extends Subsystem{
 
                 // Raw trig distance (m)
                 double totalAngle = dynamicAngleOffset + tyFiltered;
-                double trigDist = (goalAprilTagHeight - limelightLensHeightFromGround)
+                double
+                        trigDist = (goalAprilTagHeight - limelightLensHeightFromGround)
                         / Math.tan(Math.toRadians(totalAngle));
 
                 // Mild linear correction beyond 2.3 m
                 double correctedDist = trigDist;
                 if (trigDist > 2.3) {
-                    double bias = biasterm * (trigDist - 2.3);
+                    double bias = Constants.biasterm * (trigDist - 2.3);
                     correctedDist = trigDist - bias;
                 }
 
@@ -379,24 +407,73 @@ public class Shooter extends Subsystem{
                 double wPose = poseValid ? Range.clip((correctedDist - 3.2) / 0.8, 0.0, 0.5) : 0.0;
                 double blended = (1 - wPose) * correctedDist + wPose * poseDist;
 
-                yaw = 180 - Math.abs(fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES) - 3);
-                yaw = Math.toRadians(yaw);
+
+                if (team == BLUE) {
+                    yaw = fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES);
+                    BaseOpMode.addData("rawYaw", yaw);
+                    yaw = 180 - Math.abs(yaw - 3);
+                    yaw = Math.toRadians(yaw);
+                } else if (team == RED){
+                    yaw = fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES);
+                    BaseOpMode.addData("rawYaw", yaw);
+                    yaw = 180 - Math.abs(yaw + 3);
+                    yaw = Math.toRadians(yaw);
+                }
                 // Final smoothing filter for stability
                 actualDistance = alpha * blended + (1 - alpha) * actualDistance;
 
                 ///Heading and telemetry
-                this.tx = result.getTx();
+                tx = result.getTx();
                 distanceAway = Math.sqrt(Math.pow(0.46, 2) + Math.pow(actualDistance, 2) - 2 * 0.46 * actualDistance * Math.cos(yaw));
-                this.tx = tx;
 
-                BaseOpMode.addData("tyFiltered", tyFiltered);
+                BaseOpMode.addData("tyFiltered", Constants.tyFiltered);
                 BaseOpMode.addData("DynamicAngleOffset", dynamicAngleOffset);
                 BaseOpMode.addData("TrigDist(m)", trigDist);
                 BaseOpMode.addData("CorrectedDist(m)", correctedDist);
                 BaseOpMode.addData("PoseDist(m)", poseDist);
                 BaseOpMode.addData("FinalDist(m)", actualDistance);
                 BaseOpMode.addData("adjustedDistance", distanceAway);
+                BaseOpMode.addData("yaw", Math.toDegrees(yaw));
             }
+    }
+
+
+    public void getTargetTurretAngle(){
+
+        //the angle the robot would need to face to hit the target
+        double angle = Math.atan(x/y);
+
+        //make it so that x velocity is perpendicular to the goal and y is parallel
+        Vector2d goalRelativeVelocity = fieldRelativeVelocity.rotate(angle);
+        double vX = goalRelativeVelocity.x;
+
+        //the angle the robot would need to turn to hit the target
+        angle += h;
+
+        //account for robot velocity
+        angle -= Math.asin(vX/getTargetBallSpeedX());
+        BaseOpMode.addData("angle", Math.toDegrees(angle));
+        BaseOpMode.addData("XVelocity", vX);
+    }
+
+    double x;
+    double y;
+    double h;
+    Vector2d fieldRelativeVelocity;
+
+    public void recieveOdoInputs(double x, double y, double h, Vector2d fieldRelativeVelocity){
+        this.x = x;
+        this.y = y;
+        this.h = h;
+        this.fieldRelativeVelocity = fieldRelativeVelocity;
+    }
+
+    public Vector2d getGoalRelativeVelocity(){
+        //the angle the robot would need to face to hit the target
+        double angle = Math.atan(x/y);
+        //make it so that x velocity is perpendicular to the goal and y is parallel
+        return fieldRelativeVelocity.rotate(angle);
+
     }
 
 
@@ -410,11 +487,8 @@ public class Shooter extends Subsystem{
         return ShooterDashClass.speedRegressionM * getTargetShooterRPM();
     }
 
-    public void setHoodAngleBasedOnTargetShotAngle(double angle){
-        //This ignores the effect initial velocity has on angle. If we are having issues targeting at very low or high velocities, try to account for that
-        //Values obtained from regression
-        //hood.setPositionInterpolated((Math.asin((angle-52.7762)/18.1541)-163.65723)/4.04363);
-        hood.setPositionInterpolated(angle);
+    public double getTargetBallSpeedX(){
+        return getTargetBallSpeed()*Math.cos(42);
     }
 
     double hoodAngle;
@@ -432,7 +506,7 @@ public class Shooter extends Subsystem{
         double t5 = Constants.g*Math.pow(xPosition,2);
         double input;
         if (distanceAway > 1){
-        input = (t1 - Math.sqrt(t2-(4*t3*t4)))/t5;
+            input = (t1 - Math.sqrt(t2-(4*t3*t4)))/t5;
         }
         else {input = t1 + Math.sqrt(t2-(4*t3*t4))/t5;}
 
@@ -465,6 +539,47 @@ public class Shooter extends Subsystem{
         }
     }
 
+    public double getHoodAngleMovingCase(){
+        //This uses 2 iterations of the Newton-Rhapson method to approximate the angle we need to shoot at to hit the target
+        double a0 = Math.PI/4;
+        double a1 = a0 - fPrecomputed()/dfPrecomputed();
+        double a2 = a1 - f(a1)/df(a1);
+
+        return Math.toDegrees(a2);
+    }
+
+    //The original equation for newton's method
+    public double f(double a){
+        double t1 = (getTargetBallSpeed()*Math.sin(a)*distanceAway)/(getTargetBallSpeed()*Math.cos(a)+getGoalRelativeVelocity().y);
+        double t2 = (Constants.g/2)*Math.pow(distanceAway/(getTargetBallSpeed()*Math.cos(a)+getGoalRelativeVelocity().y),2);
+        double t3 = .99-limelightLensHeightFromGround;
+
+        return t1-t2-t3;
+    }
+
+    public double df(double a){
+        double t1 = (Constants.g*distanceAway*distanceAway*getTargetBallSpeed()*Math.sin(a))/Math.pow(getTargetBallSpeed()*Math.cos(a)+getGoalRelativeVelocity().y,3);
+        double t2 = (getTargetBallSpeed()*distanceAway*(getTargetBallSpeed()+getGoalRelativeVelocity().y*Math.cos(a)))/Math.pow(getTargetBallSpeed()*Math.cos(a)+getGoalRelativeVelocity().y,2);
+
+        return t2-t1;
+    }
+
+    public double fPrecomputed(){
+        //This precomputes the trig functions because every loop we get the sin and cos of 45, which is pointless
+        double t1 = (getTargetBallSpeed()*.7071*distanceAway)/(getTargetBallSpeed()*.7071+getGoalRelativeVelocity().y);
+        double t2 = (Constants.g/2)*Math.pow(distanceAway/(getTargetBallSpeed()*.7071+getGoalRelativeVelocity().y),2);
+        double t3 = .99-limelightLensHeightFromGround;
+
+        return t1-t2-t3;
+    }
+
+    public double dfPrecomputed(){
+        //This precomputes the trig functions because every loop we get the sin and cos of 45, which is pointless
+        double t1 = (Constants.g*distanceAway*distanceAway*getTargetBallSpeed()*.7071)/Math.pow(getTargetBallSpeed()*.7071+getGoalRelativeVelocity().y,3);
+        double t2 = (getTargetBallSpeed()*distanceAway*(getTargetBallSpeed()+getGoalRelativeVelocity().y*.7071))/Math.pow(getTargetBallSpeed()*.7071+getGoalRelativeVelocity().y,2);
+
+        return t2-t1;
+    }
 
     public void selectRPM(){
         //Populate this with all the RPM Ranges
@@ -476,6 +591,46 @@ public class Shooter extends Subsystem{
         return (hoodCanShoot && turretCanShoot);
     }
 
+    public ArrayList<BallColors> getCurrentRamp(){
+        return currentRamp;
+    }
+    public boolean addBall(BallColors ballColor){
+        if (currentRamp.size() > 9){
+            currentRamp.add(ballColor);
+            return true;
+        }
+        return false;
+    }
+
+    public void removeLastBall(){
+        currentRamp.remove(currentRamp.size()-1);
+    }
+
+    public void clearRamp(){
+        currentRamp.clear();
+    }
+
+    public BallColors[] getNextThree(){
+        BallColors[] nextThree;
+        nextThree = new BallColors[3];
+        if (currentRamp.size() == 0 || currentRamp.size() == 3 || currentRamp.size() == 6){
+            nextThree[0] = pattern[0];
+            nextThree[1] = pattern[1];
+            nextThree[2] = pattern[2];
+        }
+        else if (currentRamp.size() == 1 || currentRamp.size() == 4 || currentRamp.size() == 7){
+            nextThree[0] = pattern[1];
+            nextThree[1] = pattern[2];
+            nextThree[2] = pattern[0];
+        }
+        else if (currentRamp.size() == 2 || currentRamp.size() == 5 || currentRamp.size() == 8){
+            nextThree[0] = pattern[2];
+            nextThree[1] = pattern[0];
+            nextThree[2] = pattern[1];
+        }
+
+        return nextThree;
+    }
 
 
     @Override
@@ -485,8 +640,8 @@ public class Shooter extends Subsystem{
 
     @Override
     public void update() {
-        work();
-        updateTagDistanceHybridCorrected();
+        //work();
+        //updateTagDistanceHybridCorrected();
         //updateTargeting();
     }
 
@@ -507,5 +662,9 @@ public class Shooter extends Subsystem{
 
     public enum TurretState{
         ACTIVE, RESETTING
+    }
+
+    public enum ShotType{
+        HIGH, LOW
     }
 }
