@@ -5,21 +5,27 @@ import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Ha
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.Movement;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 @TeleOp (name = "AAA visionTest")
 public class VisionTestingButWithAchassis extends BaseOpMode {
     private FtcDashboard dash;
-    Movement drive;
+    Drivetrain drive;
 
     WebcamName webcam1;
     BallDetector ballDetector;
 
     VisionPortal visionPortal;
+    ElapsedTime timewaste;
+    public Boolean isTargeting = false;
+    Boolean isIntakeing = false;
+
 
 
 
@@ -38,8 +44,8 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
                 .setCameraResolution(cameraResolution)
                 .build();
 
-        //drive = new Drivetrain(hardwareMap, 0);
-
+        drive = new Drivetrain(hardwareMap, 0);
+        timewaste = new ElapsedTime();
         FtcDashboard.getInstance().startCameraStream(visionPortal, 0);
         //this is what allows ftc dashboard to work
         //dash.startCameraStream(visionPortal, 0);
@@ -50,9 +56,29 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
 
     @Override
     public void externalLoop() {
-        if(!driver1.circle.isTapped()){
-     //drive.ballFollow();
-    }
+        timewaste.reset();
+        BaseOpMode.addData("is targeting", isTargeting);
+        BaseOpMode.addData("time", timewaste);
+        if(driver1.triangle.isTapped()){
+            isTargeting=!isTargeting;
+        }
+        if(!driver1.circle.isTapped()&&isTargeting&&!isIntakeing){
+            drive.ballFollow(138.0);
+        }
+        if (driver1.square.isTapped()&&!driver1.circle.isTapped()&&isTargeting) {
+            isIntakeing = true;
+            int i = 0;
+            while (timewaste.seconds() < 15) {
+                BaseOpMode.addData("i", i);
+                drive.ballFollow(200.0);
+                i++;
+                BaseOpMode.addData("time 2", timewaste);
+                drive.update();
+
+            }
+            isIntakeing = false;
+            i = 0;
+        }
     }
 
 }
