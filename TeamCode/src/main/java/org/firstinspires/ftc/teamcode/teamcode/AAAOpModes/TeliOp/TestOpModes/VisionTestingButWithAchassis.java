@@ -56,28 +56,25 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
 
     @Override
     public void externalLoop() {
-        timewaste.reset();
         BaseOpMode.addData("is targeting", isTargeting);
         BaseOpMode.addData("time", timewaste);
         if(driver1.triangle.isTapped()){
             isTargeting=!isTargeting;
         }
         if(!driver1.circle.isTapped()&&isTargeting&&!isIntakeing){
-            drive.ballFollow(138.0);
+            drive.ballFollow(138);
         }
-        if (driver1.square.isTapped()&&!driver1.circle.isTapped()&&isTargeting) {
+        if ((driver1.square.isTapped()&&!driver1.circle.isTapped()&&isTargeting)||isIntakeing) {
+            if (isIntakeing == false){timewaste.reset();}
             isIntakeing = true;
-            int i = 0;
-            while (timewaste.seconds() < 15) {
-                BaseOpMode.addData("i", i);
-                drive.ballFollow(200.0);
-                i++;
+            if (timewaste.seconds() < 15) {
+                drive.ballFollow(200);
                 BaseOpMode.addData("time 2", timewaste);
-                drive.update();
 
+            }else {
+                isIntakeing = false;
+                timewaste.reset();
             }
-            isIntakeing = false;
-            i = 0;
         }
     }
 

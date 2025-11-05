@@ -92,7 +92,7 @@ public class Drivetrain extends Subsystem {
         driveWheels2 = new TankDriveTrain(theFuckassTankDriveVector);
       //  driveWheels = new MecanumDrive();
         visionTurnPID = new PID(DrivetrainDash.kP, DrivetrainDash.kI, kD);
-
+/*
  gyro = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
         if (Double.isNaN(Constants.startAngle)) {
             gyro.resetPosAndIMU();
@@ -101,7 +101,7 @@ public class Drivetrain extends Subsystem {
         else {
 
             gyro.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, gyro.getHeading()- PI/2));;
-        }
+        }*/
         pid = new PID(HP,0, HD);
 
 
@@ -260,8 +260,8 @@ public class Drivetrain extends Subsystem {
         return distance;
     }
 
-    public double scuffedDistance(double widthPixels, int targetDistance){
-       double distance;
+    public int scuffedDistance(int widthPixels, int targetDistance){
+       int distance;
            distance = targetDistance-widthPixels;
 
         return distance;
