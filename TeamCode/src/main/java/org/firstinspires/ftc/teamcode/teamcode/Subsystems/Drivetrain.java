@@ -1,5 +1,5 @@
 // Primary Author: Mixed
-/*
+
 package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
 
@@ -11,17 +11,25 @@ import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDa
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HP;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.rateOfChange;
 
+import static java.lang.Math.PI;
+
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-*/
-/*import org.firstinspires.ftc.teamcode.teamcode.KCP.DriveClasses.MecanumDrive;
-import org.firstinspires.ftc.teamcode.teamcode.KCP.DriveClasses.TankDrivetrain;
-import org.firstinspires.ftc.teamcode.teamcode.KCP.Localization.GoBildaPinpointDriver;*//*
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
@@ -62,7 +70,9 @@ public class Drivetrain extends Subsystem {
 
     PID visionTurnPID;
 
-    TankDrivetrain driveWheels2;
+    TankDriveTrain driveWheels2;
+
+    Vector theFuckassTankDriveVector = new Vector(0,0);
 
     @Override
     public void update(){}
@@ -79,11 +89,11 @@ public class Drivetrain extends Subsystem {
     public Drivetrain(HardwareMap hardware, double heading) {
 
         gamepad1 = new Gamepad();
-        driveWheels2 = new TankDrivetrain();
-        //driveWheels = new MecanumDrive();
+        driveWheels2 = new TankDriveTrain(theFuckassTankDriveVector);
+      //  driveWheels = new MecanumDrive();
         visionTurnPID = new PID(DrivetrainDash.kP, DrivetrainDash.kI, kD);
-       */
-/* gyro = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
+/*
+ gyro = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
         if (Double.isNaN(Constants.startAngle)) {
             gyro.resetPosAndIMU();
             gyro.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, heading));
@@ -91,8 +101,8 @@ public class Drivetrain extends Subsystem {
         else {
 
             gyro.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, gyro.getHeading()- PI/2));;
-        }
-        pid = new PID(HP,0, HD);*//*
+        }*/
+        pid = new PID(HP,0, HD);
 
 
 
@@ -100,12 +110,12 @@ public class Drivetrain extends Subsystem {
 
 
     public void stopDrive(){
-        driveWheels.veryDirectDrive(0,0,0,0);
+        //driveWheels.veryDirectDrive(0,0,0,0);
     }
 
 
     public void nonDriverOrientedDrive (double drive, double strafe, double turn){
-        driveWheels.veryDirectDrive((drive + strafe - turn),-(drive - strafe + turn),(drive - strafe - turn),-(drive + strafe + turn));
+     //   driveWheels.veryDirectDrive((drive + strafe - turn),-(drive - strafe + turn),(drive - strafe - turn),-(drive + strafe + turn));
     }
 
     public void drive(double drive, double strafe, double turn, double speed, boolean lockHeading) {
@@ -147,16 +157,16 @@ public class Drivetrain extends Subsystem {
 
 //        updatePID();
 
-        */
+
 /*
         motorfl.setPower(-(drive - strafe + turn) * speed);
         motorfr.setPower((drive + strafe - turn) * speed);
         motorbl.setPower(-(drive + strafe + turn) * speed);
         motorbr.setPower((drive - strafe - turn) * speed);
 
-         *//*
+         */
 
-        driveWheels.veryDirectDrive((drive + strafe - turn) * speed,-(drive - strafe + turn) * speed,(drive - strafe - turn) * speed,-(drive + strafe + turn) * speed);
+      //  driveWheels.veryDirectDrive((drive + strafe - turn) * speed,-(drive - strafe + turn) * speed,(drive - strafe - turn) * speed,-(drive + strafe + turn) * speed);
     }
 
 
@@ -172,17 +182,17 @@ public class Drivetrain extends Subsystem {
         setPoint = heading;
     }
 
-    public void ballFollow(){
+    public void ballFollow(int targetWidth){
 
         //Rect rectangle = TestPipelineBlue.getRectangle();
 
         double drive = 0;
 
-      */
-/*  if ((rectangle.height)/2 < 120){
+      /*
+  if ((rectangle.height)/2 < 120){
             //drive up to box
             drive = 1;
-        }*//*
+        }*/
 
 
 
@@ -210,7 +220,7 @@ public class Drivetrain extends Subsystem {
          //   strafe = 0;
         }
 
-        double distanceError = scuffedDistance(BallDetector.getWidth(false));
+        double distanceError = scuffedDistance(BallDetector.getWidth(false), targetWidth);
         //double distanceError = distance(BallDetector.getWidth(false)) - DrivetrainDash.visionDistanceTarget;
         if(Math.abs(distanceError) > DrivetrainDash.visionDriveDeadzone && BallDetector.targetDetected&&BallDetector.getWidth(false)>30){
             drive = distanceError * DrivetrainDash.visionDrive+0.001;
@@ -230,11 +240,11 @@ public class Drivetrain extends Subsystem {
 
         driveWheels2.veryVeryDirectDrive(drive,-turn);
       //  driveWheels.veryDirectDrive(drive +strafe -turn,drive -strafe +turn,drive -strafe -turn,drive +strafe +turn);
-      */
+
 /* fl.setPower((drive -strafe +turn));
        fr.setPower((drive +strafe -turn));
         bl.setPower((drive +strafe +turn));
-        br.setPower((drive -strafe -turn));*//*
+        br.setPower((drive -strafe -turn));*/
 
     }
     public double distance(double widthPixels){
@@ -250,9 +260,9 @@ public class Drivetrain extends Subsystem {
         return distance;
     }
 
-    public double scuffedDistance(double widthPixels){
-       double distance;
-           distance = DrivetrainDash.visionDistanceTarget-widthPixels;
+    public int scuffedDistance(int widthPixels, int targetDistance){
+       int distance;
+           distance = targetDistance-widthPixels;
 
         return distance;
         //gives dist in pixels, trust
@@ -262,4 +272,4 @@ public class Drivetrain extends Subsystem {
         gyro.resetPosAndIMU();
     }
 
-}*/
+}

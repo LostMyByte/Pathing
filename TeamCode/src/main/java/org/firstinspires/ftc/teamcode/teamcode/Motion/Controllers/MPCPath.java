@@ -27,98 +27,156 @@ import java.io.IOException;
 
 public class MPCPath {
 
+    /**
+     * A set of parameters to use for Model Predictive Control
+     */
     public static class MPCParams {
-        public double QX = 100;
-        public double QY = 100;
-        public double QH = 100;
-        public double QHV = 10;
-        public double QV = 10;
+        public double QX = 100; // Ongoing position cost in X
+        public double QY = 100; // Ongoing position cost in Y
+        public double QH = 100; // Ongoing position cost in Heading
+        public double QV = 10;  // Ongoing Velocity cost
+        public double QHV = 10; // Ongoing Heading Velocity cost
 
-        public double QFX = 20;
-        public double QFY = 20;
-        public double QFH = 20;
-        public double QFV = 10;
-        public double QFHV = 10;
+        public double QFX = 20; // Final Position cost in X
+        public double QFY = 20; // Final Position cost in Y
+        public double QFH = 20; // Final Position cost in Heading
+        public double QFV = 10; // Final Velocity cost
+        public double QFHV = 10; // Final Heading Velocity cost 
 
-        public double R = 50;
+        public double R = 50; // Control cost
 
-        public double lr = 2;
-        public double lambdaMax = 10000000;
+        public double lr = 2; // Learning rate
+        public double lambdaMax = 10000000; // Max lambda (for descent)
     }
 
+    /**
+     * States the controller can be in
+     */
     public enum ControllerStates {
-        Building,
-        Ready,
-        Active,
-        Finished
+        Building, // Still need to call .build()
+        Ready,    // Can start using
+        Active,   // Actively moving along the path
+        Finished  // Finished path and now using best-guess to preserve position
     }
 
-    private ControllerStates state = ControllerStates.Building;;
+    private ControllerStates state = ControllerStates.Building;
 
-    Vector start;
-    MPCPath continuationOf;
-    double horizonTime;
-    double threshold;
-    double resolution;
+    
+    Vector start; // Initial position 
+    MPCPath continuationOf; // Path that comes before (optional). Will use that path's landing position as start to prevent cummulative errors
+    double horizonTime; // How long to simulate path for
+    double threshold;   // Quality of path; when to assume path has converged
+    double resolution;  // How many timesteps per second to simulate.
 
 
-    MPCParams params;
+    MPCParams params; // Parameters to use for path generation
 
-    SystemModel model;
+    SystemModel model; // Drive train model
 
-    String name;
+    String name; // Name of path for telemetry + file name
 
-    ReferenceSignal referenceSignal;
-    Signal sensorSignal;
+    ReferenceSignal referenceSignal; // Optional; what the target trajectory should look like, roughly. 
+    Signal sensorSignal; // Incoming data; optional, can also manually pass in state
 
-    ElapsedTime timer;
+    ElapsedTime timer;  // How long the path has been running for
 
-    MPC controller;
+    MPC controller; // The actual path/controller object to use
 
     // These two are NOT related
-    double startTime = 0;
-    double stopTime = 0;
+    double startTime = 0; // When updating the path midway (MPC), when was the update done? Used for timers.
+    double stopTime = 0;  // When to stop correcting for error in the strafe direction and only worry about heading + drive. Helps prevent late jitter.
 
+    /**
+     * Sets the target path to follow
+     * @param referenceSignal
+     */
     public void setPath(ReferenceSignal referenceSignal) {
         this.referenceSignal = referenceSignal;
     }
 
+    /**
+     * Sets the Parameters to use in path generation
+     * @param params
+     */
     public void setParams(MPCParams params) {
         this.params = params;
     }
 
+    /**
+     * Continue from another path for improved accuracy.
+     * @param previous  Path to continue from
+     */
     public void continueFrom(MPCPath previous) {
         this.continuationOf = previous;
     }
 
+    /**
+     * Set the target state
+     * @param x x position
+     * @param y y position
+     * @param h heading
+     * @param v velocity
+     * @param vh angular velocity
+     */
     public void setTarget(double x, double y, double h, double v, double vh) {
         this.referenceSignal = new ConstantSignal(new Vector(new double[] {x, y, h, v, vh}));
     }
 
+    /**
+     * Set the position the path starts from
+     * @param x x position
+     * @param y y position
+     * @param h heading
+     * @param v velocity
+     * @param vh angular velocity
+     */
     public void setStart(double x, double y, double h, double v, double vh) {
         this.start = new Vector(new double[] {x, y, h, v, vh});
     }
 
+    /**
+     * How much time to simulate a control for. Should be about how long it takes to get to the target state.
+     * @param time
+     */
     public void setMoveTime(double time) {
         this.horizonTime = time;
     }
 
+    /**
+     * Sets when to stop making minor adjustments to the path
+     * @param accuracy
+     */
     public void setAccuracy(double accuracy) {
         this.threshold = accuracy;
     }
 
+    /**
+     * Sets how long to not correct for strafe errors. Prevents late-path jitters.
+     * @param time
+     */
     public void setStopTime(double time) {
         this.stopTime = time;
     }
 
+    /**
+     * How many iterations per timestep to simulate
+     * @param resolution
+     */
     public void setResolution(double resolution) {
         this.resolution = resolution;
     }
 
+    /**
+     * Get the current state of the controller
+     * @return
+     */
     public ControllerStates getState() {
         return state;
     }
 
+    /**
+     * Build the controller. Should always be called before use, even if loading a path.
+     */
     public void build() {
         if (state != ControllerStates.Building) return;
 
@@ -151,6 +209,10 @@ public class MPCPath {
 
     }
 
+    /**
+     * Compile the path relative to the current trajectory
+     * @param maxIter   Maximum number of iterations. Prevents getting stuck in a loop.
+     */
     public void compile(int maxIter) {
 
         BaseOpMode.addData("Compiling Path", name);
@@ -158,21 +220,36 @@ public class MPCPath {
 
     }
 
+    /**
+     * Sets the system model
+     * @param model
+     */
     public void setModel(SystemModel model) {
         this.model = model;
     }
 
+    /**
+     * Sets the name of the path to use for saving to a file and telemetry
+     * @param name
+     */
     public void setName(String name) {
         this.name = name + ".json";
     }
 
+    /**
+     * (re)Start the path timer. Optional; will automatically be called by getCorrection() when controller is inactive.
+     */
     public void start() {
         this.timer = new ElapsedTime();
         this.state = ControllerStates.Active;
     }
 
 
-
+    /**
+     * Updates the path based off a current position, MPC-style. Results in performance issues and (currently) a little buggy.
+     * @param currentPosition   The current position of the robot
+     * @param amount            How many iterations of updates to do.
+     */
     public void update(Vector currentPosition, int amount) {
         double time = timer.time() - startTime;
         double currentNApprox = time * resolution;
@@ -191,8 +268,10 @@ public class MPCPath {
     }
 
 
-
-
+    /**
+     * Get the target correction based off the sensor signal.
+     * @return
+     */
     public Vector getCorrection() {
 
 
@@ -206,6 +285,13 @@ public class MPCPath {
 
         return getCorrection(sensorData);
     }
+
+    /**
+     * Gets the correction given a state and a time along the path.
+     * @param sensorData    Current state
+     * @param time          Path time
+     * @return
+     */
     public Vector getCorrection(Vector sensorData, double time) {
 
         if (time > horizonTime) this.state = ControllerStates.Finished;
@@ -253,6 +339,11 @@ public class MPCPath {
         return correction.added(feedback.multiplied(sensorData)).added(TankDrive.getLoopback(target));
     }
 
+    /**
+     * Gets the correction at the current path time with the given sensor data.
+     * @param sensorData    Current measured state.
+     * @return
+     */
     public Vector getCorrection(Vector sensorData) {
         if (state == ControllerStates.Ready) start();
         double time, simTime;
@@ -264,6 +355,9 @@ public class MPCPath {
         Vector data = sensorData;
 
 
+        // For testing only
+        // Simulate controller completing the path to get landing position
+        // Slows down loop times
         /*while (simTime < horizonTime) {
             sensorData = model.stateTransitionFunction(sensorData, getCorrection(sensorData, simTime),Signal.deltaTime);
             simTime += Math.max(Signal.deltaTime, 0.01);
@@ -280,6 +374,10 @@ public class MPCPath {
         return correction;
     }
 
+    /**
+     * Gets the feedforward (no feedback) correction at the current path time
+     * @return
+     */
     public Vector getFeedForward() {
         if (state == ControllerStates.Ready) start();
         double time = timer.time() - startTime;
@@ -302,6 +400,11 @@ public class MPCPath {
         return correction;
     }
 
+    /**
+     * Attempts to load the path based off the given name, to avoid computation costs.
+     * Note: You still need to specify the other parameters, this just saves a costly call to compile().
+     * @throws FileNotFoundException
+     */
     public void load() throws FileNotFoundException{
 
         String path = "/storage/emulated/0/" + name;
@@ -350,6 +453,9 @@ public class MPCPath {
         controller.loadFromArray(x, u, k, K);
     }
 
+    /**
+     * Saves the path to a file based on the name. Can be restored by load().
+     */
     public void save() {
 
         JsonObject pathData = new JsonObject();
