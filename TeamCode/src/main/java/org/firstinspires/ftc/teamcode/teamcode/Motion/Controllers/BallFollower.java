@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.PartialSignal;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.VisionPID;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser;
 
 
 public class BallFollower extends Controller {
@@ -25,7 +25,7 @@ public class BallFollower extends Controller {
 
         @Override
         protected void update() {
-            this.data = new Vector(BallDetector.getWidth(color == BallColor.GREEN), BallDetector.getError(color == BallColor.GREEN));
+            this.data = new Vector(BallChaser.getWidth(color == BallColor.GREEN), BallChaser.getError(color == BallColor.GREEN));
         }
 
         @Override

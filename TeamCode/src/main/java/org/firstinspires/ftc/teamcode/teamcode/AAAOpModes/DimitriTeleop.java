@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter.Shooter
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter.ShooterStates.NOTACTIVE;
 
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
@@ -18,20 +19,23 @@ public class DimitriTeleop extends BaseOpMode{
     TankDriveTrain drive;
     boolean shooterActive = true;
 
+    Location loc;
+
     @Override
     public void externalInit() {
         shooter = new Shooter(hardwareMap, 0, Constants.team);
         intake = new IntakeMagazine(hardwareMap);
-        drive = new TankDriveTrain(new Vector(0,0));
+        drive = new TankDriveTrain();
+        loc = new Location(0, 0,0);
     }
 
     @Override
     public void externalLoop() {
-        drive.loc.updateOffsets();
+
         Vector target = new Vector(-driver1.leftStick.Y(), driver1.rightStick.X());
         drive.move(target);
 
-        shooter.recieveOdoInputs(drive.loc.getPosX(), drive.loc.getPosY(), drive.loc.getPosH(), drive.loc.getTranslationalVelocity());
+        shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getPosH(), loc.getTranslationalVelocity());
 
         if (shooterActive){
             shooter.setState(ACTIVE);
