@@ -321,7 +321,7 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
         }
     }
 
-    public static double getWidth(boolean trueIfGreen){
+    public static int getWidth(boolean trueIfGreen){
         if(targetDetected){
 
             if(trueIfGreen&&largestGreenRect!=null) {
