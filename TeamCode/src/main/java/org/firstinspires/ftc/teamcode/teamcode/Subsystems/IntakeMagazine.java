@@ -1,15 +1,15 @@
 package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
-import com.qualcomm.robotcore.hardware.AnalogInput;
+import android.graphics.Color;
+
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 
 public class IntakeMagazine extends Subsystem{
 
@@ -22,7 +22,8 @@ public class IntakeMagazine extends Subsystem{
     IntakeMagazineStates state = IntakeMagazineStates.INIT;
     ElapsedTime timer;
     BallColors[] indexer;
-
+    NormalizedColorSensor[] colorSensors = new NormalizedColorSensor[2];
+    final float[] hsv = new float[3];
 
     public IntakeMagazine(HardwareMap hardwareMap){
         mecanum1 = hardwareMap.get(CRServo.class, Hardware.mecanum1);
@@ -33,11 +34,17 @@ public class IntakeMagazine extends Subsystem{
         intakeMotor = new Motor(Hardware.intake);
         magazine.pair(magazineL);
         timer = new ElapsedTime();
+        colorSensors[0] = hardwareMap.get(NormalizedColorSensor.class, "colorSensor0");
+        colorSensors[1] = hardwareMap.get(NormalizedColorSensor.class, "colorSensor1");
+        colorSensors[2] = hardwareMap.get(NormalizedColorSensor.class, "colorSensor2");
     }
 
     public void work(){
         switch(state){
             case INIT:
+                break;
+            case LOADED0:
+                loaded0();
                 break;
             case LOADED1:
                 loaded1();
@@ -45,8 +52,8 @@ public class IntakeMagazine extends Subsystem{
             case LOADED2:
                 loaded2();
                 break;
-            case LOADED3:
-                loaded3();
+            case SHOOTING0:
+                shooting0();
                 break;
             case SHOOTING1:
                 shooting1();
@@ -54,35 +61,47 @@ public class IntakeMagazine extends Subsystem{
             case SHOOTING2:
                 shooting2();
                 break;
-            case SHOOTING3:
-                shooting3();
-                break;
             case INTAKEACTIVE:
                 intaking();
+                break;
+            case INTAKEREVERSED:
+                intakeReversed();
                 break;
         }
     }
 
+    public void readSensors(){
+        for(int sensorNum = 0; sensorNum < colorSensors.length; sensorNum++){
+            NormalizedRGBA colors = colorSensors[sensorNum].getNormalizedColors();
+            Color.colorToHSV(colors.toColor(),hsv);
+            if (hsv[0] > 200){
+                indexer[sensorNum] = BallColors.PURPLE;
+            } else if (hsv[0] > 100){
+                indexer[sensorNum] = BallColors.GREEN;
+            }
+        }
+    }
+
+    public void loaded0(){
+        magazine.ball0();
+        intakeMotor.setPower(0);
+        setMecanumPower(0.2);
+        shooterDoor.closed();
+    }
     public void loaded1(){
-        magazine.firstBall();
+        magazine.ball1();
         intakeMotor.setPower(0);
         setMecanumPower(0.2);
         shooterDoor.closed();
     }
     public void loaded2(){
-        magazine.secondBall();
+        magazine.ball2();
         intakeMotor.setPower(0);
         setMecanumPower(0.2);
         shooterDoor.closed();
     }
-    public void loaded3(){
-        magazine.thirdBall();
-        intakeMotor.setPower(0);
-        setMecanumPower(0.2);
-        shooterDoor.closed();
-    }
-    public void shooting1(){
-        magazine.firstBall();
+    public void shooting0(){
+        magazine.ball0();
         intakeMotor.setPower(0);
         setMecanumPower(1);
         shooterDoor.open();
@@ -90,35 +109,41 @@ public class IntakeMagazine extends Subsystem{
             indexer[0] = indexer[1];
             indexer[1] = indexer[2];
             indexer[2] = BallColors.NONE;
-            setState(IntakeMagazineStates.LOADED1);
+            setState(IntakeMagazineStates.LOADED0);
         }
     }
-    public void shooting2(){
-        magazine.secondBall();
+    public void shooting1(){
+        magazine.ball1();
         intakeMotor.setPower(0);
         setMecanumPower(1);
         shooterDoor.open();
         if (timer.seconds() > 1){
             indexer[1] = indexer[2];
             indexer[2] = BallColors.NONE;
-            setState(IntakeMagazineStates.LOADED2);
+            setState(IntakeMagazineStates.LOADED1);
         }
     }
-    public void shooting3(){
-        magazine.thirdBall();
+    public void shooting2(){
+        magazine.ball2();
         intakeMotor.setPower(0);
         setMecanumPower(1);
         shooterDoor.open();
         if (timer.seconds() > 1){
             indexer[2] = BallColors.NONE;
-            setState(IntakeMagazineStates.LOADED3);
+            setState(IntakeMagazineStates.LOADED2);
         }
     }
 
     public void intaking(){
         intakeMotor.setPower(0.7);
         setMecanumPower(0.5);
-        magazine.secondBall();
+        magazine.ball1();
+        shooterDoor.closed();
+    }
+    public void intakeReversed(){
+        intakeMotor.setPower(-0.7);
+        setMecanumPower(-0.5);
+        magazine.ball1();
         shooterDoor.closed();
     }
 
@@ -127,22 +152,47 @@ public class IntakeMagazine extends Subsystem{
         mecanum2.setPower(power);
     }
 
+    public void shootPurple(){
+        if (indexer[0] == BallColors.PURPLE){
+            setState(IntakeMagazineStates.SHOOTING0);
+        } else if (indexer[1] == BallColors.PURPLE){
+            setState(IntakeMagazineStates.SHOOTING1);
+        } else if (indexer[2] == BallColors.PURPLE){
+            setState(IntakeMagazineStates.SHOOTING2);
+        }
+    }
+
+    public void shootGreen(){
+        if (indexer[0] == BallColors.GREEN){
+            setState(IntakeMagazineStates.SHOOTING0);
+        } else if (indexer[1] == BallColors.GREEN){
+            setState(IntakeMagazineStates.SHOOTING1);
+        } else if (indexer[2] == BallColors.GREEN){
+            setState(IntakeMagazineStates.SHOOTING2);
+        }
+    }
+
+
+
 
 
     public void update(){}
     public void updateSensors(){}
+
     public enum IntakeMagazineStates{
-        INTAKEACTIVE, LOADED1, LOADED2, LOADED3, SHOOTING1, SHOOTING2, SHOOTING3, INIT,
+        INTAKEACTIVE, INTAKEREVERSED,LOADED1, LOADED2, LOADED0, SHOOTING1, SHOOTING2, SHOOTING0, INIT, READINGSENSORS
     }
 
     public enum BallColors{
-        GREEN, PURPLE, UNKNOWN, NONE
+        GREEN, PURPLE, NONE
     }
 
     public void setState(IntakeMagazineStates state){
         this.state = state;
         timer.reset();
     }
+
+
 
 
 
