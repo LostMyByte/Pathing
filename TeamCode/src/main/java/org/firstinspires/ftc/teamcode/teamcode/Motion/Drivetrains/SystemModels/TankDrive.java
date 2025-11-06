@@ -1,6 +1,8 @@
 // Primary Author: Kieran Mattingly
 package org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels;
 
+import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
@@ -199,6 +201,20 @@ public class TankDrive implements SystemModel{
         linearModel.add(A.multiplied(state));
         linearModel.add(acceleration);
         return linearModel;
+    }
+
+    @Override
+    public Vector toStateSpace(Signal data) {
+        double angle = data.getData()[2];
+        double driveVelocity = new Vector(Math.cos(-angle), Math.sin(-angle)).dotProduct(new Vector(data.getGradient().get(1), data.getGradient().get(0)));
+        BaseOpMode.addData("Velocity Drive", driveVelocity);
+        return new Vector(new double[] {
+                data.getData()[0],
+                data.getData()[1],
+                angle,
+                driveVelocity,
+                data.getGradient().get(2)
+        });
     }
 
     /**

@@ -19,8 +19,8 @@ public class Hardware {
     public static final String odoWheels = "odoWheels";
 
     public static final String
-            leftFront = "chub1orange", rightFront = "ehub1blue",
-            leftBack = "chub0white", rightBack = "ehub0red";
+            leftFront = "fl", rightFront = "fr",
+            leftBack = "bl", rightBack = "br";
 
     public static final String magazineL = "magazineL", magazineR = "magazineR", shooterDoor = "shooterDoor";
 

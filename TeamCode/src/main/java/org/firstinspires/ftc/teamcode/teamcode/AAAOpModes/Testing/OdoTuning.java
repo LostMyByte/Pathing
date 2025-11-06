@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.FixedDriveTrain;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.Movement;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 
@@ -19,9 +20,11 @@ public class OdoTuning extends BaseOpMode {
 
 
     Movement drive;
+    Location loc;
     @Override
     public void externalInit() {
-        drive = new FixedDriveTrain(new Vector(0, 0, 0));
+        loc = new Location(0, 0, 0);
+        drive = new FixedDriveTrain(loc);
     }
     double oldEX = 0;
     double oldEY = 0;
@@ -30,20 +33,20 @@ public class OdoTuning extends BaseOpMode {
 
         drive.move(new Vector(0, 0, gamepad1.right_stick_x));
 
-        drive.loc.odoPods.setOffsets(xOffset,yOffset);
+        loc.odoPods.setOffsets(xOffset,yOffset);
 
-        addData("Encoder X", drive.loc.odoPods.getEncoderX());
-        addData("Encoder Y", drive.loc.odoPods.getEncoderY());
+        addData("Encoder X", loc.odoPods.getEncoderX());
+        addData("Encoder Y", loc.odoPods.getEncoderY());
 
         if (gamepad1.square) {
-            drive.loc.setPosition(new Vector(0, 0,0));
-            oldEX = drive.loc.odoPods.getEncoderX();
-            oldEY = drive.loc.odoPods.getEncoderX();
+            loc.setPosition(new Vector(0, 0,0));
+            oldEX = loc.odoPods.getEncoderX();
+            oldEY = loc.odoPods.getEncoderX();
         }
 
-        double xDist = (drive.loc.odoPods.getEncoderX() - oldEX)/GoBildaPinpointDriver.goBILDA_4_BAR_POD;
-        double yDist = (drive.loc.odoPods.getEncoderY() - oldEY)/GoBildaPinpointDriver.goBILDA_4_BAR_POD;
-        double angle = drive.loc.getPosition().get(2);
+        double xDist = (loc.odoPods.getEncoderX() - oldEX)/GoBildaPinpointDriver.goBILDA_4_BAR_POD;
+        double yDist = (loc.odoPods.getEncoderY() - oldEY)/GoBildaPinpointDriver.goBILDA_4_BAR_POD;
+        double angle = loc.getPosition().get(2);
 
         addData("X Offset", xDist/angle);
         addData("Y Offset", yDist/angle);

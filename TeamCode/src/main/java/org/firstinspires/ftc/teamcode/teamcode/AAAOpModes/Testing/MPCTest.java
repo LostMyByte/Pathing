@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.MPCPath;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
@@ -39,6 +40,8 @@ public class MPCTest extends BaseOpMode {
 
     TankDrive drivemodel;
 
+    Location loc;
+
     @Override
     public void externalInit() {
 
@@ -65,7 +68,9 @@ public class MPCTest extends BaseOpMode {
         }
 
 
-        drive = new TankDriveTrain(new Vector(new double[]{0, 0, Math.PI, 0, 0}));
+        loc = new Location(0, 0, Math.PI);
+        test.setSensor(loc);
+        drive = new TankDriveTrain();
 
     }
 
@@ -74,7 +79,7 @@ public class MPCTest extends BaseOpMode {
         drivemodel = new TankDrive();
         test.setModel(drivemodel);
         test.start();
-        Vector correction = test.getCorrection(drive.loc.getPositionForTankDrive());
+        Vector correction = test.getCorrection(loc.getPositionForTankDrive());
 
         BaseOpMode.addData("Correction L", correction.get(0));
         BaseOpMode.addData("Correction R", correction.get(1));
@@ -88,7 +93,7 @@ public class MPCTest extends BaseOpMode {
         Vector correction;
 
         if (TestMPCParams.feedBack) {
-            correction = test.getCorrection(drive.loc.getPositionForTankDrive());
+            correction = test.getCorrection(loc.getPositionForTankDrive());
         }
         else {
             correction = test.getFeedForward();
@@ -96,14 +101,14 @@ public class MPCTest extends BaseOpMode {
         BaseOpMode.addData("Correction L", correction.get(0));
         BaseOpMode.addData("Correction R", correction.get(1));
 
-
-
         if (gamepad1.square || TestMPCParams.enabled) {
-            drive.setPowers(correction);
+            if (drive.correctionSignal != null) drive.followController(test);
         }
         else {
             drive.move(new Vector(0,0));
         }
 
     }
+
+
 }

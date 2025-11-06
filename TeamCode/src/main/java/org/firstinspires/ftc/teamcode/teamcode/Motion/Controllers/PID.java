@@ -17,11 +17,14 @@ public class PID extends Controller {
     @Override
     public Vector getCorrection() {
 
+
         Vector correction = new Vector(new double[errorSignal.getLength()]);
 
-        correction.add(errorSignal.getDataVector().multiplied(coeffs.kP));
-        correction.add(errorSignal.getIntegralVector().multiplied(coeffs.kI));
-        correction.add(errorSignal.getGradient().multiplied(coeffs.kD));
+        if (errorSignal.getDataVector().magnitude() > coeffs.deadzone) {
+            correction.add(errorSignal.getDataVector().multiplied(coeffs.kP));
+            correction.add(errorSignal.getIntegralVector().multiplied(coeffs.kI));
+            correction.add(errorSignal.getGradient().multiplied(coeffs.kD));
+        }
         correction.add(referenceSignal.getDataVector().multiplied(coeffs.kF));
         correction.add(errorSignal.getDataVector().normalized().multiplied(coeffs.kL));
 
@@ -44,6 +47,7 @@ public class PID extends Controller {
         public double kF;
         public Vector kC;
         public double kL;
+        public double deadzone;
 
         public PIDCoefficients(double kP, double kI, double kD, double kF, double kL) {
             this.kP = kP;

@@ -19,16 +19,16 @@ public abstract class Movement extends Subsystem {
     public Controller correctionSignal;
     public ReferenceSignal profile;
 
-    public Location loc;
 
     /**
      * Follows a given path.
      * Here for reference and potential future use, however the MPC path framework is more versatile and faster.
      * @param path  Path to follow
      * @param speed Speed to follow at
+     * @param loc   Location signal
      */
     @Deprecated
-    public void followPath(Path path, double speed) {
+    public void followPath(Path path, double speed, Location loc) {
         if (activePath != path) {
             activePath = path;
             if (path != null) {
@@ -39,29 +39,31 @@ public abstract class Movement extends Subsystem {
     }
 
     /**
+     * Follows a controller's signal
+     */
+    public void followController(Controller controller) {
+        this.correctionSignal = controller;
+    }
+
+    /**
      * Move according to a power vector.
      * @param target    Target power vector.
      */
     public abstract void move(Vector target);
 
+    public abstract void moveRaw(Vector target);
+
     @Override
     public void update() {
-        if (activePath != null) {
-            if (activePath.getTarget().subtracted(loc.getPosition()).magnitude()<0.5) {
+        if (correctionSignal != null) {
+            moveRaw(correctionSignal.getCorrection());
+            if (correctionSignal.targetPositionError().magnitude()<0.5) {
                 Signal.signals.remove(profile);
-                activePath = null;
-                move(new Vector(0,0,0));
-            }
-            else {
-                move(correctionSignal.getCorrection());
+                correctionSignal = null;
             }
         }
     }
 
     @Override
     public void updateSensors(){}
-
-    public Movement(Vector startState) {
-        loc = new Location(startState);
-    }
 }

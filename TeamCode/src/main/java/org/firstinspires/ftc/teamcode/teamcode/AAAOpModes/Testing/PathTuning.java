@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
@@ -35,12 +36,14 @@ public class PathTuning extends BaseOpMode {
 
     Vector oldState;
     TankDrive model;
+    Location loc;
     @Override
     public void externalInit() {
-        this.drive = new TankDriveTrain(new Vector(0, 0, 0));
+        this.drive = new TankDriveTrain();
 
+        loc = new Location(0,0,0);
         model = new TankDrive();
-        oldState = drive.loc.getPositionForTankDrive();
+        oldState = loc.getPositionForTankDrive();
         this.timer = new ElapsedTime();
     }
 
@@ -71,7 +74,7 @@ public class PathTuning extends BaseOpMode {
             target = Vector.length(2);
         }
         drive.moveRaw(target);
-        drive.loc.getPositionForTankDrive();
+        loc.getPositionForTankDrive();
         oldState = model.stateTransitionFunction(oldState, target, Signal.deltaTime);
         addData("Predicted X", oldState.get(0));
         addData("Predicted Y", oldState.get(1));

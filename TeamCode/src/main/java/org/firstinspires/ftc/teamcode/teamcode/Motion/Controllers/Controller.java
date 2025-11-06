@@ -18,12 +18,18 @@ public abstract class Controller {
 
     protected Signal errorSignal;
 
+    public Controller(){}
+
     public Controller(ReferenceSignal referenceSignal, Signal dataSignal) {
         this.referenceSignal = referenceSignal;
         this.sensorSignal = dataSignal;
         errorSignal = new DifferenceSignal(referenceSignal, dataSignal);
 
         this.dimensions = errorSignal.size;
+    }
+
+    public Vector targetPositionError() {
+        return this.sensorSignal.getDataVector().subtracted(this.referenceSignal.target());
     }
 
 }

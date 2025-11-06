@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
@@ -40,8 +41,9 @@ public class FixedDriveTrain extends Movement {
     }
 
 
-    public FixedDriveTrain(Vector startState) {
-        super(startState);
+    Location loc;
+    public FixedDriveTrain(Location loc) {
+        this.loc = loc;
 
         driveWheels = new Motor[4];
         driveWheels[0] = new Motor(Hardware.rightFront);

@@ -13,9 +13,10 @@ public class TankDriveTrain extends Movement {
     Motor R1;
     Motor R2;
 
-    public TankDriveTrain(Vector startState) {
-        super(startState);
-
+    public TankDriveTrain() {
+        this.initialize();
+    }
+    private void initialize(){
         L1 = new Motor(Hardware.leftFront, true);
         L2 = new Motor(Hardware.leftBack, true);
         R1 = new Motor(Hardware.rightFront, false);
@@ -32,24 +33,6 @@ public class TankDriveTrain extends Movement {
         this.R1.setPower(powers.get(1));
         this.R2.setPower(powers.get(1));
     }
-    public void veryVeryDirectDrive(double drive, double turn, double speed){
-        double powerLeft = (drive - turn)*speed;
-        double powerRight = (drive + turn)*speed;
-
-        L1.setPower(powerLeft);
-        L2.setPower(powerLeft);
-        R1.setPower(powerRight);
-        R2.setPower(powerRight);
-    }
-    public void veryVeryDirectDrive(double drive, double turn){
-        double powerLeft = (drive - turn);
-        double powerRight = (drive + turn);
-
-        L1.setPower(powerLeft);
-        L2.setPower(powerLeft);
-        R1.setPower(powerRight);
-        R2.setPower(powerRight);
-    }
 
     @Override
     public void move(Vector target) {
@@ -59,7 +42,15 @@ public class TankDriveTrain extends Movement {
         wheelPowers.put(1, target.get(0) - target.get(1));
 
         moveRaw(wheelPowers);
+    }
 
+
+    public void drive(double drive, double turn, double speed) {
+        move(new Vector(drive, turn).multiplied(speed));
+    }
+
+    public void drive(double drive, double turn) {
+        move(new Vector(drive, turn));
     }
 
     public void moveRaw(Vector target) {

@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels;
 
 
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
@@ -164,6 +165,19 @@ public class MechanumDrive implements SystemModel {
         linearModel.add(A.multiplied(state));
         linearModel.add(acceleration);
         return linearModel;
+    }
+
+    @Override
+    public Vector toStateSpace(Signal data) {
+        return new Vector(new double[] {
+                data.getData()[0],
+                data.getData()[1],
+                data.getData()[2],
+                data.getDerivatives()[0],
+                data.getDerivatives()[1],
+                data.getDerivatives()[2],
+        });
+
     }
 
     /**

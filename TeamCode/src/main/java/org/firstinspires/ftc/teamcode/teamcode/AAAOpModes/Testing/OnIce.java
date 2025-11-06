@@ -21,8 +21,8 @@ public class OnIce extends BaseOpMode {
 
     @Override
     public void externalInit() {
-        drive = new TankDriveTrain(new Vector(0, 0, 0));
-        sensorSignal = drive.loc;
+        drive = new TankDriveTrain();
+        sensorSignal = new Location(0, 0, 0);
         model = new TankDrive();
 
     }

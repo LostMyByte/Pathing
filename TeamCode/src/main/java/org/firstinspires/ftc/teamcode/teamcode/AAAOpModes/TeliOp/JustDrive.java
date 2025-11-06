@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 
@@ -13,16 +14,18 @@ public class JustDrive extends BaseOpMode {
 
     TankDriveTrain drive;
 
+    Location loc;
     @Override
     public void externalInit () {
-        drive = new TankDriveTrain(new Vector(0,0,0));
+        loc = new Location(0,0,0);
+        drive = new TankDriveTrain();
     }
 
     @Override
     public void externalLoop () {
 
         // Update Odometry Pod offsets -- used for tuning
-        drive.loc.updateOffsets();
+        loc.updateOffsets();
         Vector target = new Vector(-gamepad1.left_stick_y, gamepad1.right_stick_x);
 
         drive.move(target);

@@ -25,7 +25,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class MPCPath {
+public class MPCPath extends Controller{
 
     /**
      * A set of parameters to use for Model Predictive Control
@@ -75,8 +75,8 @@ public class MPCPath {
 
     String name; // Name of path for telemetry + file name
 
-    ReferenceSignal referenceSignal; // Optional; what the target trajectory should look like, roughly. 
-    Signal sensorSignal; // Incoming data; optional, can also manually pass in state
+    //ReferenceSignal referenceSignal; // Optional; what the target trajectory should look like, roughly.
+    //Signal sensorSignal; // Incoming data; optional, can also manually pass in state
 
     ElapsedTime timer;  // How long the path has been running for
 
@@ -92,6 +92,10 @@ public class MPCPath {
      */
     public void setPath(ReferenceSignal referenceSignal) {
         this.referenceSignal = referenceSignal;
+    }
+
+    public void setSensor(Signal sensorSignal) {
+        this.sensorSignal = sensorSignal;
     }
 
     /**
@@ -275,13 +279,7 @@ public class MPCPath {
     public Vector getCorrection() {
 
 
-        int numDim = this.sensorSignal.getLength();
-        Vector sensorData = Vector.length(numDim * 2);
-
-        for (int i = 0; i < numDim; i++) {
-            sensorData.put(i, sensorSignal.getIntegralVector().get(i));
-            sensorData.put(i+numDim, sensorSignal.getDataVector().get(i));
-        }
+        Vector sensorData = model.toStateSpace(sensorSignal);
 
         return getCorrection(sensorData);
     }

@@ -1,6 +1,7 @@
 // Primary Author: Kieran Mattingly
 package org.firstinspires.ftc.teamcode.teamcode.Motion.Signals;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
@@ -12,12 +13,14 @@ import java.util.ArrayList;
  * A generic signal object for sensor/other data that varies over time.
  * Automatically generates derivatives, integrals, etc.
  */
+@Config
 public abstract class Signal {
 
     private static ElapsedTime timer;
     public static ArrayList<Signal> signals = new ArrayList<>();
     public static double deltaTime = 0.1;
 
+    public static double deltaTimeAlpha;
     public int size;
 
     public Signal(int size) {
@@ -34,7 +37,7 @@ public abstract class Signal {
     }
 
     public static void updateAll() {
-        deltaTime = timer.seconds();
+        deltaTime += deltaTimeAlpha*(timer.seconds() - deltaTime);
         timer.reset();
         BaseOpMode.addData("DeltaTime", deltaTime);
         for (Signal source : signals) {

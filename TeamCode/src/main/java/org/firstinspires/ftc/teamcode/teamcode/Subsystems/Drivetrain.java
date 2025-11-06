@@ -89,7 +89,7 @@ public class Drivetrain extends Subsystem {
     public Drivetrain(HardwareMap hardware, double heading) {
 
         gamepad1 = new Gamepad();
-        driveWheels2 = new TankDriveTrain(theFuckassTankDriveVector);
+        driveWheels2 = new TankDriveTrain();
       //  driveWheels = new MecanumDrive();
         visionTurnPID = new PID(DrivetrainDash.kP, DrivetrainDash.kI, kD);
 /*
@@ -238,7 +238,7 @@ public class Drivetrain extends Subsystem {
        // multTelemetry.addData("distance", distance(BallDetector.getWidth(false)));
         multTelemetry.addData("angle in radians", angleRad);
 
-        driveWheels2.veryVeryDirectDrive(drive,-turn);
+        driveWheels2.drive(drive,-turn);
       //  driveWheels.veryDirectDrive(drive +strafe -turn,drive -strafe +turn,drive -strafe -turn,drive +strafe +turn);
 
 /* fl.setPower((drive -strafe +turn));

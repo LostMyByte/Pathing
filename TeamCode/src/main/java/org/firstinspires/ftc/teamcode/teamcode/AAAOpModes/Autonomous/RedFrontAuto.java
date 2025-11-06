@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.MPCPath;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.SystemModel;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
@@ -84,11 +85,14 @@ public class RedFrontAuto extends BaseOpMode {
 
     TankDriveTrain drive;
 
+    Location loc;
+
     @Override
     public void externalInit() {
         stateTime = new ElapsedTime();
 
-        drive = new TankDriveTrain(new Vector(new double[] {RedPositions.X0, RedPositions.Y0, RedPositions.H0, 0, 0}));
+        loc = new Location(new Vector(new double[] {RedPositions.X0, RedPositions.Y0, RedPositions.H0}));
+        drive = new TankDriveTrain();
 
         initPaths();
 
@@ -179,7 +183,7 @@ public class RedFrontAuto extends BaseOpMode {
 
     @Override
     public void externalInitLoop() {
-        position = drive.loc.getPositionForTankDrive();
+        position = loc.getPositionForTankDrive();
         stateTime.reset();
 
         launch.start();
@@ -190,7 +194,7 @@ public class RedFrontAuto extends BaseOpMode {
     @Override
     public void externalLoop() {
         BaseOpMode.addData("State", state);
-        position = drive.loc.getPositionForTankDrive();
+        position = loc.getPositionForTankDrive();
         stateMachine();
     }
 

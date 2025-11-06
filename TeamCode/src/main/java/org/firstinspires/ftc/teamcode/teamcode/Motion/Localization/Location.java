@@ -13,8 +13,7 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 /**
- * A Velocity-based Location class. (I.e velocity is the data, position the integral, and acceleration the derivative).
- * Uses Velocity as that is the level upon which Motion Profiles/PIDs work
+ * A Position-based Location class. (I.e position is the data, absement the integral, and velocity the derivative)
  * Has convenience methods for x, y, etc. access. I'm not trying to give Dylan a headache.
  */
 @Config
@@ -56,18 +55,20 @@ public class Location extends Signal {
     }
 
     public Vector getPosition() {
-        return getIntegralVector();
+        return getDataVector();
     }
 
-    Vector oldData = new Vector(0, 0, 0);
+
+
+    Vector velocity = new Vector(0, 0, 0);
     @Override
     public void update() {
         odoPods.update();
 
-        Vector newData = new Vector(odoPods.getVelX(DistanceUnit.CM), odoPods.getVelY(DistanceUnit.CM),odoPods.getHeadingVelocity());
+        Vector newVelocity = new Vector(odoPods.getVelX(DistanceUnit.CM), odoPods.getVelY(DistanceUnit.CM),odoPods.getHeadingVelocity());
 
-        this.data.add(newData.subtracted(this.data).multiplied(alpha));
-        this.oldData = newData;
+        this.velocity.add(newVelocity.subtracted(this.velocity).multiplied(alpha));
+        this.velocity = newVelocity;
 
         Pose2D pose = odoPods.getPosition();
         double angle = pose.getHeading(AngleUnit.RADIANS);
@@ -80,29 +81,20 @@ public class Location extends Signal {
 
         oldAngle = angle;
 
-        driveVelocity = new Vector(Math.cos(-angle), Math.sin(-angle)).dotProduct(new Vector(data.get(1), data.get(0)));
+        this.data = new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), oldAngle);
+
+        driveVelocity = new Vector(Math.cos(-angle), Math.sin(-angle)).dotProduct(new Vector(velocity.get(1), velocity.get(0)));
         BaseOpMode.addData("Velocity Drive", driveVelocity);
     }
-
-
-    @Override
-    public Vector getIntegralVector() {
-        Pose2D pose = odoPods.getPosition();
-        return new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), oldAngle);
-    }
-
-    // Don't worry about the integration because we have a better source
-    @Override
-    protected void addIntegral() {}
 
     @Override
     public void telemetry() {
 
         Vector pos = getPosition();
 
-        BaseOpMode.addData("Velocity X", data.getData()[0]);
-        BaseOpMode.addData("Velocity Y", data.getData()[1]);
-        BaseOpMode.addData("Velocity H", data.getData()[2]);
+        BaseOpMode.addData("Velocity X", velocity.getData()[0]);
+        BaseOpMode.addData("Velocity Y", velocity.getData()[1]);
+        BaseOpMode.addData("Velocity H", velocity.getData()[2]);
 
         BaseOpMode.addData("Position X", pos.get(0));
         BaseOpMode.addData("Position Y", pos.get(1));
@@ -111,6 +103,10 @@ public class Location extends Signal {
 
     public void setPosition(Vector pos) {
         odoPods.setPosition(new Pose2D(DistanceUnit.CM, pos.get(0), pos.get(1), AngleUnit.RADIANS, pos.get(2)));
+    }
+
+    public void setPosition(double x, double y, double h) {
+        odoPods.setPosition(new Pose2D(DistanceUnit.CM, x, y, AngleUnit.RADIANS, h));
     }
 
     public Vector getPositionForTankDrive() {
