@@ -24,7 +24,7 @@ Servos.Hood hood;
 
     @Override
     public void externalInit() {
-    shooter = new Shooter(hardwareMap, 0, Constants.Team.BLUE);
+        shooter = new Shooter(hardwareMap, 0, Constants.Team.BLUE);
         hood = new Servos.Hood();
     }
 

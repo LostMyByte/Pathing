@@ -22,8 +22,9 @@ public class ConfigureColorRangefinder extends LinearOpMode {
         neither   --> no object
          */
 
-        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 45 / 360.0 * 255, 180 / 360.0 * 255); // green
-        crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 20); // 20mm or closer requirement
+        //crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 45 / 360.0 * 255, 180 / 360.0 * 255); // green
+        //crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 20); // 20mm or closer requirement
+        crf.setPin0Analog(ColorRangefinder.AnalogMode.RED);
 
         crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 270 / 360.0 * 255, 359 / 360.0 * 255); // purple
         crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 20); // 20mm or closer requirement

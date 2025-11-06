@@ -1,9 +1,12 @@
 // Primary Author: Caroline Oringer
 package org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision;
 
-import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector.visionDash.maxS_green;
-import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector.visionDash.maxS_purple;
-import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector.visionDash.minV_purple;
+import static android.graphics.Color.GREEN;
+import static android.graphics.Color.MAGENTA;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.motif;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser.visionDash.maxS_green;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser.visionDash.maxS_purple;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser.visionDash.minV_purple;
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.CvType.CV_8U;
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
@@ -27,6 +30,7 @@ import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.opencv.Circle;
 import org.opencv.android.Utils;
@@ -39,10 +43,10 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class BallDetector implements VisionProcessor, CameraStreamSource {
-
+public class BallChaser implements VisionProcessor, CameraStreamSource {
 
     public static Rect largestRect;
 
@@ -62,6 +66,9 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
     public static boolean targetDetected = false;
     ArrayList<MatOfPoint> contoursGreen = new ArrayList<>();
     ArrayList<MatOfPoint> contoursPurple = new ArrayList<>();
+
+    List <Rect> purpleRects = new ArrayList<>();
+    List <Rect> greenRects = new ArrayList<>();
     private static int IMG_HEIGHT = 0;
     private static int IMG_WIDTH = 0;
     // Sets up variables to collect image details
@@ -72,6 +79,8 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
             maskGreen = new Mat(),
             maskPurple = new Mat();
     private Mat hierarchy = new Mat();
+
+    List <Rect> targetBalls = new ArrayList<>(3);
 
     // Stuff for variables
     int submatleft = IMG_WIDTH/3;
@@ -138,10 +147,19 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
 
         findContours(maskGreen, contoursGreen, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
         findContours(maskPurple, contoursPurple, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-        largestPurpleRect = getObjectsDetected(contoursPurple);
-        largestGreenRect = getObjectsDetected(contoursGreen);
+        largestPurpleRect = getObjectsDetected(contoursPurple, MAGENTA);
+        largestGreenRect = getObjectsDetected(contoursGreen, GREEN);
 
+  /* if(targetDetected){
+            if(motif.equals(Constants.Motif.GPP)){
+              if(greenRects.get(0)!=null){
+                 targetBalls.add(greenRects.get(0));
 
+     if(greenRects.get(0)!=null){
+                    targetBalls.add(greenRects.get(0));
+                }else{targetBalls.add(null);}}
+        }
+        }*/
 
         Bitmap b = Bitmap.createBitmap(output.width(), output.height(), Bitmap.Config.RGB_565);
         Utils.matToBitmap(output, b);
@@ -155,7 +173,7 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
 
         Paint ballPaintGreen = new Paint();
-        ballPaintGreen.setColor(Color.GREEN);
+        ballPaintGreen.setColor(GREEN);
         ballPaintGreen.setStyle(Paint.Style.STROKE);
         ballPaintGreen.setStrokeWidth(scaleCanvasDensity * 8);
 
@@ -170,7 +188,7 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
         ballPaintPurple.setStrokeWidth(scaleCanvasDensity * 8);
 
         Paint contourpaintPurple = new Paint();
-        contourpaintPurple.setColor(Color.MAGENTA);
+        contourpaintPurple.setColor(MAGENTA);
         contourpaintPurple.setStyle(Paint.Style.STROKE);
         contourpaintPurple.setStrokeWidth(scaleCanvasDensity *4);
 
@@ -238,7 +256,7 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
             return centerPixelColorRGB;
         }
     }
-    public Rect getObjectsDetected(ArrayList<MatOfPoint> contours){
+    public Rect getObjectsDetected(ArrayList<MatOfPoint> contours, int color){
         if (!contours.isEmpty()) {
             MatOfPoint largestContour = findLargestContour(contours);
           //  MatOfPoint2f largestContour2f = new MatOfPoint2f();
@@ -252,6 +270,11 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
                 if (!rects.isEmpty()) {
                     this.largestRect = VisionUtils.sortRectsByMaxOption(1, VisionUtils.RECT_OPTION.AREA, rects).get(0);
                     targetDetected = true;
+                    if(color == GREEN && !rects.isEmpty()){ //this is the world's goofiest code but it works ig
+                        greenRects=VisionUtils.sortRectsByMaxOption(1, VisionUtils.RECT_OPTION.AREA, rects);
+                    } else if (color == MAGENTA && !rects.isEmpty()) {
+                        purpleRects=VisionUtils.sortRectsByMaxOption(1, VisionUtils.RECT_OPTION.AREA, rects);
+                    }
                 } else {
                     largestRect = null;
                     targetDetected = false;
@@ -343,5 +366,54 @@ public class BallDetector implements VisionProcessor, CameraStreamSource {
 
         return new android.graphics.Rect(left, top, right, bottom);
     }
+    public void checkMotif(){
+        int i=0;
+        TreeMap<Integer, Integer> orderedList= new TreeMap<>();
+        orderedList.comparator().reversed();
+        List <Boolean> matchesMotif = new ArrayList<>();
+        List<Integer> motifPattern = new ArrayList<>();
+        for(Rect rect: greenRects){
+            i++;
+            orderedList.put(greenRects.get(i).y, GREEN);
+        }
+        for(Rect rect: purpleRects){
+            i++;
+            orderedList.put(purpleRects.get(i).y, MAGENTA);
+        }
+
+        List <Integer> artifactColor = new ArrayList<>(orderedList.values());
+
+        if(motif == Constants.Motif.GPP){
+            motifPattern.add(GREEN);
+            motifPattern.add(MAGENTA);
+            motifPattern.add(MAGENTA);
+        }else if (motif == Constants.Motif.PGP){
+            motifPattern.add(MAGENTA);
+            motifPattern.add(GREEN);
+            motifPattern.add(MAGENTA);
+        }else if (motif == Constants.Motif.PPG){
+            motifPattern.add(MAGENTA);
+            motifPattern.add(MAGENTA);
+            motifPattern.add(GREEN);
+        }
+
+        //list of green detections
+        //list of purple detections
+        //get y value of all detections and order by y value
+        //in overall list, store color values in order [gpp, pgp, ppg]
+        //make list of ideal motif pattern (we have that constant already, just check*3)
+        //compare if equal. if not, set index to false, if yes, true
+        //gives array of booleans to see if matches
+        //return boolean[] (the silliest return type)
+    }
+   /* class CustomKeyComparator implements Comparator<Integer>{
+        @Override
+        public int compare(Integer key1, Integer key2){
+            //should be reverse order maybe?
+            return key2.compareTo(key1);
+        }
+    }*/
 
 }
+
+

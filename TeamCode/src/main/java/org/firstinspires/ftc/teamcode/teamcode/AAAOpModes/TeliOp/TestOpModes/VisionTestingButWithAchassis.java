@@ -8,9 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.Movement;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallDetector;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 @TeleOp (name = "AAA visionTest")
@@ -19,7 +18,7 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
     Drivetrain drive;
 
     WebcamName webcam1;
-    BallDetector ballDetector;
+    BallChaser ballDetector;
 
     VisionPortal visionPortal;
     ElapsedTime timewaste;
@@ -31,7 +30,7 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
 
     @Override
     public void externalInit() {
-        ballDetector = new BallDetector();
+        ballDetector = new BallChaser();
         webcam1 = hardwareMap.get(WebcamName.class, "Webcam 1");
         visionPortal = new VisionPortal.Builder()
                 //setup for using webcam, there is a different way to set up a phone camera

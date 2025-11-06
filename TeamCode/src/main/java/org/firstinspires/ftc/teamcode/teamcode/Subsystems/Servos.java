@@ -92,9 +92,9 @@ public class Servos {
         public MagazineR(){
             super(Hardware.magazineR);
         }
-        public void firstBall(){}
-        public void secondBall(){}
-        public void thirdBall(){}
+        public void ball0(){}
+        public void ball1(){}
+        public void ball2(){}
         public void intaking(){}
     }
 
