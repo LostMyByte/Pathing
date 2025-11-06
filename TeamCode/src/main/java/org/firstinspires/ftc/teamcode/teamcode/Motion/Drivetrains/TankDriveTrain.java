@@ -33,7 +33,7 @@ public class TankDriveTrain extends Movement {
         this.R2.setPower(powers.get(1));
     }
     public void veryVeryDirectDrive(double drive, double turn, double speed){
-        double powerLeft = (drive - turn)*speed;
+        double powerLeft = -((drive - turn)*speed);
         double powerRight = (drive + turn)*speed;
 
         L1.setPower(powerLeft);
@@ -42,8 +42,8 @@ public class TankDriveTrain extends Movement {
         R2.setPower(powerRight);
     }
     public void veryVeryDirectDrive(double drive, double turn){
-        double powerLeft = (drive - turn);
-        double powerRight = (drive + turn);
+        double powerLeft = -(drive - turn);
+        double powerRight = -(drive + turn);
 
         L1.setPower(powerLeft);
         L2.setPower(powerLeft);

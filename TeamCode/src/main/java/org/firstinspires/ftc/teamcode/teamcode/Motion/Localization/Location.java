@@ -81,7 +81,7 @@ public class Location extends Signal {
         oldAngle = angle;
 
         driveVelocity = new Vector(Math.cos(-angle), Math.sin(-angle)).dotProduct(new Vector(data.get(1), data.get(0)));
-        BaseOpMode.addData("Velocity Drive", driveVelocity);
+       // BaseOpMode.addData("Velocity Drive", driveVelocity);
     }
 
 
@@ -99,14 +99,15 @@ public class Location extends Signal {
     public void telemetry() {
 
         Vector pos = getPosition();
-
+        //If someone needs this, they can add it back later, but for the sake of everyone's sanity, please no telemetry randomly hidden away bc it is such a pain to look for
+/*
         BaseOpMode.addData("Velocity X", data.getData()[0]);
         BaseOpMode.addData("Velocity Y", data.getData()[1]);
         BaseOpMode.addData("Velocity H", data.getData()[2]);
 
         BaseOpMode.addData("Position X", pos.get(0));
         BaseOpMode.addData("Position Y", pos.get(1));
-        BaseOpMode.addData("Position H", pos.get(2));
+        BaseOpMode.addData("Position H", pos.get(2));*/
     }
 
     public void setPosition(Vector pos) {
