@@ -182,7 +182,7 @@ public static double
         setPoint = heading;
     }
 
-    public void ballFollow(int visionDistanceTarget){
+    public void ballFollow(int visionDistanceTarget, boolean trueIfGreen){
 
         //Rect rectangle = TestPipelineBlue.getRectangle();
 
@@ -194,7 +194,7 @@ public static double
             drive = 1;
         }*/
 
-
+        double aspectRatio =( (double) (BallChaser.getWidth(trueIfGreen))/(BallChaser.getHeight(trueIfGreen)));
 
        // double strafe = 0; //this ain't meccanum
         double turn = 0 ;
@@ -202,7 +202,7 @@ public static double
 
 //this should correct for the x coordinate
 
-        if(Math.abs(BallChaser.getError(false))> DrivetrainDash.visionTurnDeadzone && BallChaser.targetDetected&& BallChaser.getWidth(false)>30){
+        if(Math.abs(BallChaser.getError(trueIfGreen))> DrivetrainDash.visionTurnDeadzone && BallChaser.targetDetected&& BallChaser.getWidth(trueIfGreen)>30){
             //error 199
             visionTurnPID.setFeedForward(visionTurn);
             //error 199
@@ -213,16 +213,16 @@ public static double
             turn =
                     // BallDetector.getError(false)* DrivetrainDash.kP
 
-                    -visionTurnPID.getCorrection(BallChaser.getError(false));
+                    -visionTurnPID.getCorrection(BallChaser.getError(trueIfGreen));
 
         } else{
             // multTelemetry.addData("Status","not moving");
             turn = 0;
             //   strafe = 0;
         }
-        double distanceError = scuffedDistance(BallChaser.getWidth(false), visionDistanceTarget);
+        double distanceError = scuffedDistance(BallChaser.getWidth(trueIfGreen), visionDistanceTarget, trueIfGreen);
         //double distanceError = distance(BallDetector.getWidth(false)) - DrivetrainDash.visionDistanceTarget;
-        if(Math.abs(distanceError) > DrivetrainDash.visionDriveDeadzone && BallChaser.targetDetected&& BallChaser.getWidth(false)>30){
+        if(Math.abs(distanceError) > DrivetrainDash.visionDriveDeadzone && BallChaser.targetDetected&& BallChaser.getWidth(trueIfGreen)>30){
             visionDrivePID.setFeedForward(DrivetrainDash.visionDrive);
             drive = visionDrivePID.getCorrection(distanceError);
             //distanceError * DrivetrainDash.visionDrive+0.001;
@@ -232,17 +232,19 @@ public static double
 
 
 
-        multTelemetry.addData("Error", BallChaser.getError(false));
+        multTelemetry.addData("Error", BallChaser.getError(trueIfGreen));
       //  multTelemetry.addData("distance error", distanceError);
         multTelemetry.addData("turn", turn );
         multTelemetry.addData("drive", drive);
-        multTelemetry.addData("Width", BallChaser.getWidth(false));
+        multTelemetry.addData("Width", BallChaser.getWidth(trueIfGreen));
+        multTelemetry.addData("height", BallChaser.getHeight(trueIfGreen));
        // multTelemetry.addData("distance", distance(BallDetector.getWidth(false)));
         multTelemetry.addData("angle in radians", angleRad);
-
-        driveWheels2.drive(drive,-turn);
+        multTelemetry.addData("scuffed distance", scuffedDistance(BallChaser.getWidth(trueIfGreen), visionDistanceTarget, trueIfGreen));
+        multTelemetry.addData("aspect ratio", aspectRatio);
+        driveWheels2.drive(drive,turn);
       //  driveWheels.veryDirectDrive(drive +strafe -turn,drive -strafe +turn,drive -strafe -turn,drive +strafe +turn);
-
+//if check aspect ratio of detection, then multiply target width by ratio
 /* fl.setPower((drive -strafe +turn));
        fr.setPower((drive +strafe -turn));
         bl.setPower((drive +strafe +turn));
@@ -262,9 +264,11 @@ public static double
         return distance;
     }
 
-    public int scuffedDistance(int widthPixels, int targetDistance){
-       int distance;
-           distance = targetDistance-widthPixels;
+    public double scuffedDistance(int widthPixels, int targetDistance, boolean trueIfGreen){
+
+        double aspectRatio =( (double) (BallChaser.getWidth(trueIfGreen))/(BallChaser.getHeight(trueIfGreen)));
+        double distance;
+           distance = (targetDistance*aspectRatio)-widthPixels;
 
         return distance;
         //gives dist in pixels, trust

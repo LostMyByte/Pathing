@@ -104,10 +104,10 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
         public static int maxS_green = 255;
         public static int maxV_green = 255;
         public static int minH_green = 75;
-        public static int minS_green = 100;
+        public static int minS_green = 120;
         public static int minV_green = 80;
 
-        public static int maxH_purple = 170;
+        public static int maxH_purple = 165;
         public static int maxS_purple = 200;
         public static int maxV_purple = 255;
         public static int minH_purple = 140;
@@ -352,6 +352,19 @@ public class BallChaser implements VisionProcessor, CameraStreamSource {
 
             }else if(largestPurpleRect!=null) {
                 return largestPurpleRect.width;
+            }else return 0;
+        }else{
+            return 0;
+        }
+    }
+    public static int getHeight (boolean trueIfGreen){
+        if(targetDetected){
+
+            if(trueIfGreen&&largestGreenRect!=null) {
+                return largestGreenRect.height;
+
+            }else if(largestPurpleRect!=null) {
+                return largestPurpleRect.height;
             }else return 0;
         }else{
             return 0;
