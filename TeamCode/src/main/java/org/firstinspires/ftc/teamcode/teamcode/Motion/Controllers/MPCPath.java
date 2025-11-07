@@ -372,6 +372,13 @@ public class MPCPath extends Controller{
         return correction;
     }
 
+    @Override
+    public Vector targetPositionError(){
+        Vector target = referenceSignal.target();
+        // TODO: Make better at not-drivetrains
+        return new Vector(target.get(0), target.get(1), target.get(2)).subtracted(sensorSignal.getDataVector());
+    }
+
     /**
      * Gets the feedforward (no feedback) correction at the current path time
      * @return

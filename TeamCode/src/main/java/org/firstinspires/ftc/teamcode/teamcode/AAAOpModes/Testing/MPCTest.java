@@ -102,7 +102,7 @@ public class MPCTest extends BaseOpMode {
         BaseOpMode.addData("Correction R", correction.get(1));
 
         if (gamepad1.square || TestMPCParams.enabled) {
-            if (drive.correctionSignal != null) drive.followController(test);
+            if (drive.correctionSignal == null) drive.followController(test);
         }
         else {
             drive.move(new Vector(0,0));
