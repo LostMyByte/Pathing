@@ -58,7 +58,7 @@ public class Location extends Signal {
         super(3);
         initialize();
         Pose2D pose = odoPods.getPosition();
-        this.data = new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), pose.getHeading(AngleUnit.RADIANS))
+        this.data = new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), pose.getHeading(AngleUnit.RADIANS));
         this.oldAngle = data.get(2);
     }
 
