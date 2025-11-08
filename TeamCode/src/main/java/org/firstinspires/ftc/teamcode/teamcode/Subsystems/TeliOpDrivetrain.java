@@ -4,8 +4,8 @@ package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
 
 import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode.multTelemetry;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain.DrivetrainDash.kDturn;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain.DrivetrainDash.visionTurn;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.TeliOpDrivetrain.DrivetrainDash.kDturn;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.TeliOpDrivetrain.DrivetrainDash.visionTurn;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.focalLengthMM;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.fx;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HD;
@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
-public class Drivetrain extends Subsystem {
+public class TeliOpDrivetrain extends Subsystem {
     @Config
     public static class DrivetrainDash {
         public static double rateOfChangeThreshold = 120;
@@ -85,7 +85,7 @@ public static double
         BaseOpMode.addData("Heading", gyro.getHeading());
     }
 
-    public Drivetrain(HardwareMap hardware, double heading) {
+    public TeliOpDrivetrain(HardwareMap hardware, double heading) {
 
         gamepad1 = new Gamepad();
         driveWheels2 = new TankDriveTrain();
