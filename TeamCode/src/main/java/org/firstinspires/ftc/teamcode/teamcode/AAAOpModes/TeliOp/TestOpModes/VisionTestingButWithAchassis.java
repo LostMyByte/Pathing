@@ -61,13 +61,13 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
             isTargeting=!isTargeting;
         }
         if(!driver1.circle.isTapped()&&isTargeting&&!isIntakeing){
-            drive.ballFollow(138);
+            drive.ballFollow(138, false);
         }
         if ((driver1.square.isTapped()&&!driver1.circle.isTapped()&&isTargeting)||isIntakeing) {
             if (isIntakeing == false){timewaste.reset();}
             isIntakeing = true;
             if (timewaste.seconds() < 15) {
-                drive.ballFollow(200);
+                drive.ballFollow(190, false);
                 BaseOpMode.addData("time 2", timewaste);
 
             }else {
