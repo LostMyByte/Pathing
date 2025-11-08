@@ -20,7 +20,9 @@ public abstract class Signal {
     public static ArrayList<Signal> signals = new ArrayList<>();
     public static double deltaTime = 0.1;
 
-    public static double deltaTimeAlpha;
+    static double oldtime=0;
+
+    public static double deltaTimeAlpha = 1;
     public int size;
 
     public Signal(int size) {
@@ -37,8 +39,9 @@ public abstract class Signal {
     }
 
     public static void updateAll() {
-        deltaTime += deltaTimeAlpha*(timer.seconds() - deltaTime);
-        timer.reset();
+        double time = timer.seconds();
+        deltaTime += deltaTimeAlpha*((time - oldtime) - deltaTime);
+        oldtime = time;
         BaseOpMode.addData("DeltaTime", deltaTime);
         for (Signal source : signals) {
             if (source.active) {

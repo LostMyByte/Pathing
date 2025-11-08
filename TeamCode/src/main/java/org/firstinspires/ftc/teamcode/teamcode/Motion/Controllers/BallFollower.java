@@ -3,15 +3,18 @@ package org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.focalLengthMM;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.fx;
 
+import com.acmerobotics.dashboard.config.Config;
+
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ConstantSignal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Filters.LowPassFilter;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.PartialSignal;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.VisionPID;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser;
 
-
+@Config
 public class BallFollower extends Controller {
     /**
      * A class to represent the error of a ball's distance while tracking.
@@ -39,6 +42,9 @@ public class BallFollower extends Controller {
         GREEN,
         PURPLE
     }
+
+    public static double halpha = 1;
+    public static double dalpha = 1;
     BallColor color = BallColor.PURPLE;
 
     PID headingPID;
@@ -49,8 +55,8 @@ public class BallFollower extends Controller {
         this.color = color;
         super.sensorSignal = new ArtifactPositionSignal(); // Have to do it like this because Java is weird
 
-        headingPID = new PID(new ConstantSignal(new Vector(160)), new PartialSignal(1, sensorSignal), VisionPID.headingPID);
-        distancePID = new PID(new ConstantSignal(new Vector(targetDistance)), new PartialSignal(0, sensorSignal), VisionPID.drivePID);
+        headingPID = new PID(new ConstantSignal(new Vector(160)), new LowPassFilter(new PartialSignal(1, sensorSignal), halpha), VisionPID.headingPID);
+        distancePID = new PID(new ConstantSignal(new Vector(targetDistance)), new LowPassFilter(new PartialSignal(0, sensorSignal), dalpha), VisionPID.drivePID);
     }
 
     @Override

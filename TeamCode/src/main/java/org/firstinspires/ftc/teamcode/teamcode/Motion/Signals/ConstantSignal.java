@@ -28,6 +28,20 @@ public class ConstantSignal extends ReferenceSignal {
         this.data = target;
     }
 
+    public ConstantSignal(double target) {
+        super(1);
+        this.data = new Vector(target);
+    }
+    public ConstantSignal(double x, double y) {
+        super(2);
+        this.data = new Vector(x, y);
+    }
+
+    public ConstantSignal(double x, double y, double z) {
+        super(3);
+        this.data = new Vector(x, y, z);
+    }
+
     public Vector target() {
         return this.data;
     }
