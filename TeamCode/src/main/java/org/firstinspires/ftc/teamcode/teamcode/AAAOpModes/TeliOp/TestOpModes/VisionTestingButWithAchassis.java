@@ -8,14 +8,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.TeliOpDrivetrain;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 @TeleOp (name = "AAA visionTest")
 public class VisionTestingButWithAchassis extends BaseOpMode {
     private FtcDashboard dash;
-    Drivetrain drive;
+    TeliOpDrivetrain drive;
 
     WebcamName webcam1;
     BallChaser ballDetector;
@@ -43,7 +43,7 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
                 .setCameraResolution(cameraResolution)
                 .build();
 
-        drive = new Drivetrain(0);
+        drive = new TeliOpDrivetrain(hardwareMap, 0);
         timewaste = new ElapsedTime();
         FtcDashboard.getInstance().startCameraStream(visionPortal, 0);
         //this is what allows ftc dashboard to work

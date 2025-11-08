@@ -28,7 +28,7 @@ public class BallFollower extends Controller {
 
         @Override
         protected void update() {
-            this.data = new Vector(BallChaser.getWidth(color == BallColor.GREEN), BallChaser.getError(color == BallColor.GREEN));
+            this.data = new Vector(BallChaser.getWidth(color == BallColor.GREEN)*((double) (BallChaser.getWidth(color == BallColor.GREEN) /BallChaser.getHeight(color == BallColor.GREEN))), BallChaser.getError(color == BallColor.GREEN));
         }
 
         @Override
@@ -56,6 +56,7 @@ public class BallFollower extends Controller {
         super.sensorSignal = new ArtifactPositionSignal(); // Have to do it like this because Java is weird
 
         headingPID = new PID(new ConstantSignal(new Vector(160)), new LowPassFilter(new PartialSignal(1, sensorSignal), halpha), VisionPID.headingPID);
+
         distancePID = new PID(new ConstantSignal(new Vector(targetDistance)), new LowPassFilter(new PartialSignal(0, sensorSignal), dalpha), VisionPID.drivePID);
     }
 
@@ -79,5 +80,14 @@ public class BallFollower extends Controller {
         //real diameter times focal length in px over pixel diameter minus focal length MM
         //distance = Math.sqrt(Math.pow(30/Math.tan(angleRad),2)-(Math.pow(height,2)));
         return distance;
+    }
+    public double scuffedDistance(int widthPixels, int targetDistance, boolean trueIfGreen){
+
+        double aspectRatio =( (double) (BallChaser.getWidth(trueIfGreen))/(BallChaser.getHeight(trueIfGreen)));
+        double distance;
+        distance = (targetDistance*aspectRatio)-widthPixels;
+
+        return distance;
+        //gives dist in pixels, trust
     }
 }

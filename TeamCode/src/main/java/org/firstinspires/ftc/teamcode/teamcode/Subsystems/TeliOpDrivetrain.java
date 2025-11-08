@@ -4,8 +4,8 @@ package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
 
 import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode.multTelemetry;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain.DrivetrainDash.kDturn;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Drivetrain.DrivetrainDash.visionTurn;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.TeliOpDrivetrain.DrivetrainDash.kDturn;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.TeliOpDrivetrain.DrivetrainDash.visionTurn;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.focalLengthMM;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.fx;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HD;
@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
-public class Drivetrain extends TankDriveTrain {
+public class TeliOpDrivetrain extends Subsystem {
     @Config
     public static class DrivetrainDash {
         public static double rateOfChangeThreshold = 120;
@@ -53,7 +53,7 @@ public static double
         public static double visionDriveDeadzone = 5;
         public static double visionDistanceTarget = 138; //pixels bc goofy
     }
-
+    MecanumDrive driveWheels;
 
     PID pid;
 
@@ -69,6 +69,10 @@ public static double
     PID visionTurnPID;
     PID visionDrivePID;
 
+    TankDriveTrain driveWheels2;
+
+    Vector theFuckassTankDriveVector = new Vector(0,0,0);
+
     @Override
     public void update(){}
     public void update(AprilTagDetection tagNum, double x, double y, double heading, double cameraNumber){}
@@ -81,9 +85,10 @@ public static double
         BaseOpMode.addData("Heading", gyro.getHeading());
     }
 
-    public Drivetrain(double heading) {
+    public TeliOpDrivetrain(HardwareMap hardware, double heading) {
 
         gamepad1 = new Gamepad();
+        driveWheels2 = new TankDriveTrain();
       //  driveWheels = new MecanumDrive();
         visionTurnPID = new PID(DrivetrainDash.kPturn, DrivetrainDash.kIturn, kDturn);
         visionDrivePID = new PID(DrivetrainDash.kPdrive, DrivetrainDash.kIdrive, DrivetrainDash.kDdrive);
@@ -237,7 +242,7 @@ public static double
         multTelemetry.addData("angle in radians", angleRad);
         multTelemetry.addData("scuffed distance", scuffedDistance(BallChaser.getWidth(trueIfGreen), visionDistanceTarget, trueIfGreen));
         multTelemetry.addData("aspect ratio", aspectRatio);
-        drive(drive,turn);
+        driveWheels2.drive(drive,turn);
       //  driveWheels.veryDirectDrive(drive +strafe -turn,drive -strafe +turn,drive -strafe -turn,drive +strafe +turn);
 //if check aspect ratio of detection, then multiply target width by ratio
 /* fl.setPower((drive -strafe +turn));
