@@ -24,6 +24,7 @@ public abstract class Signal {
 
     public static double deltaTimeAlpha = 1;
     public int size;
+    public boolean doTelemetry = false;
 
     public Signal(int size) {
         signals.add(this);
@@ -45,7 +46,7 @@ public abstract class Signal {
         BaseOpMode.addData("DeltaTime", deltaTime);
         for (Signal source : signals) {
             if (source.active) {
-                source.telemetry();
+                if (source.doTelemetry) source.telemetry();
                 source.oldData = source.data;
                 source.addIntegral();
                 source.update();
@@ -109,6 +110,8 @@ public abstract class Signal {
         this.integralSum = Vector.length(data.length());
     }
 
-    public abstract void telemetry();
+    public void telemetry() {
+
+    };
 
 }

@@ -43,7 +43,7 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
                 .setCameraResolution(cameraResolution)
                 .build();
 
-        drive = new Drivetrain(hardwareMap, 0);
+        drive = new Drivetrain(0);
         timewaste = new ElapsedTime();
         FtcDashboard.getInstance().startCameraStream(visionPortal, 0);
         //this is what allows ftc dashboard to work

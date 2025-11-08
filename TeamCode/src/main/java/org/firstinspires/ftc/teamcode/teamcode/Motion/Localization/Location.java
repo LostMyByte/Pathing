@@ -41,7 +41,7 @@ public class Location extends Signal {
     public Location(double startX, double startY, double startH) {
         super(3);
         initialize();
-        this.data = new Vector(0,0,0);
+        this.data = new Vector(startX,startY,startH);
         this.oldAngle = startH;
         odoPods.setPosition(new Pose2D(DistanceUnit.CM, startX, startY, AngleUnit.RADIANS, startH));
     }
@@ -49,9 +49,17 @@ public class Location extends Signal {
     public Location(Vector startState) {
         super(3);
         initialize();
-        this.data = Vector.length(3);
+        this.data = startState;
         this.oldAngle = startState.get(2);
         odoPods.setPosition(new Pose2D(DistanceUnit.CM, startState.get(0), startState.get(1), AngleUnit.RADIANS, startState.get(2)));
+    }
+
+    public Location() {
+        super(3);
+        initialize();
+        Pose2D pose = odoPods.getPosition();
+        this.data = new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), pose.getHeading(AngleUnit.RADIANS))
+        this.oldAngle = data.get(2);
     }
 
     public Vector getPosition() {
