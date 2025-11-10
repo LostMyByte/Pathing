@@ -105,6 +105,10 @@ public class Servos {
         public void open(){}
         public void closed(){}
     }
+
+    public static class Transfer extends Servo{
+        public Transfer(){super(Hardware.transfer);}
+    }
 }
 
 

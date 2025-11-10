@@ -15,23 +15,32 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorColor;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper;
+
 @TeleOp(name="Test Teleop", group="Iterative Opmode")
 public class TestOpMode extends BaseOpMode {
 
-    NormalizedColorSensor sensor;
-    final float[] hsvValues = new float[3];
+  /*  NormalizedColorSensor sensor;
+    final float[] hsvValues = new float[3];*/
+    Hopper spindexer;
 
     @Override
     public void externalInit() {
-        sensor = hardwareMap.get(NormalizedColorSensor.class, "Color");
+        //sensor = hardwareMap.get(NormalizedColorSensor.class, "Color");
+        spindexer = new Hopper(hardwareMap);
     }
 
     @Override
     public void externalLoop() {
-        NormalizedRGBA colors = sensor.getNormalizedColors();
+       /* NormalizedRGBA colors = sensor.getNormalizedColors();
         Color.colorToHSV(colors.toColor(), hsvValues);
 
-        BaseOpMode.addData("hue",hsvValues[0]);
+        BaseOpMode.addData("hue",hsvValues[0]);*/
+        spindexer.work();
+        telemetry.update();
+        if (driver1.circle.isTapped()){
+            spindexer.transfer();
+        }
 
     }
 }

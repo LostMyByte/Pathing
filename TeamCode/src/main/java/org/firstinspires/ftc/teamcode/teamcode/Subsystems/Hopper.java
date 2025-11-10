@@ -1,7 +1,8 @@
 // Primary Author: Caroline Oringer
-/*
+
 package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper.HopperDash.downTransferPos;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper.HopperDash.ki;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper.HopperDash.intakePosToShootPos;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper.HopperDash.ticksToMoveOneSlot;
@@ -92,8 +93,8 @@ public class Hopper extends Subsystem {
     @Config
     public static class HopperDash {
         public static double targetPos =0;
-        public static double transferPos = 0.80;
-        public static double downTransferPos = 1.00;
+        public static double transferPos = 0.9;//0.80;
+        public static double downTransferPos = 0.46;//1.00;
 
         // “Move one slot” time, if you still use timed motion
         public static double timeToMoveOneSlotMs = 600;
@@ -139,7 +140,6 @@ public class Hopper extends Subsystem {
                 transfer();
                 break;
             case MOVEBACKONE:
-
                 update();
                 setTargetTicks(getCurrentTicks()-ticksToMoveOneSlot, toleranceTicks, false);
                // while (stateTimer.milliseconds() < HopperDash.timeToMoveOneSlotMs) moveOneSlot(true);
@@ -207,7 +207,7 @@ public class Hopper extends Subsystem {
 
         final int current = getCurrentTicks();
         final double powerCmd = encoderticks.getCorrection(current, targetTicks);
-
+        transfer.setPosition(downTransferPos);
         // Clamp and apply power to CR servo
         double power = Math.max(-HopperDash.maxPower, Math.min(HopperDash.maxPower, powerCmd));
         spindexer.setPower(power);
@@ -230,4 +230,4 @@ public class Hopper extends Subsystem {
         BaseOpMode.updateTelemetry();
     }
 }
-*/
+
