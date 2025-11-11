@@ -93,20 +93,21 @@ public class Hopper extends Subsystem {
     @Config
     public static class HopperDash {
         public static double targetPos =0;
+        public static double transferDwell= 300;
         public static double transferPos = 0.9;//0.80;
-        public static double downTransferPos = 0.46;//1.00;
+        public static double downTransferPos = 0.47;//1.00;
 
         // “Move one slot” time, if you still use timed motion
         public static double timeToMoveOneSlotMs = 600;
         //8192 for full turn
-        public static double ticksToMoveOneSlot =2620;
-        public static double ticksToMoveTwoSlot =5300 ;
+        public static double ticksToMoveOneSlot = (double) 2680;
+        public static double ticksToMoveTwoSlot =5650 ;
         // PID constants for tick control (tune in Dashboard)
         public static double intakePosToShootPos = 1320;
-        public static double kp = -0.00029;
+        public static double kp = 0.0004;
         public static double ki = 0.0;
         public static double kd =-0.0004;
-        public static double kf = -0.02;
+        public static double kf = -0.0;
 
         public static double maxPower = 1;
         public static double minPower = 0;
@@ -179,7 +180,7 @@ public class Hopper extends Subsystem {
     public void transfer(){
         spindexer.setPower(0);
         transfer.setPosition(HopperDash.transferPos);
-        if (stateTimer.milliseconds()>=200){
+        if (stateTimer.milliseconds()>= HopperDash.transferDwell){
             setState(HopperStates.NOTACTIVE);
         }
         //1 is all the way down, 0.8~ is transfer

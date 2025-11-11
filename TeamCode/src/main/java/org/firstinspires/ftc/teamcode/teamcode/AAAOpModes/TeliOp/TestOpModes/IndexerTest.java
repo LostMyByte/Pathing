@@ -49,7 +49,10 @@ public class IndexerTest extends BaseOpMode {
         }else if (driver1.dpad_up.isTapped()){
             hopper.setState(Hopper.HopperStates.INTAKEPOSTOSHOOTPOS);
             canTransfer = !canTransfer;
-        }else{
+        }else if (driver1.dpad_down.isTapped()){
+            hopper.setState(Hopper.HopperStates.NOTACTIVE);
+            canTransfer = !canTransfer;
+        } else{
             ElapsedTime time1 = new ElapsedTime();
             if (time1.seconds()>1){
                 hopper.setState(Hopper.HopperStates.NOTACTIVE);
