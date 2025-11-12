@@ -2,14 +2,16 @@ package org.firstinspires.ftc.teamcode.teamcode.Motion.Signals;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public class SequentialSignal extends Signal {
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
+
+public class SequentialSignal extends ReferenceSignal {
 
     double switchtime;
     ElapsedTime timer;
-    Signal signal1;
-    Signal signal2;
+    ReferenceSignal signal1;
+    ReferenceSignal signal2;
 
-    public SequentialSignal(Signal signal1, Signal signal2, double switchtime) {
+    public SequentialSignal(ReferenceSignal signal1, ReferenceSignal signal2, double switchtime) {
         super(signal1.size);
         timer = new ElapsedTime();
         this.signal1 = signal1;
@@ -25,5 +27,15 @@ public class SequentialSignal extends Signal {
     @Override
     public void telemetry() {
 
+    }
+
+    @Override
+    public Vector predict(double time) {
+        return time > switchtime? signal2.predict(time - switchtime) : signal1.predict(time);
+    }
+
+    @Override
+    public Vector target() {
+        return signal2.target();
     }
 }

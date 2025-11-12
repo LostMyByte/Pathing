@@ -119,7 +119,7 @@ public class MPC {
         for (int i =0; i < N; i++) {
             // Add to cost function
             // TODO: Handle non-constant reference signals
-            currentCost += costFunction(currentTrajectory[i], referenceSignal.target(), currentControls[i], dt);
+            currentCost += costFunction(currentTrajectory[i], referenceSignal.predict(i*dt), currentControls[i], dt);
         }
 
         // Add terminal cost
@@ -348,7 +348,7 @@ public class MPC {
             // Compute additional derivatives of "Q," the "Quality" of a control trajectory change.
             // This is then used as a second-order taylor expansion for trajectory improvement.
             // Uses Cost Function Combined with system dynamics
-            Vector Qx = dCdX(state, referenceSignal.target(), dt).added(dfdxT.multiplied(vx));
+            Vector Qx = dCdX(state, referenceSignal.predict(i * dt), dt).added(dfdxT.multiplied(vx));
             Vector Qu = dCdU(control, dt).added(dfduT.multiplied(vx));
 
             // Computing the second derivatives involves tensor multiplications, which the current libraries cannot handle.

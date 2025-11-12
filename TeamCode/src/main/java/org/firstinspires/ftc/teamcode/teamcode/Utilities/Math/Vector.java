@@ -59,6 +59,10 @@ public class Vector
 
     protected double[] data;
 
+    public Vector(double x, double y, double z, double w, double v) {
+        this.data = new double[] {x, y, z, w, v};
+    }
+
     //----------------------------------------------------------------------------------------------
     // Construction
     //----------------------------------------------------------------------------------------------
