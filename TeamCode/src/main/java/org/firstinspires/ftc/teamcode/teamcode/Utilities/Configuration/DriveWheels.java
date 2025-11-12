@@ -43,6 +43,7 @@ public class DriveWheels {
     public static double Kpv = 0;
     public static double Kvh = 0;
     public static double strength = 1;
+    public static double Kp = 0;
 
 
     /*  Drive wheel Parameterization
