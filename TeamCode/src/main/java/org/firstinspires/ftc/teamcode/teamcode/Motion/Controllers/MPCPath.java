@@ -294,6 +294,9 @@ public class MPCPath extends Controller{
 
         if (time > horizonTime) this.state = ControllerStates.Finished;
 
+        // TODO: MAke work for not tank drive
+        Vector loopback = TankDrive.getLoopback(sensorData);
+
         Vector target = controller.getInterpolatedX(time);
 
         if (state == ControllerStates.Finished) {
@@ -311,7 +314,7 @@ public class MPCPath extends Controller{
 
         if (time > horizonTime - startTime) {
             Vector posError = new Vector(sensorData.get(0), sensorData.get(1));
-            Vector heading = new Vector(Math.cos(sensorData.get(2)), Math.sin(sensorData.get(2)));
+            Vector heading = new Vector(-Math.sin(sensorData.get(2)), Math.cos(sensorData.get(2)));
             posError = heading.multiplied(heading.dotProduct(posError));
 
             sensorData.put(0, posError.get(0));
@@ -328,13 +331,13 @@ public class MPCPath extends Controller{
                 DriveWheels.Kvh, -DriveWheels.Kvh,
         }).transposed();
 
-        Matrix K = model.dSdU(correction).inverted().multiplied(controller.getInterpolatedK(time));
+        Matrix K = model.dSdU(correction).multiplied(controller.getInterpolatedK(time));
 
-        sensorData = model.h(sensorData.multiplied(-1)).multiplied(sensorData);
+        sensorData = model.h(sensorData.multiplied(1)).multiplied(sensorData);
 
         correction.add(K.multiplied(DriveWheels.strength).multiplied(sensorData));
 
-        return correction.added(feedback.multiplied(sensorData)).added(TankDrive.getLoopback(target));
+        return correction.added(feedback.multiplied(sensorData).added(loopback));
     }
 
     /**

@@ -9,6 +9,9 @@ import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.MPCPath;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ConstantSignal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ReferenceSignal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.SequentialSignal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
@@ -40,21 +43,25 @@ public class MPCTest extends BaseOpMode {
 
     TankDrive drivemodel;
 
+    ReferenceSignal path;
     Location loc;
 
     @Override
     public void externalInit() {
 
+        path = new SequentialSignal(new ConstantSignal(new Vector(0, 100, 0, TestMPCParams.TV, TestMPCParams.THV)), new ConstantSignal(new Vector(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, 0, 0)), 2);
         drivemodel = new TankDrive();
+
         test = new MPCPath();
         test.setAccuracy(TestMPCParams.threshold);
         test.setMoveTime(TestMPCParams.Horizon);
         test.setResolution(((double) TestMPCParams.N)/TestMPCParams.Horizon);
         test.setParams(DriveWheels.defaultParams);
         test.setModel(drivemodel);
-        test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
+        test.setPath(path);
+        //test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
         test.setName("Test Path");
-        test.setStart(0, 0, Math.PI, 0, 0);
+        test.setStart(0, 0, 0, 0, 0);
         test.build();
         try {
             test.load();
@@ -68,7 +75,8 @@ public class MPCTest extends BaseOpMode {
         }
 
 
-        loc = new Location(0, 0, Math.PI);
+        loc = new Location(0, 0, 0);
+        loc.doTelemetry = true;
         test.setSensor(loc);
         drive = new TankDriveTrain();
 
