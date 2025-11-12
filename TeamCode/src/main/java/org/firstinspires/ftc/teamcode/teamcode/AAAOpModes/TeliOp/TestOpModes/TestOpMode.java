@@ -38,9 +38,7 @@ public class TestOpMode extends BaseOpMode {
         BaseOpMode.addData("hue",hsvValues[0]);*/
         spindexer.work();
         telemetry.update();
-        if (driver1.circle.isTapped()){
-            spindexer.transfer();
-        }
+        BaseOpMode.addData("ticks", spindexer.getCurrentTicks());
 
     }
 }

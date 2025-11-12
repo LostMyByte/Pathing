@@ -5,8 +5,8 @@ package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper.HopperDash.downTransferPos;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper.HopperDash.ki;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper.HopperDash.intakePosToShootPos;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper.HopperDash.ticksToMoveOneSlot;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper.HopperDash.ticksToMoveTwoSlot;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper.HopperDash.ticksToMoveOneSlotRight;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper.HopperDash.ticksToMoveTwoSlotRight;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -93,15 +93,18 @@ public class Hopper extends Subsystem {
     @Config
     public static class HopperDash {
         public static double targetPos =0;
-        public static double transferDwell= 300;
+        public static double transferDwell= 360;
         public static double transferPos = 0.9;//0.80;
         public static double downTransferPos = 0.47;//1.00;
 
         // “Move one slot” time, if you still use timed motion
         public static double timeToMoveOneSlotMs = 600;
         //8192 for full turn
-        public static double ticksToMoveOneSlot = (double) 2680;
-        public static double ticksToMoveTwoSlot =5650 ;
+        public static double ticksToMoveOneSlotLeft = (double) 2770;
+        public static double ticksToMoveTwoSlotLeft = 5500;
+
+        public static double ticksToMoveOneSlotRight = (double) 2685;
+        public static double ticksToMoveTwoSlotRight =5450;
         // PID constants for tick control (tune in Dashboard)
         public static double intakePosToShootPos = 1320;
         public static double kp = 0.0004;
@@ -113,7 +116,7 @@ public class Hopper extends Subsystem {
         public static double minPower = 0;
         public static double pidDeadZone = 3;
         public static double targetTolerance = 10; // this must must get changed after tuning lol
-        public static double onTargetDwellMs = 120; // must remain within tolerance this long
+        public static double onTargetDwellMs = 250; // must remain within tolerance this long
     }
 
     public enum HopperStates {
@@ -142,25 +145,25 @@ public class Hopper extends Subsystem {
                 break;
             case MOVEBACKONE:
                 update();
-                setTargetTicks(getCurrentTicks()-ticksToMoveOneSlot, toleranceTicks, false);
+                setTargetTicks(getCurrentTicks()- HopperDash.ticksToMoveOneSlotLeft, toleranceTicks, false);
                // while (stateTimer.milliseconds() < HopperDash.timeToMoveOneSlotMs) moveOneSlot(true);
                 setState(HopperStates.GOTO_TICKS);
                 break;
             case MOVEONE:
 
                 update();
-                setTargetTicks(getCurrentTicks()+ ticksToMoveOneSlot, toleranceTicks, false);
+                setTargetTicks(getCurrentTicks()+ ticksToMoveOneSlotRight, toleranceTicks, false);
                 //  while (stateTimer.milliseconds() < HopperDash.timeToMoveOneSlotMs) moveOneSlot(false);
                 setState(HopperStates.GOTO_TICKS);
                 break;
             case MOVETWO:
                 update();
-                setTargetTicks(getCurrentTicks()+ ticksToMoveTwoSlot, toleranceTicks, false);
+                setTargetTicks(getCurrentTicks()+ ticksToMoveTwoSlotRight, toleranceTicks, false);
                 setState(HopperStates.GOTO_TICKS);
                 break;
             case MOVEBACKTWO:
                 update();
-                setTargetTicks(getCurrentTicks() -ticksToMoveTwoSlot, toleranceTicks, false);
+                setTargetTicks(getCurrentTicks() - HopperDash.ticksToMoveTwoSlotLeft, toleranceTicks, false);
                 setState(HopperStates.GOTO_TICKS);
                 break;
             case GOTO_TICKS:

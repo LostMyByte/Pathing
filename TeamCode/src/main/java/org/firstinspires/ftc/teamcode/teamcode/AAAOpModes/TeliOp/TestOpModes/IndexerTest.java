@@ -42,9 +42,9 @@ public class IndexerTest extends BaseOpMode {
             hopper.setState(Hopper.HopperStates.MOVEONE);
         }else if (driver1.square.isTapped()) {
             hopper.setState(Hopper.HopperStates.MOVEBACKONE);
-        }else if (driver1.dpad_left.isTapped()){
-            hopper.setState(Hopper.HopperStates.MOVEBACKTWO);
         }else if (driver1.dpad_right.isTapped()){
+            hopper.setState(Hopper.HopperStates.MOVEBACKTWO);
+        }else if (driver1.dpad_left.isTapped()){
             hopper.setState(Hopper.HopperStates.MOVETWO);
         }else if (driver1.dpad_up.isTapped()){
             hopper.setState(Hopper.HopperStates.INTAKEPOSTOSHOOTPOS);
