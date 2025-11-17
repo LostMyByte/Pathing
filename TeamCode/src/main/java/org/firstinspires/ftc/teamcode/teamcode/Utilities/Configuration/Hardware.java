@@ -30,5 +30,6 @@ public class Hardware {
     public static final String intake = "intake";
     public static final String shooter1 = "shooter1", shooter2 = "shooter2";
     public static final String transfer = "transfer";
+    public static final String turret = "turret";
 
 }

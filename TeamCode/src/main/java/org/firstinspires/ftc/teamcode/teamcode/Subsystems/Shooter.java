@@ -94,7 +94,7 @@ public class Shooter extends Subsystem{
         shooter1 = new Motor(Hardware.shooter1, false, true);
         shooter2 = new Motor(Hardware.shooter2, false, true);
         hood = new Servos.Hood();
-        //turret = new Motor(Hardware.turret, false, true);
+        turret = new Motor(Hardware.turret, false, true);
 
         //turretEncoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
         shooterPDF = new PID(0,0,0);
@@ -109,13 +109,10 @@ public class Shooter extends Subsystem{
         limelight.reloadPipeline();
         this.team = team;
 
-
-
-        //pattern = new BallColors[3];
         shooterState = ShooterStates.OBELISK;
         turretState = TurretState.ACTIVE;
         //currentRamp = new ArrayList<BallColors>();
-        //this.turretStartAngle = turretStartAngle;
+        this.turretStartAngle = turretStartAngle;
 
         //readyToShootIndicator = new Servo(Hardware.indicatorLight);
         //angleWrapWarningLight = new Servo(Hardware.angleWrapWarningLight);
@@ -140,8 +137,7 @@ public class Shooter extends Subsystem{
                 aim();
                 break;
         }
-    };
-
+    }
 
     public void updateShooter(){
         shooterPDF.setConstants(PIDTuningDash.ShooterP,0,PIDTuningDash.ShooterD);
@@ -260,42 +256,13 @@ public class Shooter extends Subsystem{
     }
 
     public void aim(){
-
         hood.setPositionInterpolated(getHoodAngle());
 
         //This is the target angle relative to facing directly at the aprilTag
         //yaw is current angle of the aprilTag relative to the shooter
         //This uses the law of sines to find the target angle of the robot relative to the april tag
-        //turretTargetAngle = Math.asin((0.46*Math.sin(yaw)/distanceAway));
-        //turretError = Math.toRadians(turretTargetAngle - tx);
-
-
-
-
-        //updateTurret();
-        /*
-
-        if (canRobotShoot()){
-            readyToShootIndicator.setPosition(0.5);
-        }
-        else {
-            readyToShootIndicator.setPosition(0.28);
-        }
-
-        if (Math.abs(turretTargetAngle - turretMaxRotation) < 0.3){
-            if (warningLightTimer.seconds() > .5){
-                warningLightTimer.reset();
-            }
-            else if (warningLightTimer.seconds() < 0.25){
-                angleWrapWarningLight.setPosition(0.388);
-            } else {
-                angleWrapWarningLight.setPosition(0);
-            }
-        } else {
-            angleWrapWarningLight.setPosition(0);
-        }
-        */
-
+        turretError = getTargetTurretAngle() - turretAngle;
+        updateTurret();
     }
 
 
@@ -437,7 +404,7 @@ public class Shooter extends Subsystem{
     }
 
 
-    public void getTargetTurretAngle(){
+    public double getTargetTurretAngle(){
 
         //the angle the robot would need to face to hit the target
         double angle = Math.atan(x/y);
@@ -451,8 +418,7 @@ public class Shooter extends Subsystem{
 
         //account for robot velocity
         angle -= Math.asin(vX/getTargetBallSpeedX());
-        BaseOpMode.addData("angle", Math.toDegrees(angle));
-        BaseOpMode.addData("XVelocity", vX);
+        return angle;
     }
 
     double x;
@@ -549,16 +515,23 @@ public class Shooter extends Subsystem{
 
     //The original equation for newton's method
     public double f(double a){
-        double t1 = (getTargetBallSpeed()*Math.sin(a)*distanceAway)/(getTargetBallSpeed()*Math.cos(a)+getGoalRelativeVelocity().get(1));
-        double t2 = (Constants.g/2)*Math.pow(distanceAway/(getTargetBallSpeed()*Math.cos(a)+getGoalRelativeVelocity().get(1)),2);
+        double sina = Math.sin(a);
+        double cosa = Math.cos(a);
+
+        double t1 = (getTargetBallSpeed()*sina*distanceAway)/(getTargetBallSpeed()*cosa+getGoalRelativeVelocity().get(1));
+        double t2 = (Constants.g/2)*Math.pow(distanceAway/(getTargetBallSpeed()*cosa+getGoalRelativeVelocity().get(1)),2);
         double t3 = .99-limelightLensHeightFromGround;
 
         return t1-t2-t3;
     }
 
     public double df(double a){
-        double t1 = (Constants.g*distanceAway*distanceAway*getTargetBallSpeed()*Math.sin(a))/Math.pow(getTargetBallSpeed()*Math.cos(a)+getGoalRelativeVelocity().get(1),3);
-        double t2 = (getTargetBallSpeed()*distanceAway*(getTargetBallSpeed()+getGoalRelativeVelocity().get(1)*Math.cos(a)))/Math.pow(getTargetBallSpeed()*Math.cos(a)+getGoalRelativeVelocity().get(1),2);
+        double sina = Math.sin(a);
+        double cosa = Math.cos(a);
+
+        double t1 = (Constants.g*distanceAway*distanceAway*getTargetBallSpeed()*sina)/Math.pow(getTargetBallSpeed()*cosa+getGoalRelativeVelocity().get(1),3);
+        double t2 = (getTargetBallSpeed()*distanceAway*(getTargetBallSpeed()+getGoalRelativeVelocity().get(1)*cosa))/Math.pow(getTargetBallSpeed()*
+                cosa+getGoalRelativeVelocity().get(1),2);
 
         return t2-t1;
     }
