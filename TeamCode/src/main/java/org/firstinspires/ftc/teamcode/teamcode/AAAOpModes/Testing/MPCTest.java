@@ -13,6 +13,8 @@ import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ConstantSignal;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ReferenceSignal;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.SequentialSignal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 import java.io.FileNotFoundException;
@@ -28,14 +30,15 @@ public class MPCTest extends BaseOpMode {
         public static double threshold = 0.0001;
 
         public static double TX = 0;
-        public static double TY = -10;
-        public static double TH = Math.PI;
+        public static double TY = 100;
+        public static double TH = 0;
         public static double TV = 0;
         public static double THV = 0;
 
-        public static boolean feedBack = false;
+        public static boolean feedBack = true;
 
-        public static boolean enabled = false;
+        public static boolean enabled = true;
+
     }
 
     private MPCPath test;
@@ -46,8 +49,11 @@ public class MPCTest extends BaseOpMode {
     ReferenceSignal path;
     Location loc;
 
+
     @Override
     public void externalInit() {
+
+
 
         path = new SequentialSignal(new ConstantSignal(new Vector(0, 100, 0, TestMPCParams.TV, TestMPCParams.THV)), new ConstantSignal(new Vector(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, 0, 0)), 2);
         drivemodel = new TankDrive();
@@ -58,8 +64,8 @@ public class MPCTest extends BaseOpMode {
         test.setResolution(((double) TestMPCParams.N)/TestMPCParams.Horizon);
         test.setParams(DriveWheels.defaultParams);
         test.setModel(drivemodel);
-        test.setPath(path);
-        //test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
+        //test.setPath(path);
+        test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
         test.setName("Test Path");
         test.setStart(0, 0, 0, 0, 0);
         test.build();
@@ -100,8 +106,11 @@ public class MPCTest extends BaseOpMode {
 
         Vector correction;
 
+        Vector state = loc.getPositionForTankDrive();
+
+
         if (TestMPCParams.feedBack) {
-            correction = test.getCorrection(loc.getPositionForTankDrive());
+            correction = test.getCorrection(state);
         }
         else {
             correction = test.getFeedForward();
@@ -110,7 +119,8 @@ public class MPCTest extends BaseOpMode {
         BaseOpMode.addData("Correction R", correction.get(1));
 
         if (gamepad1.square || TestMPCParams.enabled) {
-            if (drive.correctionSignal == null) drive.followController(test);
+            //if (drive.correctionSignal == null) drive.followController(test);
+            drive.moveRaw(correction);
         }
         else {
             drive.move(new Vector(0,0));

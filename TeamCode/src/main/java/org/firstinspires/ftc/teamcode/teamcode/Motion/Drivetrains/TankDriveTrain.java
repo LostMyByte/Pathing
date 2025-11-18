@@ -25,10 +25,10 @@ public class TankDriveTrain extends Movement {
 
 
     public void setPowers(Vector powers) {
-/*
+
         BaseOpMode.addData("Power L", powers.get(0));
         BaseOpMode.addData("Power R", powers.get(1));
-       */ this.L1.setPower(powers.get(0));
+        this.L1.setPower(powers.get(0));
         this.L2.setPower(powers.get(0));
         this.R1.setPower(powers.get(1));
         this.R2.setPower(powers.get(1));

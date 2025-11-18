@@ -59,7 +59,7 @@ public class DriveWheels {
 
     For most cases, these will all be -1 or +1 because it's a square drive base with each wheel having equal torque.
     */
-    @Config
+
     public static class FL {
         public static double x = -1;
         public static double y = -1;
@@ -67,7 +67,7 @@ public class DriveWheels {
 
     }
 
-    @Config
+
     public static class FR {
         public static double x = -1;
         public static double y = 1;
@@ -75,7 +75,7 @@ public class DriveWheels {
 
     }
 
-    @Config
+
     public static class BL {
         public static double x = 1;
         public static double y = -1;
@@ -83,7 +83,7 @@ public class DriveWheels {
 
     }
 
-    @Config
+
     public static class BR {
         public static double x = 1;
         public static double y = 1;

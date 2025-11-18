@@ -1,11 +1,14 @@
 // Primary Author: Kieran Mattingly
 package org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonReader;
+import com.qualcomm.hardware.lynx.LynxVoltageSensor;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
@@ -27,6 +30,15 @@ import java.io.IOException;
 
 public class MPCPath extends Controller{
 
+    @Config
+    public static class MPCSettings {
+        public static boolean fullEndCorrection = true;
+        public static boolean invertHScale = true;
+        public static boolean invertdSdU = true;
+        public static boolean voltageCorrection = false;
+    }
+    VoltageSensor voltage;
+
     /**
      * A set of parameters to use for Model Predictive Control
      */
@@ -47,6 +59,8 @@ public class MPCPath extends Controller{
 
         public double lr = 2; // Learning rate
         public double lambdaMax = 10000000; // Max lambda (for descent)
+
+        public double voltage = 13;
     }
 
     /**
@@ -210,6 +224,8 @@ public class MPCPath extends Controller{
 
         controller = new MPC(referenceSignal, start, Q, R, QF, (int) (resolution*horizonTime), horizonTime, threshold, params.lr,  params.lambdaMax, model);
 
+        this.voltage = BaseOpMode.hardware.voltageSensor.iterator().next();
+
 
     }
 
@@ -256,19 +272,7 @@ public class MPCPath extends Controller{
      */
     public void update(Vector currentPosition, int amount) {
         double time = timer.time() - startTime;
-        double currentNApprox = time * resolution;
-        int currentNExact = ((int) (time * resolution));
-
-        if (currentNExact >= 1) {
-            Vector newstate = model.stateTransitionFunction(currentPosition, controller.getInterpolatedU(time), currentNExact - currentNApprox);
-
-            controller.stepForwardHorizon(newstate, currentNExact);
-
-
-            controller.iterate(amount, newstate);
-
-            startTime = time;
-        }
+        controller.stepForwardHorizon(currentPosition, time, amount);
     }
 
 
@@ -284,6 +288,26 @@ public class MPCPath extends Controller{
         return getCorrection(sensorData);
     }
 
+    public Vector getStateError(Vector position, double time) {
+        Vector target = controller.getInterpolatedX(time);
+
+        if (state == ControllerStates.Finished) {
+            target = this.referenceSignal.target();
+        }
+
+        BaseOpMode.addData("TX", target.get(0));
+        BaseOpMode.addData("TY", target.get(1));
+        BaseOpMode.addData("TH", target.get(2));
+        BaseOpMode.addData("TV", target.get(3));
+        BaseOpMode.addData("TVH", target.get(4));
+
+        return position.subtracted(target);
+    }
+
+    public Vector getStateError(Vector position) {
+        return getStateError(position, timer.time());
+    }
+
     /**
      * Gets the correction given a state and a time along the path.
      * @param sensorData    Current state
@@ -297,19 +321,8 @@ public class MPCPath extends Controller{
         // TODO: MAke work for not tank drive
         Vector loopback = TankDrive.getLoopback(sensorData);
 
-        Vector target = controller.getInterpolatedX(time);
+        sensorData = getStateError(sensorData, time);
 
-        if (state == ControllerStates.Finished) {
-            target = this.referenceSignal.target();
-        }
-
-        BaseOpMode.addData("TX", target.get(0));
-        BaseOpMode.addData("TY", target.get(1));
-        BaseOpMode.addData("TH", target.get(2));
-        BaseOpMode.addData("TV", target.get(3));
-        BaseOpMode.addData("TVH", target.get(4));
-
-        sensorData = sensorData.subtracted(target);
         Vector correction = controller.getInterpolatedU(time);
 
         if (time > horizonTime - startTime) {
@@ -317,9 +330,11 @@ public class MPCPath extends Controller{
             Vector heading = new Vector(-Math.sin(sensorData.get(2)), Math.cos(sensorData.get(2)));
             posError = heading.multiplied(heading.dotProduct(posError));
 
-            sensorData.put(0, posError.get(0));
-            sensorData.put(1, posError.get(1));
-            correction.add(new Vector(posError.magnitude() * DriveWheels.Kp, posError.magnitude() * DriveWheels.Kp));
+            if (!MPCSettings.fullEndCorrection) {
+                sensorData.put(0, posError.get(0));
+                sensorData.put(1, posError.get(1));
+            }
+            correction.add(new Vector(heading.dotProduct(posError) * DriveWheels.Kp, posError.magnitude() * DriveWheels.Kp));
         }
 
         BaseOpMode.addData("FH", correction.get(1)-correction.get(0));
@@ -332,13 +347,22 @@ public class MPCPath extends Controller{
                 DriveWheels.Kvh, -DriveWheels.Kvh,
         }).transposed();
 
-        Matrix K = model.dSdU(correction).multiplied(controller.getInterpolatedK(time));
+        Matrix K = model.dSdU(correction);
+        if (MPCSettings.invertdSdU) K = K.inverted();
+        K = K.multiplied(controller.getInterpolatedK(time));
 
-        sensorData = model.h(sensorData.multiplied(1)).multiplied(sensorData);
+        sensorData = model.h(sensorData.multiplied(MPCSettings.invertHScale ? -1 : 1)).multiplied(sensorData);
 
-        correction.add(K.multiplied(DriveWheels.strength).multiplied(sensorData));
+        Vector modelResponse = K.multiplied(DriveWheels.strength).multiplied(sensorData);
+        BaseOpMode.addData("MH", modelResponse.get(1)-modelResponse.get(0));
+        BaseOpMode.addData("MV", modelResponse.get(1)+modelResponse.get(0));
+        correction.add(modelResponse);
 
-        return correction.added(feedback.multiplied(sensorData).added(loopback));
+        correction.add(feedback.multiplied(sensorData).added(loopback));
+
+        if (MPCSettings.voltageCorrection) correction.multiply(params.voltage/voltage.getVoltage());
+
+        return correction;
     }
 
     /**

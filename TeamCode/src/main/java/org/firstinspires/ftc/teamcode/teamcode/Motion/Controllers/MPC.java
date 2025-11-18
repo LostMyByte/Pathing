@@ -1,8 +1,6 @@
 // Primary Author: Kieran Mattingly
 package org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers;
 
-import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.ejml.data.DMatrixRMaj;
 import org.ejml.dense.row.EigenOps_DDRM;
 import org.ejml.dense.row.CommonOps_DDRM;
@@ -12,7 +10,6 @@ import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.SystemModel;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ReferenceSignal;
-import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
@@ -442,29 +439,21 @@ public class MPC {
 
     /**
      * Used for Model Precitive Control. Set trajectory information based off current position.
-     * @param currentPos    Position at current timestep.
-     * @param currentN      Current Timestep
+     *
+     * @param currentTime   Current Timestep
+     * @param currentPos Position at current timestep.
+     * @param amount
      */
-    protected void stepForwardHorizon(Vector currentPos, int currentN) {
-
-        if (currentN == 0) return;
+    protected void stepForwardHorizon(Vector currentPos, double currentTime, int amount) {
 
         // As we're no longer necessarily on the trajectory, we should reset lambda.
         lambda = 1;
 
         // Update trajectory variables
-        for (int i = 0; i < N - currentN; i++) {
-            this.currentControls[i] = this.currentControls[currentN + i];
-            this.currentTrajectory[i] = this.currentTrajectory[currentN + i];
-            this.k[i] = this.k[currentN + i];
-            this.K[i] = this.K[currentN + i];
-        }
-
-        // Update controls for future state
-        for (int i = currentN; i < N; i++) {
-            this.k[i] = this.k[i-1];
-            this.K[i] = this.K[i-1];
-            this.currentControls[i] = currentControls[N-1].added(k[i]);
+        for (int i = 0; i < N; i++) {
+            this.currentControls[i] = this.getInterpolatedU(currentTime + i * dt);
+            this.K[i] = this.getInterpolatedK(currentTime + i * dt);
+            this.k[i] = this.getInterpolatedk(currentTime + i * dt);
         }
 
         Vector oldstate = currentTrajectory[0];
@@ -474,12 +463,15 @@ public class MPC {
         for (int i = 0; i < N; i++ ) {
             currentControls[i] = currentControls[i].added(k[i]);
             currentControls[i].add(K[i].multiplied(currentTrajectory[i].subtracted(oldstate)));
-
             if (i != N-1) {
                 oldstate = currentTrajectory[i + 1];
                 currentTrajectory[i + 1] = model.stateTransitionFunction(currentTrajectory[i], currentControls[i], dt);
             }
         }
+
+        iterate(amount, currentPos);
+        BaseOpMode.addData("New Starting Y", currentPos.get(1));
+        BaseOpMode.addData("New Starting V", currentPos.get(3));
     }
 
 
