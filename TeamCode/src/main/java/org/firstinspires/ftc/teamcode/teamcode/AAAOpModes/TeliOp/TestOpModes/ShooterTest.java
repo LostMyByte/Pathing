@@ -1,6 +1,8 @@
 // Primary Author: Dylan Cook
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes;
 
+import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes.ShooterTest.ShooterDash.ticksPerRotation;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -9,11 +11,14 @@ import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.ShooterDashClass;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
+
 @TeleOp (name = "ShooterTest")
 public class ShooterTest extends BaseOpMode {
 
 Shooter shooter;
 Servos.Hood hood;
+Motor shooterMotor;
 
     double ticksL = 0;
     double ticksR = 0;
@@ -25,7 +30,7 @@ Servos.Hood hood;
     @Override
     public void externalInit() {
         shooter = new Shooter(hardwareMap, 0, Constants.Team.BLUE);
-        hood = new Servos.Hood();
+        //shooterMotor = new Motor("shooter", false, true);
     }
 
 

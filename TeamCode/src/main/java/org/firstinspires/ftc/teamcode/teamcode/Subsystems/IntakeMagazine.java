@@ -24,6 +24,8 @@ public class IntakeMagazine extends Subsystem{
     BallColors[] indexer;
     NormalizedColorSensor[] colorSensors = new NormalizedColorSensor[2];
     final float[] hsv = new float[3];
+    SensorReadStates sensorReadState = SensorReadStates.NOTREADING;
+    int readNum = 0;
 
     public IntakeMagazine(HardwareMap hardwareMap){
         mecanum1 = hardwareMap.get(CRServo.class, Hardware.mecanum1);
@@ -70,6 +72,16 @@ public class IntakeMagazine extends Subsystem{
         }
     }
 
+    public void sensorStateMachine(){
+        switch (sensorReadState){
+            case READING:
+                readSensors();
+                break;
+            case NOTREADING:
+                break;
+        }
+    }
+
     public void readSensors(){
         for(int sensorNum = 0; sensorNum < colorSensors.length; sensorNum++){
             NormalizedRGBA colors = colorSensors[sensorNum].getNormalizedColors();
@@ -80,7 +92,12 @@ public class IntakeMagazine extends Subsystem{
                 indexer[sensorNum] = BallColors.GREEN;
             }
         }
+        readNum++;
+        if (readNum > 5){
+            setSensorReadState(SensorReadStates.NOTREADING);
+        }
     }
+
 
     public void loaded0(){
         magazine.ball0();
@@ -152,35 +169,46 @@ public class IntakeMagazine extends Subsystem{
         mecanum2.setPower(power);
     }
 
-    public void shootPurple(){
+    public boolean shootPurple(){
         if (indexer[0] == BallColors.PURPLE){
             setState(IntakeMagazineStates.SHOOTING0);
         } else if (indexer[1] == BallColors.PURPLE){
             setState(IntakeMagazineStates.SHOOTING1);
         } else if (indexer[2] == BallColors.PURPLE){
             setState(IntakeMagazineStates.SHOOTING2);
-        }
+        } else {return false;}
+
+        return true;
     }
 
-    public void shootGreen(){
+    public boolean shootGreen(){
         if (indexer[0] == BallColors.GREEN){
             setState(IntakeMagazineStates.SHOOTING0);
         } else if (indexer[1] == BallColors.GREEN){
             setState(IntakeMagazineStates.SHOOTING1);
         } else if (indexer[2] == BallColors.GREEN){
             setState(IntakeMagazineStates.SHOOTING2);
-        }
+        } else {return false;}
+
+        return true;
     }
 
 
 
 
 
-    public void update(){}
+    public void update(){
+        sensorStateMachine();
+        work();
+    }
     public void updateSensors(){}
 
     public enum IntakeMagazineStates{
         INTAKEACTIVE, INTAKEREVERSED,LOADED1, LOADED2, LOADED0, SHOOTING1, SHOOTING2, SHOOTING0, INIT, READINGSENSORS
+    }
+
+    public enum SensorReadStates{
+        READING, NOTREADING
     }
 
     public enum BallColors{
@@ -192,9 +220,11 @@ public class IntakeMagazine extends Subsystem{
         timer.reset();
     }
 
+    public IntakeMagazineStates getState(){
+        return state;
+    }
 
-
-
-
-
+    public void setSensorReadState(SensorReadStates sensorReadState) {
+        this.sensorReadState = sensorReadState;
+    }
 }
