@@ -8,6 +8,7 @@ import android.widget.BaseExpandableListAdapter;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -22,12 +23,11 @@ public class TestOpMode extends BaseOpMode {
 
   /*  NormalizedColorSensor sensor;
     final float[] hsvValues = new float[3];*/
-    Hopper spindexer;
-
+    AnalogInput sensor;
     @Override
     public void externalInit() {
         //sensor = hardwareMap.get(NormalizedColorSensor.class, "Color");
-        spindexer = new Hopper(hardwareMap);
+        sensor = hardwareMap.get(AnalogInput.class, "pin0");
     }
 
     @Override
@@ -36,9 +36,7 @@ public class TestOpMode extends BaseOpMode {
         Color.colorToHSV(colors.toColor(), hsvValues);
 
         BaseOpMode.addData("hue",hsvValues[0]);*/
-        spindexer.work();
-        telemetry.update();
-        BaseOpMode.addData("ticks", spindexer.getCurrentTicks());
 
+        BaseOpMode.addData("voltage",sensor.getVoltage());
     }
 }
