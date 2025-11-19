@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorColor;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
@@ -23,11 +24,11 @@ public class TestOpMode extends BaseOpMode {
 
   /*  NormalizedColorSensor sensor;
     final float[] hsvValues = new float[3];*/
-    AnalogInput sensor;
+    TouchSensor breakBeam;
     @Override
     public void externalInit() {
         //sensor = hardwareMap.get(NormalizedColorSensor.class, "Color");
-        sensor = hardwareMap.get(AnalogInput.class, "pin0");
+        breakBeam = hardwareMap.get(TouchSensor.class, "pin0");
     }
 
     @Override
@@ -36,7 +37,8 @@ public class TestOpMode extends BaseOpMode {
         Color.colorToHSV(colors.toColor(), hsvValues);
 
         BaseOpMode.addData("hue",hsvValues[0]);*/
+        telemetry.update();
 
-        BaseOpMode.addData("voltage",sensor.getVoltage());
+        BaseOpMode.addData("beam broken",breakBeam.getValue());
     }
 }
