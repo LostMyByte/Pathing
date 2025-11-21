@@ -2,18 +2,9 @@
 package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
 
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos.ServosDash.downPos1;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos.ServosDash.downPos2;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos.ServosDash.leftBetween;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos.ServosDash.leftClose;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos.ServosDash.leftOpen;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos.ServosDash.specimenClose;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos.ServosDash.specimenOpen;
-
 import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.DashPositions;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Servo;
 
 
@@ -79,23 +70,15 @@ public class Servos {
         }
     }
 
-    public static class MagazineL extends Servo {
-        public MagazineL(){
-            super(Hardware.magazineL);
-        }
-        public void firstBall(){}
-        public void secondBall(){}
-        public void thirdBall(){}
-        public void intaking(){}
+    public static class indexIn extends Servo {
+        public indexIn(){super(Hardware.indexServo1);}
+        public void index(){}
+        public void home(){}
     }
-    public static class MagazineR extends Servo {
-        public MagazineR(){
-            super(Hardware.magazineR);
-        }
-        public void ball0(){}
-        public void ball1(){}
-        public void ball2(){}
-        public void intaking(){}
+    public static class indexOut extends Servo {
+        public indexOut(){super(Hardware.indexServo2);}
+        public void flip(){}
+        public void home(){}
     }
 
     public static class ShooterDoor extends Servo{

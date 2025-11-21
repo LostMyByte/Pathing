@@ -22,12 +22,12 @@ public class Hardware {
             leftFront = "fl", rightFront = "fr",
             leftBack = "bl", rightBack = "br";
 
-    public static final String magazineL = "magazineL", magazineR = "magazineR", shooterDoor = "shooterDoor";
+    public static final String indexServo1 = "IndexServo1", indexServo2 = "IndexServo2", shooterDoor = "shooterDoor";
 
     public static final String hood = "hood";
 
     public static final String mecanum1 = "mecanum1", mecanum2 = "mecanum2";
-    public static final String intake = "intake";
+    public static final String frontIntake = "frontIntake", rearIntake = "rearIntake";
     public static final String shooter1 = "shooter1", shooter2 = "shooter2";
     public static final String transfer = "transfer";
     public static final String turret = "turret";
