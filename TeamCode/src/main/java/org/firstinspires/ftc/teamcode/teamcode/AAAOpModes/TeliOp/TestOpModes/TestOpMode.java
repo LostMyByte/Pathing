@@ -8,10 +8,12 @@ import android.widget.BaseExpandableListAdapter;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorColor;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
@@ -22,12 +24,11 @@ public class TestOpMode extends BaseOpMode {
 
   /*  NormalizedColorSensor sensor;
     final float[] hsvValues = new float[3];*/
-    Hopper spindexer;
-
+    TouchSensor breakBeam;
     @Override
     public void externalInit() {
         //sensor = hardwareMap.get(NormalizedColorSensor.class, "Color");
-        spindexer = new Hopper(hardwareMap);
+        breakBeam = hardwareMap.get(TouchSensor.class, "pin0");
     }
 
     @Override
@@ -36,9 +37,8 @@ public class TestOpMode extends BaseOpMode {
         Color.colorToHSV(colors.toColor(), hsvValues);
 
         BaseOpMode.addData("hue",hsvValues[0]);*/
-        spindexer.work();
         telemetry.update();
-        BaseOpMode.addData("ticks", spindexer.getCurrentTicks());
 
+        BaseOpMode.addData("beam broken",breakBeam.getValue());
     }
 }
