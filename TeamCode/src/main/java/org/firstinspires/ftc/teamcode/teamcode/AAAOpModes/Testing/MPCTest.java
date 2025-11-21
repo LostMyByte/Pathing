@@ -27,6 +27,7 @@ public class MPCTest extends BaseOpMode {
 
         public static int N = 40;
         public static int Horizon = 5;
+        public static int Swap = 3;
         public static double threshold = 0.0001;
 
         public static double TX = 0;
@@ -55,7 +56,7 @@ public class MPCTest extends BaseOpMode {
 
 
 
-        path = new SequentialSignal(new ConstantSignal(new Vector(0, 100, 0, TestMPCParams.TV, TestMPCParams.THV)), new ConstantSignal(new Vector(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, 0, 0)), 2);
+        path = new SequentialSignal(new ConstantSignal(new Vector(0, 100, 0, TestMPCParams.TV, TestMPCParams.THV)), new ConstantSignal(new Vector(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, 0, 0)), TestMPCParams.Swap);
         drivemodel = new TankDrive();
 
         test = new MPCPath();
@@ -64,8 +65,8 @@ public class MPCTest extends BaseOpMode {
         test.setResolution(((double) TestMPCParams.N)/TestMPCParams.Horizon);
         test.setParams(DriveWheels.defaultParams);
         test.setModel(drivemodel);
-        //test.setPath(path);
-        test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
+        test.setPath(path);
+        //test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
         test.setName("Test Path");
         test.setStart(0, 0, 0, 0, 0);
         test.build();
