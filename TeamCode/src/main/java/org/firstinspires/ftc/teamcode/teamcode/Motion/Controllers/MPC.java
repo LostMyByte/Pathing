@@ -9,6 +9,7 @@ import org.ejml.interfaces.decomposition.EigenDecomposition_F64;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.SystemModel;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Paths.Obstacle;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ReferenceSignal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
@@ -47,6 +48,11 @@ public class MPC {
     
     private SystemModel model; // Model of system dynamics
 
+    private java.util.Vector<Obstacle> obstacles = new java.util.Vector<>();
+
+    public void addObstacle(Obstacle obstacle){
+        obstacles.add(obstacle);
+    }
 
     /**
      * Create class without compiling path.
@@ -116,6 +122,10 @@ public class MPC {
         for (int i =0; i < N; i++) {
             // Add to cost function
             // TODO: Handle non-constant reference signals
+            double scale = 1;
+            for (Obstacle o : obstacles) {
+                scale += o.getCost(currentTrajectory[i]);
+            }
             currentCost += costFunction(currentTrajectory[i], referenceSignal.predict(i*dt), currentControls[i], dt);
         }
 
@@ -134,9 +144,10 @@ public class MPC {
      * @param time      How long before a new state
      * @return Momentary cost
      */
-    private double costFunction(Vector state, Vector target, Vector control, double time) {
+     public double costFunction(Vector state, Vector target, Vector control, double time) {
         Vector error = target.subtracted(state);
-        return (error.dotProduct(Q.multiplied(error)) + control.dotProduct(R.multiplied(control)))* time;
+        double result = (error.dotProduct(Q.multiplied(error)) + control.dotProduct(R.multiplied(control)))* time;
+        return result;
     }
 
     /**
@@ -147,7 +158,8 @@ public class MPC {
      * @return Momentary cost gradient
      */
     private Vector dCdX(Vector x, Vector target, double time) {
-        return Q.multiplied(target.subtracted(x)).multiplied(-2 * time);
+        Vector result = Q.multiplied(target.subtracted(x));
+        return result.multiplied(-2 * time);
     }
 
     /**
@@ -175,8 +187,9 @@ public class MPC {
      * @param time      How long before a new state
      * @return Momentary cost second derivative as a Jacobian
      */
-    private Matrix dCdX2(double time) {
-        return Q.multiplied(2 * time);
+    private Matrix dCdX2(Vector state, double time) {
+        Matrix result = Q;
+        return result.multiplied(2 * time);
     }
 
     /**
@@ -342,18 +355,53 @@ public class MPC {
             Matrix dfdu = model.dFdU(state, control, dt);
             Matrix dfduT = dfdu.transposed();
 
+            // Compute derivatives with obstacles
+            double ocost = 1;
+            Vector dodx = Vector.length(dimensions);
+            Matrix dodxdx = new GeneralMatrix(dimensions, dimensions);
+
+            for (Obstacle o : obstacles) {
+                ocost += o.getCost(state);
+                dodx.add(o.getDerivative(state));
+                dodxdx.add(o.get2ndDerivative(state));
+            }
+            double pcost = costFunction(state, referenceSignal.predict(i * dt), control, dt);
+            Vector dcdxraw = dCdX(state, referenceSignal.predict(i * dt), dt);
+            Vector dcduraw = dCdU(control, dt);
+            Matrix dcdu2raw = dCdU2(dt);
+            Matrix dcdx2raw = dCdX2(state, dt);
+
+            Matrix crossMatrix = new GeneralMatrix(dimensions, dimensions);
+            for (int k =0; k < dimensions; k++) {
+                for (int j = 0; j < dimensions; j++) {
+                    crossMatrix.add(k, j, dcdxraw.get(k) * dodx.get(j));
+                }
+            }
+
+            Vector dcdx = dcdxraw.multiplied(ocost).added(dodx.multiplied(pcost));
+            Vector dcdu = dcduraw.multiplied(ocost);
+            Matrix dcdx2 = dcdx2raw.multiplied(ocost).added(crossMatrix).added(crossMatrix.transposed()).added(dodxdx.multiplied(pcost));
+            Matrix dcdu2 = dcdu2raw.multiplied(ocost);
+            Matrix dcdudx = new GeneralMatrix(numControls, dimensions);
+
+            for (int j = 0; j < dimensions; j++) {
+                for (int k = 0; k < numControls; k++) {
+                    dcdudx.add(k, j, dcduraw.get(k) * dodx.get(j));
+                }
+            }
+
             // Compute additional derivatives of "Q," the "Quality" of a control trajectory change.
             // This is then used as a second-order taylor expansion for trajectory improvement.
             // Uses Cost Function Combined with system dynamics
-            Vector Qx = dCdX(state, referenceSignal.predict(i * dt), dt).added(dfdxT.multiplied(vx));
-            Vector Qu = dCdU(control, dt).added(dfduT.multiplied(vx));
+            Vector Qx = dcdx.added(dfdxT.multiplied(vx));
+            Vector Qu = dcdu.added(dfduT.multiplied(vx));
 
             // Computing the second derivatives involves tensor multiplications, which the current libraries cannot handle.
             // However, these are not strictly necessary for convergence.
             // TODO: Implement tensor multiplications manually, or switch libraries.
-            Matrix Qxx = dCdX2(dt).added(dfdxT.multiplied(vxx).multiplied(dfdx));//.added(model.VdF2dXdX(state, control, vx, dt));
-            Matrix Qux = dfduT.multiplied(vxx).multiplied(dfdx);//.added(model.VdF2dXdU(state, control, vx, dt));
-            GeneralMatrix Quu = (GeneralMatrix) dCdU2(dt).added(dfduT.multiplied(vxx).multiplied(dfdu));//.added(model.VdF2dUdU(state,control,vx, dt));
+            Matrix Qxx = dcdx2.added(dfdxT.multiplied(vxx).multiplied(dfdx));//.added(model.VdF2dXdX(state, control, vx, dt));
+            Matrix Qux = dcdudx.added(dfduT.multiplied(vxx).multiplied(dfdx));//.added(model.VdF2dXdU(state, control, vx, dt));
+            GeneralMatrix Quu = (GeneralMatrix) dcdu2.added(dfduT.multiplied(vxx).multiplied(dfdu));//.added(model.VdF2dUdU(state,control,vx, dt));
 
             // For better convergence, a Levenberg–Marquardt heuristic is used. However, this involves adjusting the eigenvectors.
             // The library built-in to the SDK does not support this, however I prefer it's API to alternatives.

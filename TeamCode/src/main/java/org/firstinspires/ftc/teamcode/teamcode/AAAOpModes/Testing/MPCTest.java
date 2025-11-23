@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.MPCPath;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Paths.PointObstacle;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ConstantSignal;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ReferenceSignal;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.SequentialSignal;
@@ -40,6 +41,11 @@ public class MPCTest extends BaseOpMode {
 
         public static boolean enabled = true;
 
+        public static double OX = 0;
+        public static double OY = 50;
+        public static double OSize = 20;
+        public static double OStrength = 500;
+
     }
 
     private MPCPath test;
@@ -65,11 +71,12 @@ public class MPCTest extends BaseOpMode {
         test.setResolution(((double) TestMPCParams.N)/TestMPCParams.Horizon);
         test.setParams(DriveWheels.defaultParams);
         test.setModel(drivemodel);
-        test.setPath(path);
-        //test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
+        //test.setPath(path);
+        test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
         test.setName("Test Path");
         test.setStart(0, 0, 0, 0, 0);
         test.build();
+        test.addObstacle(new PointObstacle(TestMPCParams.OX, TestMPCParams.OY, TestMPCParams.OSize, TestMPCParams.OStrength));
         try {
             test.load();
 
@@ -100,6 +107,7 @@ public class MPCTest extends BaseOpMode {
         BaseOpMode.addData("Correction R", correction.get(1));
 
 
+
     }
 
     @Override
@@ -118,6 +126,7 @@ public class MPCTest extends BaseOpMode {
         }
         BaseOpMode.addData("Correction L", correction.get(0));
         BaseOpMode.addData("Correction R", correction.get(1));
+
 
         if (gamepad1.square || TestMPCParams.enabled) {
             //if (drive.correctionSignal == null) drive.followController(test);
