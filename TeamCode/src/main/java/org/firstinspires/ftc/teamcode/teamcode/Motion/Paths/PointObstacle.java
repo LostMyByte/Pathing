@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teamcode.Motion.Paths;
 
+import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
@@ -31,7 +32,10 @@ public class PointObstacle extends Obstacle {
     @Override
     public double getCost(Vector pos) {
         Vector error = getError(pos);
-        return repulsion * Math.exp (- error.dotProduct(projection.multiplied(error))/(size*size));
+        double cost = repulsion * Math.exp (- error.dotProduct(projection.multiplied(error))/(size*size));
+        BaseOpMode.addData("Obstacle Cost", cost);
+        return cost;
+
     }
 
     @Override
@@ -44,10 +48,10 @@ public class PointObstacle extends Obstacle {
     public Matrix get2ndDerivative(Vector pos) {
         Vector error = getError(pos);
         Matrix result = projection.multiplied(2 / (size * size));
-        Vector v1 = projection.multiplied(error).multiplied(2 / (size*size*size*size));
+        Vector v1 = projection.multiplied(error).multiplied(2 / (size*size));
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
-                result.add(i, j, v1.get(i) * v1.get(j));
+                result.add(i, j, -v1.get(i) * v1.get(j));
             }
         }
         return result.multiplied(-getCost(pos));
