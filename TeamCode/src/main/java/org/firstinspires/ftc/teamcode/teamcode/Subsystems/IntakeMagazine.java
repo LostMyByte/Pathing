@@ -339,10 +339,10 @@ public class IntakeMagazine extends Subsystem{
         }
     }
 
-    @Override
+    /*@Override
     public void update() {
         work();
-    }
+    }*/
 
     public enum IntakeMagazineStates{
         IDLE, INTAKEFRONT, INTAKEREAR, SHOOTING, LOAD, LOADGREEN, LOADPURPLE, CLEAR, LOADANDSHOOTUNINDEXED
