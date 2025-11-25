@@ -1,5 +1,6 @@
+/*
 // Primary Author: Kieran Mattingly
-package org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers;
+package org.firstinspires.ftc.teamcode.teamcode.PastCode;
 
 import org.ejml.data.DMatrixRMaj;
 import org.ejml.dense.row.EigenOps_DDRM;
@@ -15,10 +16,12 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
+*/
 /**
  * A general-purpose Differential Dynamic Programming-based Model Predictive Control similar to an iLQR scheme.
  * Generates a time-varying feedback controller, as well as a predicted state and control trajectory.
- **/
+ **//*
+
 public class MPC {
 
     public Matrix Q; // Distance cost
@@ -54,7 +57,8 @@ public class MPC {
         obstacles.add(obstacle);
     }
 
-    /**
+    */
+/**
      * Create class without compiling path.
      * @param referenceSignal   Target trajectory to follow
      * @param start             Start state
@@ -67,7 +71,8 @@ public class MPC {
      * @param lr                Learning rate for descent
      * @param lambda_max        Max learning rate
      * @param model             Model of system Dynamics
-     */
+     *//*
+
     public MPC(ReferenceSignal referenceSignal, Vector start, Matrix Q, Matrix R, Matrix QF, int N, double time, double threshold, double lr, double lambda_max, SystemModel model) {
         this.referenceSignal = referenceSignal;
 
@@ -95,10 +100,12 @@ public class MPC {
     }
 
 
-    /**
+    */
+/**
      * Generates currentTrajectory based off currentControls and start state
      * @param startState    Position in state space to start from
-     */
+     *//*
+
     public void generateTrajectory(Vector startState) {
 
         this.currentTrajectory = new Vector[N];
@@ -112,10 +119,12 @@ public class MPC {
         }
     }
 
-    /**
+    */
+/**
      * Cummulative cost function for current path
      * @return  total cost
-     */
+     *//*
+
     public double getTotalCost() {
         double currentCost = 0;
 
@@ -126,7 +135,7 @@ public class MPC {
             for (Obstacle o : obstacles) {
                 scale += o.getCost(currentTrajectory[i]);
             }
-            currentCost += costFunction(currentTrajectory[i], referenceSignal.predict(i*dt), currentControls[i], dt);
+            currentCost += scale*costFunction(currentTrajectory[i], referenceSignal.predict(i*dt), currentControls[i], dt);
         }
 
         // Add terminal cost
@@ -136,84 +145,100 @@ public class MPC {
         return currentCost;
     }
 
-    /**
+    */
+/**
      * Ongoing Cost Function for a given timestep
      * @param state     Current state
      * @param target    Target State
      * @param control   Active Control
      * @param time      How long before a new state
      * @return Momentary cost
-     */
+     *//*
+
      public double costFunction(Vector state, Vector target, Vector control, double time) {
         Vector error = target.subtracted(state);
         double result = (error.dotProduct(Q.multiplied(error)) + control.dotProduct(R.multiplied(control)))* time;
         return result;
     }
 
-    /**
+    */
+/**
      * Derivative of Ongoing Cost Function with respect to state
      * @param x         Current state
      * @param target    Target State
      * @param time      How long before a new state
      * @return Momentary cost gradient
-     */
+     *//*
+
     private Vector dCdX(Vector x, Vector target, double time) {
         Vector result = Q.multiplied(target.subtracted(x));
         return result.multiplied(-2 * time);
     }
 
-    /**
+    */
+/**
      * Derivative of Final Cost Function with respect to state
      * @param x         Final state
      * @param target    Target State
      * @return Momentary cost gradient
-     */
+     *//*
+
     private Vector dCFdX(Vector x, Vector target) {
         return QF.multiplied(target.subtracted(x)).multiplied(-2);
     }
 
-    /**
+    */
+/**
      * Derivative of Ongoing Cost Function with respect to control
      * @param u         Current control
      * @param time      How long before a new state
      * @return Momentary cost gradient
-     */
+     *//*
+
     private Vector dCdU(Vector u, double time) {
         return R.multiplied(u).multiplied(2*time);
     }
 
-    /**
+    */
+/**
      * Second Derivative of Ongoing Cost Function with respect to state
      * @param time      How long before a new state
      * @return Momentary cost second derivative as a Jacobian
-     */
+     *//*
+
     private Matrix dCdX2(Vector state, double time) {
         Matrix result = Q;
         return result.multiplied(2 * time);
     }
 
-    /**
+    */
+/**
      * Second Derivative of Final Cost Function with respect to state
      * @return Final cost second derivative as a Jacobian
-     */
+     *//*
+
     private Matrix dCFdX2() {
         return QF.multiplied(2);
     }
 
-    /**
+    */
+/**
      * Second Derivative of Ongoing Cost Function with respect to control
      * @param time      How long before a new state
      * @return Momentary cost second derivative as a Jacobian
-     */
+     *//*
+
     private Matrix dCdU2(double time) {
         return R.multiplied(2 * time);
     }
 
-    /**
+    */
+/**
      * Initialize current trajectory with static controls
      * @param N         How many timesteps to generate
      * @param start     Start state
-     */
+     *//*
+
     private void initializeControls(int N, Vector start) {
         this.currentControls = new Vector[N];
         this.currentTrajectory = new Vector[N];
@@ -232,51 +257,61 @@ public class MPC {
 
     }
 
-    /**
+    */
+/**
      * Get a linearly interpolated feedforward control change Vector at a given timestep.
      * This is not the feed forward term to use when executing a path.
      * @param time  What time to interpolate for
      * @return      Interpolated Vector
-     */
+     *//*
+
     public Vector getInterpolatedk(double time) {
         return getInterpolatedk(time, horizon);
     }
 
-    /**
+    */
+/**
      * Get a linearly interpolated feed-forward Vector at a given timestep.
      * Use this to get the feed-forward control for a path.
      * @param time  What time to interpolate for
      * @return      Interpolated Vector
-     */
+     *//*
+
     public Vector getInterpolatedU(double time) {
         return getInterpolatedU(time, horizon);
     }
 
-    /**
+    */
+/**
      * Get a linearly interpolated target state Vector at a given timestep.
      * @param time  What time to interpolate for
      * @return      Interpolated Vector
-     */
+     *//*
+
     public Vector getInterpolatedX(double time) {
         return getInterpolatedX(time, horizon);
     }
 
-    /**
+    */
+/**
      * Get a linearly interpolated feedback matrix at a given timestep.
      * @param time  What time to interpolate for
      * @return      Interpolated Matrix
-     */
+     *//*
+
     public Matrix getInterpolatedK(double time) {
         return getInterpolatedK(time, horizon);
     }
 
-    /**
+    */
+/**
      * Get a linearly interpolated feedforward control change Vector at a given timestep.
      * Treats controls as being spread out over a custom horizon time. Only used internally.
      * This is not the feed forward term to use when executing a path.
      * @param time  What time to interpolate for
      * @return      Interpolated Vector
-     */
+     *//*
+
     private Vector getInterpolatedk(double time, double horizon) {
         if (time >= (horizon-2 * dt)) return k[N-2];
         double position = (time/horizon) * N;
@@ -286,12 +321,14 @@ public class MPC {
         return (k[index].multiplied(1 - alpha).added(k[index + 1].multiplied(alpha)));
     }
 
-    /**
+    */
+/**
      * Get a linearly interpolated feedback matrix at a given timestep.
      * Treats controls as being spread out over a custom horizon time. Only used internally.
      * @param time  What time to interpolate for
      * @return      Interpolated Matrix
-     */
+     *//*
+
     private Matrix getInterpolatedK(double time, double horizon) {
         if (time >= (horizon-2* dt)) return K[N-2];
         double position = (time/horizon) * N;
@@ -300,12 +337,14 @@ public class MPC {
 
         return (K[index].multiplied(1 - alpha).added(K[index + 1].multiplied(alpha)));
     }
-    /**
+    */
+/**
      * Get a linearly interpolated target state Vector at a given timestep.
      * Treats controls as being spread out over a custom horizon time. Only used internally.
      * @param time  What time to interpolate for
      * @return      Interpolated Vector
-     */
+     *//*
+
     private Vector getInterpolatedX(double time, double horizon) {
         if (time >= (horizon-dt)) return currentTrajectory[N-1];
         double position = (time/horizon) * N;
@@ -315,13 +354,15 @@ public class MPC {
         return (currentTrajectory[index].multiplied(1 - alpha).added(currentTrajectory[index + 1].multiplied(alpha)));
     }
 
-    /**
+    */
+/**
      * Get a linearly interpolated feed-forward Vector at a given timestep.
      * Treats controls as being spread out over a custom horizon time. Only used internally.
      * Use this to get the feed-forward control for a path.
      * @param time  What time to interpolate for
      * @return      Interpolated Vector
-     */
+     *//*
+
     private Vector getInterpolatedU(double time, double horizon) {
         if (time >= (horizon-2*dt)) return Vector.length(numControls);
         double position = (time/horizon) * N;
@@ -331,10 +372,12 @@ public class MPC {
         return (currentControls[index].multiplied(1 - alpha).added(currentControls[index + 1].multiplied(alpha)));
     }
 
-    /**
+    */
+/**
      * Updates the current control, state, and feedback trajectories based off a predicted improvement.
      * @param currentState  What the current starting state is. Often currentTrajectory[0].
-     */
+     *//*
+
     private void updateControls(Vector currentState) {
 
         // First Derivative of "Value" Function: How much a change in state will change the future cost.
@@ -375,6 +418,7 @@ public class MPC {
             for (int k =0; k < dimensions; k++) {
                 for (int j = 0; j < dimensions; j++) {
                     crossMatrix.add(k, j, dcdxraw.get(k) * dodx.get(j));
+                    crossMatrix.add(k, j, dcdxraw.get(j) * dodx.get(k));
                 }
             }
 
@@ -485,13 +529,15 @@ public class MPC {
 
     }
 
-    /**
+    */
+/**
      * Used for Model Precitive Control. Set trajectory information based off current position.
      *
      * @param currentTime   Current Timestep
      * @param currentPos Position at current timestep.
      * @param amount
-     */
+     *//*
+
     protected void stepForwardHorizon(Vector currentPos, double currentTime, int amount) {
 
         // As we're no longer necessarily on the trajectory, we should reset lambda.
@@ -523,13 +569,15 @@ public class MPC {
     }
 
 
-    /**
+    */
+/**
      * Instead of compiling from scratch, it may be faster to load variables from an array.
      * @param x     State Trajectory
      * @param u     Control Trajectory
      * @param k     Control Feedforward
      * @param K     Feedback Trajectory
-     */
+     *//*
+
     public void loadFromArray(Vector[] x, Vector[] u, Vector[] k, Matrix[] K) {
         this.currentTrajectory = x;
         this.currentControls = u;
@@ -537,11 +585,13 @@ public class MPC {
         this.K = K;
     }
 
-    /**
+    */
+/**
      * Iterate updateControls using Levenberg–Marquardt Heuristics to update lambda.
      * @param maxIter   Maximum number of iterations to do. Prevents getting stuck in a loop.
      * @param start     Start position to simulate from.
-     */
+     *//*
+
     public void iterate(int maxIter, Vector start) {
 
         // Get initial setup.
@@ -608,3 +658,4 @@ public class MPC {
 
     }
 }
+*/

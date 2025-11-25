@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.MPCPath;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Paths.PointObstacle;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ConstantSignal;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ReferenceSignal;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.SequentialSignal;
@@ -27,6 +28,7 @@ public class MPCTest extends BaseOpMode {
 
         public static int N = 40;
         public static int Horizon = 5;
+        public static int Swap = 3;
         public static double threshold = 0.0001;
 
         public static double TX = 0;
@@ -38,6 +40,11 @@ public class MPCTest extends BaseOpMode {
         public static boolean feedBack = true;
 
         public static boolean enabled = true;
+
+        public static double OX = 0;
+        public static double OY = 50;
+        public static double OSize = 20;
+        public static double OStrength = 500;
 
     }
 
@@ -55,7 +62,7 @@ public class MPCTest extends BaseOpMode {
 
 
 
-        path = new SequentialSignal(new ConstantSignal(new Vector(0, 100, 0, TestMPCParams.TV, TestMPCParams.THV)), new ConstantSignal(new Vector(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, 0, 0)), 2);
+        path = new SequentialSignal(new ConstantSignal(new Vector(0, 100, 0, TestMPCParams.TV, TestMPCParams.THV)), new ConstantSignal(new Vector(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, 0, 0)), TestMPCParams.Swap);
         drivemodel = new TankDrive();
 
         test = new MPCPath();
@@ -69,6 +76,7 @@ public class MPCTest extends BaseOpMode {
         test.setName("Test Path");
         test.setStart(0, 0, 0, 0, 0);
         test.build();
+        //test.addObstacle(new PointObstacle(TestMPCParams.OX, TestMPCParams.OY, TestMPCParams.OSize, TestMPCParams.OStrength));
         try {
             test.load();
 
@@ -99,6 +107,7 @@ public class MPCTest extends BaseOpMode {
         BaseOpMode.addData("Correction R", correction.get(1));
 
 
+
     }
 
     @Override
@@ -117,6 +126,7 @@ public class MPCTest extends BaseOpMode {
         }
         BaseOpMode.addData("Correction L", correction.get(0));
         BaseOpMode.addData("Correction R", correction.get(1));
+
 
         if (gamepad1.square || TestMPCParams.enabled) {
             //if (drive.correctionSignal == null) drive.followController(test);

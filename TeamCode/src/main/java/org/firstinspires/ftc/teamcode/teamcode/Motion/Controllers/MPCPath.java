@@ -7,16 +7,17 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonReader;
-import com.qualcomm.hardware.lynx.LynxVoltageSensor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.SystemModel;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Paths.Obstacle;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ConstantSignal;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.ReferenceSignal;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.MPC;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
@@ -94,7 +95,7 @@ public class MPCPath extends Controller{
 
     ElapsedTime timer;  // How long the path has been running for
 
-    MPC controller; // The actual path/controller object to use
+    public MPC controller; // The actual path/controller object to use
 
     // These two are NOT related
     double startTime = 0; // When updating the path midway (MPC), when was the update done? Used for timers.
@@ -152,6 +153,9 @@ public class MPCPath extends Controller{
         this.start = new Vector(new double[] {x, y, h, v, vh});
     }
 
+    public void addObstacle(Obstacle obstacle) {
+        controller.addObstacle(obstacle);
+    }
     /**
      * How much time to simulate a control for. Should be about how long it takes to get to the target state.
      * @param time
@@ -295,6 +299,7 @@ public class MPCPath extends Controller{
             target = this.referenceSignal.target();
         }
 
+        BaseOpMode.addData("Position Cost", controller.costFunction(target, referenceSignal.target(), new Vector(0,0), 1/resolution));
         BaseOpMode.addData("TX", target.get(0));
         BaseOpMode.addData("TY", target.get(1));
         BaseOpMode.addData("TH", target.get(2));

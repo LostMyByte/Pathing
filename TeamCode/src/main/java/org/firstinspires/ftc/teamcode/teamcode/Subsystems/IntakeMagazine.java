@@ -313,6 +313,11 @@ public class IntakeMagazine extends Subsystem{
     }
 
 
+    @Override
+    public void update() {
+        throw new RuntimeException("Dylan didn't code this");
+    }
+
     public void updateSensors(){
         for(int sensorNum = 0; sensorNum <= breakBeams.length; sensorNum++){
             //if we believe there is not a ball in one of the break beam slots, check if there is a ball
