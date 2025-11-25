@@ -33,7 +33,7 @@ public class IntakeMagazine extends Subsystem{
     TouchSensor[] breakBeams = new TouchSensor[2];
     boolean[] breakBeamReads = new boolean[3];
     final float[] hsv = new float[3];
-    boolean indexMode = false;
+    public boolean indexMode = false;
 
     public IntakeMagazine(HardwareMap hardwareMap){
         shooterDoor = new Servos.ShooterDoor();
@@ -76,6 +76,9 @@ public class IntakeMagazine extends Subsystem{
                 break;
             case CLEAR:
                 clearMagazine();
+                break;
+            case LOADANDSHOOTUNINDEXED:
+                loadAndShootUnindexed();
                 break;
         }
     }
@@ -136,12 +139,8 @@ public class IntakeMagazine extends Subsystem{
         rearIntake.setPower(0);
         shooterDoor.closed();
         if (indexMode){
-            if (timer.seconds() < 0.2){
+            if (breakBeamReads[2]){
                 indexServo.index();
-            } else if (timer.seconds() > 0.2){
-                if (!breakBeamReads[2]){
-                    indexServo.home();
-                }
             }
         }
     }
@@ -227,6 +226,47 @@ public class IntakeMagazine extends Subsystem{
         }
     }
 
+    //This is for if we are in index mode and Avery chooses to shoot a ball without knowing its color
+    //We need this because in index mode no ball is loaded into the shooting position so,
+    //unlike in standard mode, we need to find a ball to shoot before we shoot it.
+    public void loadAndShootUnindexed(){
+        shooterDoor.closed();
+        if (breakBeamReads[3]){
+            setState(SHOOTING);
+        } else if(breakBeamReads[2]){
+            indexServo.home();
+            indexer[3] = indexer[2];
+            breakBeamReads[2] = false;
+            indexer[2] = BallColors.NONE;
+            breakBeamReads[3] = true;
+            if (timer.seconds() > 0.5){
+                setState(SHOOTING);
+            }
+        } else if (breakBeamReads[1]){
+            rearIntake.setPower(1);
+            frontIntake.setPower(0);
+            if (timer.seconds() > 0.5){
+                breakBeamReads[3] = true;
+                indexer[3] = indexer[1];
+                breakBeamReads[1] = false;
+                indexer[1] = BallColors.NONE;
+                setState(SHOOTING);
+            }
+        } else if (breakBeamReads[0]) {
+            frontIntake.setPower(1);
+            rearIntake.setPower(0);
+            if (timer.seconds() > 0.5) {
+                breakBeamReads[3] = true;
+                indexer[3] = indexer[1];
+                breakBeamReads[1] = false;
+                indexer[1] = BallColors.NONE;
+                setState(SHOOTING);
+            }
+        } else {
+            setState(IDLE);
+        }
+    }
+
     //run both intakes the same direction (one in, one out), in order to pass a ball from the currently
     //active intake into the opposite side intake. When there is a ball in the opposite side intake, stop
     //that intake.
@@ -265,6 +305,13 @@ public class IntakeMagazine extends Subsystem{
         breakBeamReads[3] = false;
     }
 
+    public void resetBreakBeams(){
+        breakBeamReads[0] = false;
+        breakBeamReads[1] = false;
+        breakBeamReads[2] = false;
+        breakBeamReads[3] = false;
+    }
+
 
     public void updateSensors(){
         for(int sensorNum = 0; sensorNum <= breakBeams.length; sensorNum++){
@@ -287,10 +334,13 @@ public class IntakeMagazine extends Subsystem{
         }
     }
 
-
+    @Override
+    public void update() {
+        work();
+    }
 
     public enum IntakeMagazineStates{
-        IDLE, INTAKEFRONT, INTAKEREAR, SHOOTING, LOAD, LOADGREEN, LOADPURPLE, CLEAR
+        IDLE, INTAKEFRONT, INTAKEREAR, SHOOTING, LOAD, LOADGREEN, LOADPURPLE, CLEAR, LOADANDSHOOTUNINDEXED
     }
 
     public enum BallColors{
