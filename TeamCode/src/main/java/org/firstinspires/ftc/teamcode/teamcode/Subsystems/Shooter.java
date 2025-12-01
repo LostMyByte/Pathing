@@ -38,9 +38,9 @@ public class Shooter extends Subsystem{
 
     Motor shooter1;
     Motor shooter2;
-    Motor turret;
+    Servos.Turret turret;
+    Servos.Turret2 turret2;
     Servos.Hood hood;
-    AnalogInput turretEncoder;
     double turretAngle;
     PID shooterPDF;
     PID turretPDL;
@@ -51,7 +51,6 @@ public class Shooter extends Subsystem{
     double yVelocity;
     double tx;
     ShooterStates shooterState;
-    TurretState turretState;
     double ticksPerRotation = 636;
     double turretStartAngle;
     double turretTargetAngle;
@@ -94,7 +93,8 @@ public class Shooter extends Subsystem{
         shooter1 = new Motor(Hardware.shooter1, false, true);
         shooter2 = new Motor(Hardware.shooter2, false, true);
         hood = new Servos.Hood();
-        turret = new Motor(Hardware.turret, false, true);
+        turret = new Servos.Turret();
+        turret2 = new Servos.Turret2();
 
         //turretEncoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
         shooterPDF = new PID(0,0,0);
@@ -110,7 +110,6 @@ public class Shooter extends Subsystem{
         this.team = team;
 
         shooterState = ShooterStates.OBELISK;
-        turretState = TurretState.ACTIVE;
         //currentRamp = new ArrayList<BallColors>();
         this.turretStartAngle = turretStartAngle;
 
@@ -184,12 +183,15 @@ public class Shooter extends Subsystem{
     double turretResetTargetAngle = 0;
     double correction = 0;
     public void updateTurret(){
-        double currentTurretAngle = turret.encoder.getPosition();
-        //convert this to radians and wrap the angle
-        currentTurretAngle = currentTurretAngle * (2*Math.PI/ticksPerRotation);
+        updateTargetTurretAngle();
+
+        turret.setPositionInterpolated(turretTargetAngle);
+        turret2.setPositionInterpolated(turretTargetAngle);
 
         //DONT angle wrap because the wiring means we can't actually spin around multiple times
 
+
+        /*
         turretPDL.setConstants(PIDTuningDash.TurretP,0,PIDTuningDash.TurretD);
         turretPDL.setLowerLimit(PIDTuningDash.TurretL);
         turretPDL.setDeadZone(PIDTuningDash.TurretDeadzone);
@@ -227,9 +229,7 @@ public class Shooter extends Subsystem{
 
                 }
         }
-    }
-    public void setTurretState(TurretState state){
-        turretState = state;
+        */
     }
 
     double filteredRPM = 0;
@@ -261,7 +261,6 @@ public class Shooter extends Subsystem{
         //This is the target angle relative to facing directly at the aprilTag
         //yaw is current angle of the aprilTag relative to the shooter
         //This uses the law of sines to find the target angle of the robot relative to the april tag
-        turretError = getTargetTurretAngle() - turretAngle;
         updateTurret();
     }
 
@@ -390,6 +389,7 @@ public class Shooter extends Subsystem{
 
                 ///Heading and telemetry
                 tx = result.getTx();
+                //uses law of cosines to calculate the distance to the back of the goal
                 distanceAway = Math.sqrt(Math.pow(0.46, 2) + Math.pow(actualDistance, 2) - 2 * 0.46 * actualDistance * Math.cos(yaw));
 
                 BaseOpMode.addData("tyFiltered", tyFiltered);
@@ -404,7 +404,7 @@ public class Shooter extends Subsystem{
     }
 
 
-    public double getTargetTurretAngle(){
+    public void updateTargetTurretAngle(){
 
         //the angle the robot would need to face to hit the target
         double angle = Math.atan(x/y);
@@ -418,7 +418,22 @@ public class Shooter extends Subsystem{
 
         //account for robot velocity
         angle -= Math.asin(vX/getTargetBallSpeedX());
-        return angle;
+        //this gives me an angle between 0 and 2pi. In order to work nicely with kieran's code,
+        //I subtract pi/2 to make the angle be between -pi/2 and 3pi/2
+        angle -= Math.PI/2;
+
+        //this will be an angle between -pi/2 and 3pi/2. The servos are capable of 405 degrees
+        //of rotation, which is helpful because there is some overlap and results in fewer resets.
+        //To make use of this overlap, if the angle is in the area of overlap (between -pi/2 and
+        //Math.toRadians(-5)) we check what the last angle was. If it was less than pi/2, keep the
+        //angle as is. if it was greater than pi/2, add 2pi to the angle.
+
+        if (angle > -Math.PI/2 && angle < Math.toRadians(-5) && turretTargetAngle > Math.PI/2){
+            turretTargetAngle = angle + 2*Math.PI;
+
+        } else {
+            turretTargetAngle = angle;
+        }
     }
 
     double x;
@@ -632,11 +647,4 @@ public class Shooter extends Subsystem{
         GREEN, PURPLE
     }
 
-    public enum TurretState{
-        ACTIVE, RESETTING
-    }
-
-    public enum ShotType{
-        HIGH, LOW
-    }
 }

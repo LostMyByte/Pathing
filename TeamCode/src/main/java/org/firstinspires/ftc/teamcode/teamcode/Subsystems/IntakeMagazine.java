@@ -315,7 +315,7 @@ public class IntakeMagazine extends Subsystem{
 
     @Override
     public void update() {
-        throw new RuntimeException("Dylan didn't code this");
+        work();
     }
 
     public void updateSensors(){

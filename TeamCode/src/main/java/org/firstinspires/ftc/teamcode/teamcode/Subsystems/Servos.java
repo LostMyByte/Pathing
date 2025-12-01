@@ -92,6 +92,13 @@ public class Servos {
     public static class Transfer extends Servo{
         public Transfer(){super(Hardware.transfer);}
     }
+
+    public static class Turret extends Servo{
+        public Turret(){super(Hardware.turret,0,0,0,0);}
+    }
+    public static class Turret2 extends Servo{
+        public Turret2(){super(Hardware.turret2,0,0,0,0);}
+    }
 }
 
 
