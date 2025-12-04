@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.IDLE;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.INTAKEFRONT;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.INTAKEREAR;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.LOAD;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.SHOOTING;
 
@@ -279,6 +280,13 @@ public class IntakeMagazine extends Subsystem{
         } else {
             rearIntake.setPower(-0.5);
         }
+        //Because intaking is unpredictable by nature, reset all the break beam reads except for the rear
+        //intake, because when the rear intake reads true that should stay true and we need that read to
+        //be accurate at this time
+        breakBeamReads[0] = false;
+        breakBeamReads[2] = false;
+        breakBeamReads[3] = false;
+
     }
     public void intakeRear(){
         rearIntake.setPower(1);
@@ -289,6 +297,12 @@ public class IntakeMagazine extends Subsystem{
         } else {
             frontIntake.setPower(-0.5);
         }
+        //Because intaking is unpredictable by nature, reset all the break beam reads except for the front
+        //intake, because when the front intake reads true that should stay true and we need that read to
+        //be accurate at this time
+        breakBeamReads[1] = false;
+        breakBeamReads[2] = false;
+        breakBeamReads[3] = false;
 
     }
 
@@ -299,10 +313,7 @@ public class IntakeMagazine extends Subsystem{
         if (timer.seconds() > 0.2){
             indexServo.home();
         }
-        breakBeamReads[0] = false;
-        breakBeamReads[1] = false;
-        breakBeamReads[2] = false;
-        breakBeamReads[3] = false;
+        resetBreakBeams();
     }
 
     public void resetBreakBeams(){
@@ -318,6 +329,7 @@ public class IntakeMagazine extends Subsystem{
         work();
     }
 
+    @Override
     public void updateSensors(){
         for(int sensorNum = 0; sensorNum <= breakBeams.length; sensorNum++){
             //if we believe there is not a ball in one of the break beam slots, check if there is a ball
