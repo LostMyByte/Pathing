@@ -41,6 +41,7 @@ public class Shooter extends Subsystem{
     Servos.Turret turret;
     Servos.Turret2 turret2;
     Servos.Hood hood;
+
     double turretAngle;
     PID shooterPDF;
     PID turretPDL;

@@ -24,7 +24,13 @@ public class IntakeMagazine extends Subsystem{
     Servos.ShooterDoor shooterDoor;
     Motor frontIntake;
     Motor rearIntake;
-    Servos.indexIn indexServo;
+    Servos.indexIn indexIn;
+    Servos.indexOut indexOut;
+    //the ramp closest to the back side of the robot
+    Servos.FliPrampBack backRamp;
+    //The ramp closest to the front side of the robot
+    Servos.FliPrampFront frontRamp;
+
     IntakeMagazineStates state = IDLE;
     ElapsedTime timer;
 
@@ -38,8 +44,12 @@ public class IntakeMagazine extends Subsystem{
 
     public IntakeMagazine(HardwareMap hardwareMap){
         shooterDoor = new Servos.ShooterDoor();
+        frontRamp = new Servos.FliPrampFront();
+        backRamp = new Servos.FliPrampBack();
         frontIntake = new Motor(Hardware.frontIntake);
         rearIntake = new Motor(Hardware.rearIntake);
+        indexIn = new Servos.indexIn();
+        indexOut = new Servos.indexOut();
         timer = new ElapsedTime();
         colorSensors[0] = hardwareMap.get(NormalizedColorSensor.class, "colorSensor0");
         colorSensors[1] = hardwareMap.get(NormalizedColorSensor.class, "colorSensor1");
@@ -93,9 +103,10 @@ public class IntakeMagazine extends Subsystem{
     //what ball to shoot next
 
     public void shoot(){
-        rearIntake.setPower(1);
         frontIntake.setPower(1);
         shooterDoor.open();
+        frontRamp.flat();
+        backRamp.shoot();
         if (timer.seconds() > 0.5){
             breakBeamReads[3] = false;
             indexer[3] = BallColors.NONE;
@@ -116,6 +127,8 @@ public class IntakeMagazine extends Subsystem{
         if(breakBeamReads[0]){
             frontIntake.setPower(1);
             rearIntake.setPower(0);
+            frontRamp.flat();
+            backRamp.shoot();
             if (timer.seconds() > 0.5){
                 breakBeamReads[3] = true;
                 breakBeamReads[0] = false;
@@ -124,6 +137,8 @@ public class IntakeMagazine extends Subsystem{
         } else if (breakBeamReads[1]){
             rearIntake.setPower(1);
             frontIntake.setPower(0);
+            frontRamp.shoot();
+            backRamp.flat();
             if (timer.seconds() > 0.5){
                 breakBeamReads[3] = true;
                 breakBeamReads[1] = false;
@@ -139,9 +154,11 @@ public class IntakeMagazine extends Subsystem{
         frontIntake.setPower(0);
         rearIntake.setPower(0);
         shooterDoor.closed();
+        frontRamp.mid();
+        backRamp.mid();
         if (indexMode){
             if (breakBeamReads[2]){
-                indexServo.index();
+                setIndex(true);
             }
         }
     }
@@ -156,7 +173,10 @@ public class IntakeMagazine extends Subsystem{
         if (indexer[3] == BallColors.GREEN){
             setState(SHOOTING);
         } else if(indexer[2] == BallColors.GREEN){
-            indexServo.home();
+            setIndex(false);
+            //might want to make these mid
+            frontRamp.flat();
+            backRamp.flat();
             indexer[2] = BallColors.NONE;
             breakBeamReads[2] = false;
             indexer[3] = BallColors.GREEN;
@@ -167,6 +187,8 @@ public class IntakeMagazine extends Subsystem{
         } else if (indexer[1] == BallColors.GREEN){
             rearIntake.setPower(1);
             frontIntake.setPower(0);
+            frontRamp.shoot();
+            backRamp.flat();
             if (timer.seconds() > 0.5){
                 breakBeamReads[3] = true;
                 indexer[3] = BallColors.GREEN;
@@ -177,6 +199,8 @@ public class IntakeMagazine extends Subsystem{
         } else if (indexer[0] == BallColors.GREEN) {
             frontIntake.setPower(1);
             rearIntake.setPower(0);
+            frontRamp.flat();
+            backRamp.shoot();
             if (timer.seconds() > 0.5) {
                 breakBeamReads[3] = true;
                 indexer[3] = BallColors.GREEN;
@@ -194,17 +218,23 @@ public class IntakeMagazine extends Subsystem{
         if (indexer[3] == BallColors.PURPLE){
             setState(SHOOTING);
         } else if(indexer[2] == BallColors.PURPLE){
-            indexServo.home();
+            setIndex(false);
+            //might want to make these mid
+            frontRamp.flat();
+            backRamp.flat();
             indexer[2] = BallColors.NONE;
             breakBeamReads[2] = false;
             indexer[3] = BallColors.PURPLE;
             breakBeamReads[3] = true;
+
             if (timer.seconds() > 0.5){
                 setState(SHOOTING);
             }
         } else if (indexer[1] == BallColors.PURPLE){
             rearIntake.setPower(1);
             frontIntake.setPower(0);
+            frontRamp.shoot();
+            backRamp.flat();
             if (timer.seconds() > 0.5){
                 breakBeamReads[3] = true;
                 indexer[3] = BallColors.PURPLE;
@@ -215,6 +245,8 @@ public class IntakeMagazine extends Subsystem{
         } else if (indexer[0] == BallColors.PURPLE) {
             frontIntake.setPower(1);
             rearIntake.setPower(0);
+            frontRamp.flat();
+            backRamp.shoot();
             if (timer.seconds() > 0.5) {
                 breakBeamReads[3] = true;
                 indexer[3] = BallColors.PURPLE;
@@ -235,7 +267,10 @@ public class IntakeMagazine extends Subsystem{
         if (breakBeamReads[3]){
             setState(SHOOTING);
         } else if(breakBeamReads[2]){
-            indexServo.home();
+            setIndex(false);
+            //might want to make these mid
+            frontRamp.flat();
+            backRamp.flat();
             indexer[3] = indexer[2];
             breakBeamReads[2] = false;
             indexer[2] = BallColors.NONE;
@@ -246,6 +281,8 @@ public class IntakeMagazine extends Subsystem{
         } else if (breakBeamReads[1]){
             rearIntake.setPower(1);
             frontIntake.setPower(0);
+            frontRamp.shoot();
+            backRamp.flat();
             if (timer.seconds() > 0.5){
                 breakBeamReads[3] = true;
                 indexer[3] = indexer[1];
@@ -256,6 +293,8 @@ public class IntakeMagazine extends Subsystem{
         } else if (breakBeamReads[0]) {
             frontIntake.setPower(1);
             rearIntake.setPower(0);
+            frontRamp.flat();
+            backRamp.shoot();
             if (timer.seconds() > 0.5) {
                 breakBeamReads[3] = true;
                 indexer[3] = indexer[1];
@@ -274,6 +313,8 @@ public class IntakeMagazine extends Subsystem{
     public void intakeFront(){
         frontIntake.setPower(1);
         shooterDoor.closed();
+        frontRamp.flat();
+        backRamp.flat();
         //if there is a ball in the rear intake, stop reversing that intake
         if(breakBeamReads[1]){
             rearIntake.setPower(0);
@@ -291,6 +332,8 @@ public class IntakeMagazine extends Subsystem{
     public void intakeRear(){
         rearIntake.setPower(1);
         shooterDoor.closed();
+        frontRamp.flat();
+        backRamp.flat();
         //if there is a ball in the front intake, stop reversing that intake
         if(breakBeamReads[0]){
             frontIntake.setPower(0);
@@ -308,10 +351,12 @@ public class IntakeMagazine extends Subsystem{
 
     public void clearMagazine(){
         shooterDoor.closed();
+        frontRamp.flat();
+        backRamp.flat();
         rearIntake.setPower(-1);
         frontIntake.setPower(-1);
         if (timer.seconds() > 0.2){
-            indexServo.home();
+            setIndex(true);
         }
         resetBreakBeams();
     }
@@ -321,6 +366,17 @@ public class IntakeMagazine extends Subsystem{
         breakBeamReads[1] = false;
         breakBeamReads[2] = false;
         breakBeamReads[3] = false;
+    }
+
+    //sets the position of the ball in the middle position. True is indexed, false is shooting
+    public void setIndex(boolean index){
+        if(index){
+            indexIn.index();
+            indexOut.home();
+        } else {
+            indexOut.flip();
+            indexIn.home();
+        }
     }
 
 
