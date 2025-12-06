@@ -75,9 +75,9 @@ public class Constants {
     public static boolean intakeReady = false;
     public static boolean depositorReady = false;
     public static final double fx = 396.874; //updated for global shutter cam
-    public static final double cy = 421.638;
-    public static final double fy = 905.527;
-    public static final double cx = 662.777;
+    public static final double cy = 343.82;
+    public static final double fy = 396.874;
+    public static final double cx = 626.13;
 
     public static final double focalLengthMM = 30;
     public static double inchesToPixels = fx/(focalLengthMM/DistanceUnit.mmPerInch);

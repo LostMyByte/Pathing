@@ -17,6 +17,7 @@ public class DimitriTeleop extends BaseOpMode{
     IntakeMagazine intake;
     TeliOpDrivetrain drive;
     boolean shooterActive = true;
+    boolean wasIntaking = false;
 
     Location loc;
 
@@ -32,6 +33,7 @@ public class DimitriTeleop extends BaseOpMode{
     public void externalLoop() {
         drive.drive(driver1.leftStick.Y(), driver1.rightStick.X());
         shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getPosH(), loc.getTranslationalVelocity());
+        intake.setIndexMode(driver1.options.isToggled());
 
         if (shooterActive){
             shooter.setState(ACTIVE);
@@ -41,6 +43,32 @@ public class DimitriTeleop extends BaseOpMode{
 
         if (driver1.dpad_up.isTapped()){
             shooterActive = !shooterActive;
+        }
+
+        if (driver1.leftTrigger.isPressed()){
+            intake.setState(IntakeMagazine.IntakeMagazineStates.INTAKEREAR);
+            wasIntaking = true;
+        } else if (driver1.rightTrigger.isPressed()){
+            intake.setState(IntakeMagazine.IntakeMagazineStates.INTAKEFRONT);
+            wasIntaking = true;
+        } else if (driver1.rightBumper.isPressed()){
+            intake.setState(IntakeMagazine.IntakeMagazineStates.CLEAR);
+            wasIntaking = true;
+        } else if (wasIntaking){
+            intake.setState(IntakeMagazine.IntakeMagazineStates.IDLE);
+            wasIntaking = false;
+        }
+
+        if (intake.getState() == IntakeMagazine.IntakeMagazineStates.IDLE && driver1.cross.isTapped()){
+            if (!intake.indexMode) {
+                intake.setState(IntakeMagazine.IntakeMagazineStates.SHOOTING);
+            } else {
+                intake.setState(IntakeMagazine.IntakeMagazineStates.LOADANDSHOOTUNINDEXED);
+            }
+        } else if (intake.indexMode && intake.getState() == IntakeMagazine.IntakeMagazineStates.IDLE && driver1.square.isTapped()){
+            intake.setState(IntakeMagazine.IntakeMagazineStates.LOADPURPLE);
+        } else if (intake.indexMode && intake.getState() == IntakeMagazine.IntakeMagazineStates.IDLE && driver1.triangle.isTapped()){
+            intake.setState(IntakeMagazine.IntakeMagazineStates.LOADGREEN);
         }
     }
 }

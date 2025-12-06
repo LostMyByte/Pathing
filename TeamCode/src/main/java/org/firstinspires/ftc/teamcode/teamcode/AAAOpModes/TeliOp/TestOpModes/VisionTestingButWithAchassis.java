@@ -1,6 +1,10 @@
 // Primary Author: Caroline Oringer
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes;
 
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.cx;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.cy;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.fx;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.fy;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware.cameraResolution;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -9,14 +13,19 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.TeliOpDrivetrain;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.AprilTags.AprilTagDetector;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.AprilTags.AprilTagDetectorNew;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
 @TeleOp (name = "AAA visionTest")
 public class VisionTestingButWithAchassis extends BaseOpMode {
     private FtcDashboard dash;
     TeliOpDrivetrain drive;
 
+    AprilTagProcessor aprilTagProcessor;
     WebcamName webcam1;
     BallChaser ballDetector;
 
@@ -31,12 +40,16 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
     @Override
     public void externalInit() {
         ballDetector = new BallChaser();
+        aprilTagProcessor = new AprilTagProcessor.Builder()
+                .setLensIntrinsics(fx, fy, cx, cy)
+                .setDrawCubeProjection(true)
+                .build();
         webcam1 = hardwareMap.get(WebcamName.class, "Webcam 1");
         visionPortal = new VisionPortal.Builder()
                 //setup for using webcam, there is a different way to set up a phone camera
                 .setCamera(webcam1)
                 //use addProcessor() for only adding one processor
-                .addProcessor(ballDetector)
+                .addProcessors(ballDetector, aprilTagProcessor)
                 // .addProcessors(drive.getProcessor())
                 //sets the camera resolution to the size we set up earlier
                 //Currently 1280x720 because that size works for both a global shutter camera and a logitech camera
@@ -55,7 +68,10 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
 
     @Override
     public void externalLoop() {
-        BaseOpMode.addData("is targeting", isTargeting);
+        if (!aprilTagProcessor.getDetections().isEmpty()) {
+            BaseOpMode.addData("id", aprilTagProcessor.getDetections().get(0).id);
+        }
+        /* BaseOpMode.addData("is targeting", isTargeting);
         BaseOpMode.addData("time", timewaste);
         if(driver1.triangle.isTapped()){
             isTargeting=!isTargeting;
@@ -74,7 +90,7 @@ public class VisionTestingButWithAchassis extends BaseOpMode {
                 isIntakeing = false;
                 timewaste.reset();
             }
-        }
+        }*/
     }
 
 }
