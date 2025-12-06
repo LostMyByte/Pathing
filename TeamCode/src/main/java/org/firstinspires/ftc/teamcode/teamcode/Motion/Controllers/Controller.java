@@ -10,26 +10,23 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 **/
 public abstract class Controller {
 
-    public ReferenceSignal referenceSignal;
+    public Signal referenceSignal;
     public Signal sensorSignal;
+
     public abstract Vector getCorrection();
 
     protected int dimensions;
 
     protected Signal errorSignal;
 
-    public Controller(){}
+    public Controller() {
+    }
 
-    public Controller(ReferenceSignal referenceSignal, Signal dataSignal) {
+    public Controller(Signal referenceSignal, Signal dataSignal) {
         this.referenceSignal = referenceSignal;
         this.sensorSignal = dataSignal;
         errorSignal = new DifferenceSignal(referenceSignal, dataSignal);
 
         this.dimensions = errorSignal.size;
     }
-
-    public Vector targetPositionError() {
-        return this.sensorSignal.getDataVector().subtracted(this.referenceSignal.target());
-    }
-
 }

@@ -31,6 +31,8 @@ import java.io.IOException;
 
 public class MPCPath extends Controller{
 
+    public ReferenceSignal referenceSignal;
+
     @Config
     public static class MPCSettings {
         public static boolean fullEndCorrection = true;
@@ -39,6 +41,8 @@ public class MPCPath extends Controller{
         public static boolean voltageCorrection = false;
     }
     VoltageSensor voltage;
+    
+    public boolean doTelemetry = false;
 
     /**
      * A set of parameters to use for Model Predictive Control
@@ -239,7 +243,7 @@ public class MPCPath extends Controller{
      */
     public void compile(int maxIter) {
 
-        BaseOpMode.addData("Compiling Path", name);
+        if (doTelemetry) BaseOpMode.addData("Compiling Path", name);
         controller.iterate(maxIter, start);
 
     }
@@ -299,12 +303,12 @@ public class MPCPath extends Controller{
             target = this.referenceSignal.target();
         }
 
-        BaseOpMode.addData("Position Cost", controller.costFunction(target, referenceSignal.target(), new Vector(0,0), 1/resolution));
-        BaseOpMode.addData("TX", target.get(0));
-        BaseOpMode.addData("TY", target.get(1));
-        BaseOpMode.addData("TH", target.get(2));
-        BaseOpMode.addData("TV", target.get(3));
-        BaseOpMode.addData("TVH", target.get(4));
+        if (doTelemetry) BaseOpMode.addData("Position Cost", controller.costFunction(target, referenceSignal.target(), new Vector(0,0), 1/resolution));
+        if (doTelemetry) BaseOpMode.addData("TX", target.get(0));
+        if (doTelemetry) BaseOpMode.addData("TY", target.get(1));
+        if (doTelemetry) BaseOpMode.addData("TH", target.get(2));
+        if (doTelemetry) BaseOpMode.addData("TV", target.get(3));
+        if (doTelemetry) BaseOpMode.addData("TVH", target.get(4));
 
         return position.subtracted(target);
     }
@@ -342,8 +346,8 @@ public class MPCPath extends Controller{
             correction.add(new Vector(heading.dotProduct(posError) * DriveWheels.Kp, posError.magnitude() * DriveWheels.Kp));
         }
 
-        BaseOpMode.addData("FH", correction.get(1)-correction.get(0));
-        BaseOpMode.addData("FV", correction.get(1)+correction.get(0));
+        if (doTelemetry) BaseOpMode.addData("FH", correction.get(1)-correction.get(0));
+        if (doTelemetry) BaseOpMode.addData("FV", correction.get(1)+correction.get(0));
         Matrix feedback = new GeneralMatrix(5, 2, new double[] {
                 0, 0,
                 0, 0,
@@ -359,8 +363,8 @@ public class MPCPath extends Controller{
         sensorData = model.h(sensorData.multiplied(MPCSettings.invertHScale ? -1 : 1)).multiplied(sensorData);
 
         Vector modelResponse = K.multiplied(DriveWheels.strength).multiplied(sensorData);
-        BaseOpMode.addData("MH", modelResponse.get(1)-modelResponse.get(0));
-        BaseOpMode.addData("MV", modelResponse.get(1)+modelResponse.get(0));
+        if (doTelemetry) BaseOpMode.addData("MH", modelResponse.get(1)-modelResponse.get(0));
+        if (doTelemetry) BaseOpMode.addData("MV", modelResponse.get(1)+modelResponse.get(0));
         correction.add(modelResponse);
 
         correction.add(feedback.multiplied(sensorData).added(loopback));
@@ -381,7 +385,7 @@ public class MPCPath extends Controller{
         time = timer.time() - startTime;
         simTime = time;
 
-        BaseOpMode.addData("Time", time);
+        if (doTelemetry) BaseOpMode.addData("Time", time);
 
         Vector data = sensorData;
 
@@ -392,20 +396,23 @@ public class MPCPath extends Controller{
         /*while (simTime < horizonTime) {
             sensorData = model.stateTransitionFunction(sensorData, getCorrection(sensorData, simTime),Signal.deltaTime);
             simTime += Math.max(Signal.deltaTime, 0.01);
-        }*/
+        }
+
+        if (doTelemetry) BaseOpMode.addData("LX", sensorData.get(0));
+        if (doTelemetry) BaseOpMode.addData("LY", sensorData.get(1));
+        if (doTelemetry) BaseOpMode.addData("LH", sensorData.get(2));
+        if (doTelemetry) BaseOpMode.addData("LV", sensorData.get(3));
+        if (doTelemetry) BaseOpMode.addData("LVH", sensorData.get(4));
+         */
 
         Vector correction = getCorrection(data, time);
 
-        BaseOpMode.addData("LX", sensorData.get(0));
-        BaseOpMode.addData("LY", sensorData.get(1));
-        BaseOpMode.addData("LH", sensorData.get(2));
-        BaseOpMode.addData("LV", sensorData.get(3));
-        BaseOpMode.addData("LVH", sensorData.get(4));
+
 
         return correction;
     }
 
-    @Override
+
     public Vector targetPositionError(){
         Vector target = referenceSignal.target();
         // TODO: Make better at not-drivetrains
@@ -425,16 +432,7 @@ public class MPCPath extends Controller{
         Vector target = controller.getInterpolatedX(time);
 
         Vector correction = controller.getInterpolatedU(time);
-
-
-        BaseOpMode.addData("TX", target.get(0));
-        BaseOpMode.addData("TY", target.get(1));
-        BaseOpMode.addData("TH", target.get(2));
-        BaseOpMode.addData("TV", target.get(3));
-        BaseOpMode.addData("TVH", target.get(4));
-
-        BaseOpMode.addData("FH", correction.get(1)-correction.get(0));
-        BaseOpMode.addData("FV", correction.get(1)+correction.get(0));
+        
         return correction;
     }
 

@@ -280,7 +280,7 @@ public class TankDrive implements SystemModel{
 
         // Row = a, Col = j = 2
         for (int a = 0; a < 5; a++) {
-            result.put(a, 2, result.get(a, 2) + linearModel.get(a));
+            result.add(a, 2, linearModel.get(a));
         }
 
         result.multiply(deltaTime);

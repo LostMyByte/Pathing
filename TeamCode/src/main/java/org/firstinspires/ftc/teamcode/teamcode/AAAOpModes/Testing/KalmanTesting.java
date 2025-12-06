@@ -18,6 +18,7 @@ public class KalmanTesting extends BaseOpMode {
 
     @Override
     public void externalLoop() {
-        
+        loc.updateOdoOffsets();
+
     }
 }

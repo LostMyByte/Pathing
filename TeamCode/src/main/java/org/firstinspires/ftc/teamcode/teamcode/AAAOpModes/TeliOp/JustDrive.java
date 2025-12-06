@@ -18,6 +18,7 @@ public class JustDrive extends BaseOpMode {
     @Override
     public void externalInit () {
         loc = new Location(0,0,0);
+        loc.doTelemetry = true;
         drive = new TankDriveTrain();
     }
 
@@ -25,7 +26,7 @@ public class JustDrive extends BaseOpMode {
     public void externalLoop () {
 
         // Update Odometry Pod offsets -- used for tuning
-        loc.updateOffsets();
+        loc.updateOdoOffsets();
         Vector target = new Vector(-gamepad1.left_stick_y, gamepad1.right_stick_x);
 
         drive.move(target);

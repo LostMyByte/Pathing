@@ -63,6 +63,16 @@ public class Vector
         this.data = new double[] {x, y, z, w, v};
     }
 
+    public Vector(double v, double v1, double v2, double v3, double v4, double v5) {
+        this.data = new double[6];
+        this.data[0] = v;
+        this.data[1] = v1;
+        this.data[2] = v2;
+        this.data[3] = v3;
+        this.data[3] = v4;
+        this.data[5] = v5;
+    }
+
     //----------------------------------------------------------------------------------------------
     // Construction
     //----------------------------------------------------------------------------------------------
