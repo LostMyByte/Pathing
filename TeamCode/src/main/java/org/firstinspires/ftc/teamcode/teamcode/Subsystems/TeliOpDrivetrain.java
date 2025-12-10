@@ -20,10 +20,15 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser;
@@ -91,17 +96,8 @@ public static double
       //  driveWheels = new MecanumDrive();
         visionTurnPID = new PID(DrivetrainDash.kPturn, DrivetrainDash.kIturn, kDturn);
         visionDrivePID = new PID(DrivetrainDash.kPdrive, DrivetrainDash.kIdrive, DrivetrainDash.kDdrive);
-        /*
 
-        gyro = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
-        if (Double.isNaN(Constants.startAngle)) {
-            gyro.resetPosAndIMU();
-            gyro.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, heading));
-        }
-        else {
 
-            gyro.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, gyro.getHeading()- PI/2));;
-        }*/
         pid = new PID(HP,0, HD);
 
 
@@ -119,34 +115,33 @@ public static double
     }
 
     public void drive(double drive, double strafe, double turn, double speed, boolean lockHeading) {
-        gyro.update();
         strafe = -strafe;
         //TODO DRIVER ORIENTED STUFF
 
         Vector2d driveVector = new Vector2d(strafe, drive);
-        Vector2d rotatedVector = driveVector.rotateBy(Math.toDegrees(-gyro.getHeading()));
+        Vector2d rotatedVector = driveVector.rotateBy(Math.toDegrees(loc.getPosH()));
 
-        BaseOpMode.addData("Heading", gyro.getHeading());
+        BaseOpMode.addData("Heading", loc.getPosH());
 
         drive = rotatedVector.getY();
         strafe = -rotatedVector.getX();
         if (!lockHeading) {
-            double currentRateOfChange = gyro.getHeadingVelocity();
+            double currentRateOfChange = loc.getVelH();
             if (turn != 0) {
                 pid_on = false;
             } else if (currentRateOfChange <= rateOfChange) pid_on = true;
 
             if (pid_on && !pid_on_last_cycle) {
-                setPoint = gyro.getHeading();
+                setPoint = loc.getPosH();
             } else if (pid_on) {
-                turn = pid.getCorrectionHeading(gyro.getHeading(), setPoint);
+                turn = pid.getCorrectionHeading(loc.getPosH(), setPoint);
             }
             pid_on_last_cycle = pid_on;
             BaseOpMode.addData("Rate Of Change", currentRateOfChange);
-            BaseOpMode.addData("Actual Heading", gyro.getHeading());
+            BaseOpMode.addData("Actual Heading", loc.getPosH());
             BaseOpMode.addData("SetPoint", setPoint);
         } else {
-            turn = pid.getCorrectionHeading(gyro.getHeading(),turn);
+            turn = pid.getCorrectionHeading(loc.getPosH(),turn);
         }
         pid.setConstants(HP, 0, HD);
             //SET POINT JUST INCREASES constantly
@@ -305,23 +300,22 @@ public static double
 
     public void PIDdrive(double drive, double turn, double power){
 
-        double currentRateOfChange = gyro.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS);
+        double currentRateOfChange = loc.getVelH();
         if (turn != 0) {
             pid_on = false;
-        } else if (currentRateOfChange <= rateOfChange) {
+        } else if (Math.abs(currentRateOfChange) <= rateOfChange) {
             pid_on = true;
         }
 
         if (pid_on && !pid_on_last_cycle) {
 
-            setPoint = gyro.getHeading(AngleUnit.RADIANS);
+            setPoint = loc.getPosH();
 
         } else if (pid_on) {
-            turn = pid.getCorrectionHeading(gyro.getHeading(AngleUnit.RADIANS), setPoint);
+            turn = pid.getCorrection(loc.getPosH(), setPoint);
         }
         pid_on_last_cycle = pid_on;
-        BaseOpMode.addData("Rate Of Change", currentRateOfChange);
-        BaseOpMode.addData("Actual Heading", gyro.getHeading(AngleUnit.RADIANS));
+        BaseOpMode.addData("Actual Heading", loc.getPosH());
         BaseOpMode.addData("SetPoint", setPoint);
 
         pid.setConstants(HP, 0, HD);

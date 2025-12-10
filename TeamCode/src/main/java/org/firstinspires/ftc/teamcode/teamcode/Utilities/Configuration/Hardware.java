@@ -9,7 +9,6 @@ import android.util.Size;
 
 import com.acmerobotics.dashboard.config.Config;
 
-
 @Config
 public class Hardware {
 

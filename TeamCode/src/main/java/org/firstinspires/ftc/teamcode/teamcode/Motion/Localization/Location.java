@@ -28,7 +28,7 @@ public class Location extends Signal {
     public Location(double startx, double starty, double starth) {
         super(3);
         odoPods = new OdoPodData(startx, starty, starth);
-        limeLight = new LimeLightData();
+        //limeLight = new LimeLightData();
         oldData = new Vector(startx,starty,starth);
         data = new Vector(startx,starty,starth);
     }
@@ -100,7 +100,7 @@ public class Location extends Signal {
     protected void update() {
         data.add(odoPods.getDataVector().subtracted(oldData));
         oldData = odoPods.getDataVector();
-        if (limeLight.goodData) data.add(LLprojection.multiplied(limeLight.getDataVector().subtracted(data).multiplied(llAlpha)));
+        //if (limeLight.goodData) data.add(LLprojection.multiplied(limeLight.getDataVector().subtracted(data).multiplied(llAlpha)));
     }
 
     @Override
@@ -112,7 +112,7 @@ public class Location extends Signal {
         BaseOpMode.addData("Filtered HV", getVelH());
 
         odoPods.telemetry();
-        limeLight.telemetry();
+        //limeLight.telemetry();
     }
 
     public void setPositionToLL() {
