@@ -17,12 +17,13 @@ public class OdoTuning extends BaseOpMode {
 
 
 
-    Movement drive;
+    TankDriveTrain drive;
     OdoPodData odos;
     @Override
     public void externalInit() {
         odos = new OdoPodData(0, 0, 0);
         odos.doTelemetry = true;
+        drive = new TankDriveTrain();
 
     }
     double oldEX = 0;
@@ -31,6 +32,7 @@ public class OdoTuning extends BaseOpMode {
     public void externalLoop() {
 
 
+        drive.drive(gamepad1.left_stick_y, gamepad1.right_stick_x);
 
         odos.updateOffsets();
 

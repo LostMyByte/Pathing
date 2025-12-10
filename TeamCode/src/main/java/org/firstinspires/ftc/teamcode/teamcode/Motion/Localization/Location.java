@@ -24,7 +24,7 @@ public class Location extends Signal {
 
     Vector oldData;
 
-    public static double llAlpha = 0.0001;
+    public static double llAlpha = 0.05;
     public Location(double startx, double starty, double starth) {
         super(3);
         odoPods = new OdoPodData(startx, starty, starth);
@@ -100,6 +100,7 @@ public class Location extends Signal {
     protected void update() {
         data.add(odoPods.getDataVector().subtracted(oldData));
         oldData = odoPods.getDataVector();
+        LimeLightData.botHeading = data.get(2);
         if (limeLight.goodData) data.add(LLprojection.multiplied(limeLight.getDataVector().subtracted(data).multiplied(llAlpha)));
     }
 

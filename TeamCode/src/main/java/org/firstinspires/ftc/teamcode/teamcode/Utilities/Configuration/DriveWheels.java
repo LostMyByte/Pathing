@@ -14,7 +14,7 @@ public class DriveWheels {
     public static double Ex = 0.9;
     public static double Ey = 0.7;
     public static double Eh = -2.1;
-    public static double Ed = -2;
+    public static double Ed = -4;
 
     // Tanh scaling
     public static double tsh = 100;
@@ -22,9 +22,9 @@ public class DriveWheels {
 
     // Loopback constants
     public static double Lxk = 0.3;
-    public static double Lhk = -0.2;
-    public static double Lml = 0.15;
-    public static double Lmr = 0.15;
+    public static double Lhk = -0.1;
+    public static double Lml = 0.1;
+    public static double Lmr = 0.1;
     public static double Lmk = 0.1;
 
 
@@ -32,8 +32,8 @@ public class DriveWheels {
 
     public static MPCPath.MPCParams defaultParams = new MPCPath.MPCParams();
 
-    public static double driveAcceleration = 850;
-    public static double angularAcceleration = 30;
+    public static double driveAcceleration = 1800;
+    public static double angularAcceleration = 150;
 
 
     public static double controlLimit = 0.5;

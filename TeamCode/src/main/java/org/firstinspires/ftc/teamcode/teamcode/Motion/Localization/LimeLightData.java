@@ -40,22 +40,34 @@ public class LimeLightData extends Signal {
     public boolean goodData;
     Limelight3A limelight;
 
-    public static double turretAngle = 0;
 
+    public static double turretAngle = 0;
+    public static double botHeading = 0;
     Matrix pitchCorrection = new GeneralMatrix(3, 3, new double[] {
         1, 0, 0,
         0, Math.cos(Math.toRadians(limelightAngleOffset)), -Math.sin(Math.toRadians(limelightAngleOffset)),
         0, Math.sin(Math.toRadians(limelightAngleOffset)), Math.cos(Math.toRadians(limelightAngleOffset)),
     });
 
-    Matrix toFieldSpace = new GeneralMatrix(2, 3, new double[] {
-            Math.cos(Math.toRadians(Constants.goalAngle)), -Math.sin(Math.toRadians(Constants.goalAngle)), 0,
-            -Math.sin(Math.toRadians(Constants.goalAngle)), -Math.cos(Math.toRadians(Constants.goalAngle)), 0
-    });
+    Matrix toFieldSpace;
 
 
     public LimeLightData() {
         super(3);
+        switch (team) {
+            case BLUE:
+                toFieldSpace = new GeneralMatrix(2, 3, new double[] {
+                        Math.cos(Math.toRadians(Constants.goalAngle)), -Math.sin(Math.toRadians(Constants.goalAngle)), 0,
+                        -Math.sin(Math.toRadians(Constants.goalAngle)), -Math.cos(Math.toRadians(Constants.goalAngle)), 0
+                });
+                break;
+            case RED:
+                toFieldSpace = new GeneralMatrix(2, 3, new double[] {
+                        Math.cos(Math.toRadians(-Constants.goalAngle)), -Math.sin(Math.toRadians(-Constants.goalAngle)), 0,
+                        -Math.sin(Math.toRadians(-Constants.goalAngle)), -Math.cos(Math.toRadians(-Constants.goalAngle)), 0
+                });
+                break;
+        }
         limelight = BaseOpMode.hardware.get(Limelight3A.class, "limelight");
 
 
@@ -86,14 +98,11 @@ public class LimeLightData extends Signal {
         if (fids == null || fids.isEmpty()) return;
         for (LLResultTypes.FiducialResult fid : fids)
             if ((fid.getFiducialId() == 20 && team == BLUE) || (fid.getFiducialId() == 24 && team == RED)) {
-                toFieldSpace = new GeneralMatrix(2, 3, new double[] {
-                        Math.cos(Math.toRadians(Constants.goalAngle)), -Math.sin(Math.toRadians(Constants.goalAngle)), 0,
-                        -Math.sin(Math.toRadians(Constants.goalAngle)), -Math.cos(Math.toRadians(Constants.goalAngle)), 0
-                });
                 goodData = true;
 
-                yaw = fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.RADIANS);
-                yaw -= Math.PI + Math.toRadians(goalAngle) - turretAngle;
+                //yaw = fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.RADIANS);
+                //yaw -= Math.PI + Math.toRadians(goalAngle) - turretAngle;
+                yaw = botHeading;
                 double x = fid.getCameraPoseTargetSpace().getPosition().x;
                 double y = fid.getCameraPoseTargetSpace().getPosition().y;
                 double z = fid.getCameraPoseTargetSpace().getPosition().z;
@@ -105,18 +114,20 @@ public class LimeLightData extends Signal {
                 }
 
                 Vector pos = pitchCorrection.multiplied(new Vector(-x, z, y)).multiplied(100);
-                BaseOpMode.addData("LL Height", pos.get(2));
+                //BaseOpMode.addData("LL Height", pos.get(2));
                 pos = toFieldSpace.multiplied(pos);
-                pos.add(new Vector(Constants.goalAprilTagCornerDistanceX, Constants.goalAprilTagCornerDistanceY));
+                pos.add(new Vector((team ==BLUE ? 1 : -1) * Constants.goalAprilTagCornerDistanceX, Constants.goalAprilTagCornerDistanceY));
                 //Turret radial offset
                 pos.add(new Vector(-Math.sin(yaw + turretAngle), Math.cos(yaw + turretAngle)).multiplied(-Constants.LimeLightOffsetRadius));
 
 
-                BaseOpMode.addData("LL robot X", pos.get(0));
+                /*BaseOpMode.addData("LL robot X", pos.get(0));
                 BaseOpMode.addData("LL robot Y", pos.get(1));
                 BaseOpMode.addData("LL robot Pitch", fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.RADIANS));
                 BaseOpMode.addData("LL robot Yaw", fid.getCameraPoseTargetSpace().getOrientation().getYaw(AngleUnit.DEGREES));
                 BaseOpMode.addData("LL robot Roll", fid.getCameraPoseTargetSpace().getOrientation().getRoll(AngleUnit.DEGREES));
+                */
+
 
                 // Dynamic angle compensation beyond ~2.8 m
                 // Start with baseline Limelight mount angle
@@ -127,16 +138,13 @@ public class LimeLightData extends Signal {
 
 
                 ///Heading and telemetry
-
-
-                BaseOpMode.addData("yaw", data.get(2));
-                BaseOpMode.addData("LL X", x);
-                BaseOpMode.addData("LL Y", y);
-                BaseOpMode.addData("LL Z", z);
             }
     }
     @Override
     public void telemetry() {
         BaseOpMode.addData("Turret Angle", turretAngle);
+        BaseOpMode.addData("LL X", data.get(0));
+        BaseOpMode.addData("LL Y", data.get(1));
+        BaseOpMode.addData("LL H", data.get(2));
     }
 }

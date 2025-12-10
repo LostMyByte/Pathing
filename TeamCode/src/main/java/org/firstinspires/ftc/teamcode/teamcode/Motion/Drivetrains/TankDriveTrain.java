@@ -50,7 +50,7 @@ public class TankDriveTrain extends Movement {
     }
 
     public void drive(double drive, double turn) {
-        move(new Vector(-drive, -turn));
+        move(new Vector(-drive, turn));
     }
 
     public void moveRaw(Vector target) {

@@ -38,8 +38,8 @@ public class Shooter extends Subsystem{
 
     Motor shooter1;
     Motor shooter2;
-    Servos.Turret turret;
-    Servos.Turret2 turret2;
+    //Servos.Turret turret;
+    //Servos.Turret2 turret2;
     Servos.Hood hood;
 
     double turretAngle;
@@ -92,10 +92,10 @@ public class Shooter extends Subsystem{
         //Things are commented to prepare for the first tests of the shooter where we will only have the flywheel.
 
         shooter1 = new Motor(Hardware.shooter1, false, true);
-        shooter2 = new Motor(Hardware.shooter2, false, true);
+        shooter2 = new Motor(Hardware.shooter2, true, true);
         hood = new Servos.Hood();
-        turret = new Servos.Turret();
-        turret2 = new Servos.Turret2();
+        //turret = new Servos.Turret();
+        //turret2 = new Servos.Turret2();
 
         //turretEncoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
         shooterPDF = new PID(0,0,0);
@@ -133,7 +133,7 @@ public class Shooter extends Subsystem{
                 getPattern();
                 break;
             case SHOOTERTESTING:
-                updateTagDistanceHybridCorrected();
+                //updateTagDistanceHybridCorrected();
                 aim();
                 break;
         }
@@ -186,8 +186,8 @@ public class Shooter extends Subsystem{
     public void updateTurret(){
         updateTargetTurretAngle();
 
-        turret.setPositionInterpolated(turretTargetAngle);
-        turret2.setPositionInterpolated(turretTargetAngle);
+        //turret.setPositionInterpolated(turretTargetAngle);
+        //turret2.setPositionInterpolated(turretTargetAngle);
 
         //DONT angle wrap because the wiring means we can't actually spin around multiple times
 
@@ -261,6 +261,7 @@ public class Shooter extends Subsystem{
 
         //This is the target angle relative to facing directly at the aprilTag
         //yaw is current angle of the aprilTag relative to the shooter
+        //This uses the law of sines to find the target angle of the robot relative to the april tag
         //This uses the law of sines to find the target angle of the robot relative to the april tag
         updateTurret();
     }
@@ -411,14 +412,14 @@ public class Shooter extends Subsystem{
         double angle = Math.atan(x/y);
 
         //make it so that x velocity is perpendicular to the goal and y is parallel
-        Vector goalRelativeVelocity = fieldRelativeVelocity.rotated(angle);
-        double vX = goalRelativeVelocity.get(0);
+        //Vector goalRelativeVelocity = fieldRelativeVelocity.rotated(angle);
+        //double vX = goalRelativeVelocity.get(0);
 
         //the angle the robot would need to turn to hit the target
-        angle += h;
+        //angle += h;
 
         //account for robot velocity
-        angle -= Math.asin(vX/getTargetBallSpeedX());
+        //angle -= Math.asin(vX/getTargetBallSpeedX());
         //this gives me an angle between 0 and 2pi. In order to work nicely with kieran's code,
         //I subtract pi/2 to make the angle be between -pi/2 and 3pi/2
         angle -= Math.PI/2;
@@ -447,13 +448,14 @@ public class Shooter extends Subsystem{
         this.y = y;
         this.h = h;
         this.fieldRelativeVelocity = fieldRelativeVelocity;
+        this.distanceAway = Math.sqrt(x*x + y*y);
     }
 
     public Vector getGoalRelativeVelocity(){
         //the angle the robot would need to face to hit the target
         double angle = Math.atan(x/y);
         //make it so that x velocity is perpendicular to the goal and y is parallel
-        return fieldRelativeVelocity.rotated(angle);
+        return new Vector(0,0);//fieldRelativeVelocity.rotated(angle);
 
     }
 
@@ -629,7 +631,7 @@ public class Shooter extends Subsystem{
     @Override
     public void update() {
         work();
-        updateTagDistanceHybridCorrected();
+        //updateTagDistanceHybridCorrected();
         //updateTargeting();
     }
 
