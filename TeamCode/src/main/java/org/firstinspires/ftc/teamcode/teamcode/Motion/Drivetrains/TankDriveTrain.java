@@ -14,6 +14,8 @@ public class TankDriveTrain extends Movement {
     Motor R1;
     Motor R2;
 
+    public Location loc;
+
     public TankDriveTrain() {
         this.initialize();
     }
@@ -22,6 +24,8 @@ public class TankDriveTrain extends Movement {
         L2 = new Motor(Hardware.leftBack, true);
         R1 = new Motor(Hardware.rightFront, false);
         R2 = new Motor(Hardware.rightBack, false);
+
+        loc = new Location(0,0,0);
     }
 
 
