@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.IDLE;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.INTAKEFRONT;
-import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.INTAKEREAR;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.LOAD;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.SHOOTING;
 
 import android.graphics.Color;
 
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
@@ -94,8 +91,21 @@ public class IntakeMagazine extends Subsystem{
         }
     }
 
+    public boolean[] getBreakBeamReads(){
+        return breakBeamReads;
+    }
+
+    public BallColors[] getIndexerColors(){
+        return indexer;
+    }
+
     public void setIndexMode(boolean indexMode){
         this.indexMode = indexMode;
+        if(!indexMode){
+            setIndex(false);
+        }
+        //this might cause issues so check this for edge cases.
+        timer.reset();
     }
 
     //release the shooter door and run both intakes to shoot. Then declare the loaded position empty, and
@@ -148,17 +158,19 @@ public class IntakeMagazine extends Subsystem{
     }
 
     //Do nothing, be ready to shoot.
-    //if we are in index mode, move the indexer to the indexed position to check if there is a ball there.
-    //if there is, keep the indexer there. If there is no ball, move the indexer back into the home position.
+    //if we are in index mode and there is a ball in the middle position, move it to the indexed position.
+    //When it is in the indexed position, indicate that it is there, and declare the shooting position empty
     public void idle(){
         frontIntake.setPower(0);
         rearIntake.setPower(0);
         shooterDoor.closed();
         frontRamp.mid();
         backRamp.mid();
-        if (indexMode){
-            if (breakBeamReads[2]){
-                setIndex(true);
+        if (indexMode && breakBeamReads[2]){
+            setIndex(true);
+            if (timer.seconds() > 0.5){
+                breakBeamReads[2] = false;
+                breakBeamReads[3] = true;
             }
         }
     }
@@ -374,7 +386,7 @@ public class IntakeMagazine extends Subsystem{
             indexIn.index();
             indexOut.home();
         } else {
-            indexOut.flip();
+            indexOut.shootPosition();
             indexIn.home();
         }
     }

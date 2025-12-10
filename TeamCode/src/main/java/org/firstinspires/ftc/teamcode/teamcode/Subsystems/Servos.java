@@ -77,7 +77,7 @@ public class Servos {
     }
     public static class indexOut extends Servo {
         public indexOut(){super(Hardware.indexServo2);}
-        public void flip(){}
+        public void shootPosition(){}
         public void home(){}
     }
 
