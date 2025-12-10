@@ -493,8 +493,11 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSi
      */
     public Pose2D setPosition(Pose2D pos){
         writeByteArray(Register.X_POSITION,(floatToByteArray((float) pos.getX(DistanceUnit.MM), ByteOrder.LITTLE_ENDIAN)));
+        xPosition = (float) pos.getX(DistanceUnit.MM);
         writeByteArray(Register.Y_POSITION,(floatToByteArray((float) pos.getY(DistanceUnit.MM),ByteOrder.LITTLE_ENDIAN)));
+        yPosition = (float) pos.getY(DistanceUnit.MM);
         writeByteArray(Register.H_ORIENTATION,(floatToByteArray((float) pos.getHeading(AngleUnit.RADIANS),ByteOrder.LITTLE_ENDIAN)));
+        hOrientation = (float) pos.getHeading(AngleUnit.RADIANS);
         return pos;
     }
 
