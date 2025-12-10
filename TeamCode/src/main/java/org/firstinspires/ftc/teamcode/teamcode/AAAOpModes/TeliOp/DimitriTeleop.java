@@ -31,7 +31,11 @@ public class DimitriTeleop extends BaseOpMode{
 
     @Override
     public void externalLoop() {
-        drive.drive(driver1.leftStick.Y(), driver1.rightStick.X());
+        if (driver1.rightStick.isPressed()){
+            drive.PIDdrive(driver1.leftStick.Y(), -driver1.rightStick.X(), 0.3);
+        } else {
+            drive.PIDdrive(driver1.leftStick.Y(), -driver1.rightStick.X(), 1);
+        }
         shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getPosH(), loc.getTranslationalVelocity());
         intake.setIndexMode(driver1.options.isToggled());
 

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.TeliOpDrivetrain;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 
@@ -12,23 +13,19 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 @TeleOp(name = "Just Tank Drive")
 public class JustDrive extends BaseOpMode {
 
-    TankDriveTrain drive;
+    TeliOpDrivetrain drive;
 
-    Location loc;
     @Override
     public void externalInit () {
-        loc = new Location(0,0,0);
-        loc.doTelemetry = true;
-        drive = new TankDriveTrain();
+        drive = new TeliOpDrivetrain(hardware, 0);
     }
 
     @Override
     public void externalLoop () {
-
-        // Update Odometry Pod offsets -- used for tuning
-        loc.updateOdoOffsets();
-        Vector target = new Vector(-gamepad1.left_stick_y, gamepad1.right_stick_x);
-
-        drive.move(target);
+        if (driver1.rightStick.isPressed()){
+            drive.PIDdrive(driver1.leftStick.Y(), -driver1.rightStick.X(), 0.3);
+        } else {
+            drive.PIDdrive(driver1.leftStick.Y(), -driver1.rightStick.X(), 1);
+        }
     }
 }

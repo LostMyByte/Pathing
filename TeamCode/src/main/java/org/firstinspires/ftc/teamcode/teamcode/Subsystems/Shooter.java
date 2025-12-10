@@ -183,6 +183,13 @@ public class Shooter extends Subsystem{
 
     double turretResetTargetAngle = 0;
     double correction = 0;
+
+    //Only use for detecting the obelisk, in any other state this will not work
+    public void setObeliskAngle(double angle){
+        turret.setPositionInterpolated(angle);
+        turret2.setPositionInterpolated(angle);
+
+    }
     public void updateTurret(){
         updateTargetTurretAngle();
 
@@ -424,12 +431,11 @@ public class Shooter extends Subsystem{
         //I subtract pi/2 to make the angle be between -pi/2 and 3pi/2
         angle -= Math.PI/2;
 
-        //this will be an angle between -pi/2 and 3pi/2. The servos are capable of 405 degrees
+        //this will be an angle between -pi/2 and 3pi/2. The servos are capable of 400 degrees
         //of rotation, which is helpful because there is some overlap and results in fewer resets.
         //To make use of this overlap, if the angle is in the area of overlap (between -pi/2 and
         //Math.toRadians(-5)) we check what the last angle was. If it was less than pi/2, keep the
         //angle as is. if it was greater than pi/2, add 2pi to the angle.
-
         if (angle > -Math.PI/2 && angle < Math.toRadians(-5) && turretTargetAngle > Math.PI/2){
             turretTargetAngle = angle + 2*Math.PI;
 

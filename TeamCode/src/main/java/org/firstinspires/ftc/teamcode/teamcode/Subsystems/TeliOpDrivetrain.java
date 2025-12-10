@@ -19,6 +19,8 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.GoBildaPinpointDriver;
@@ -89,8 +91,9 @@ public static double
       //  driveWheels = new MecanumDrive();
         visionTurnPID = new PID(DrivetrainDash.kPturn, DrivetrainDash.kIturn, kDturn);
         visionDrivePID = new PID(DrivetrainDash.kPdrive, DrivetrainDash.kIdrive, DrivetrainDash.kDdrive);
-/*
- gyro = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
+        /*
+
+        gyro = hardware.get(GoBildaPinpointDriver.class, Hardware.odoWheels);
         if (Double.isNaN(Constants.startAngle)) {
             gyro.resetPosAndIMU();
             gyro.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, heading));
@@ -273,6 +276,58 @@ public static double
 
     public void resetHeading(){
         gyro.resetPosAndIMU();
+    }
+
+    public void PIDdrive(double drive, double turn){
+
+        double currentRateOfChange = gyro.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS);
+        if (turn != 0) {
+            pid_on = false;
+        } else if (currentRateOfChange <= rateOfChange) {
+            pid_on = true;
+        }
+
+        if (pid_on && !pid_on_last_cycle) {
+
+            setPoint = gyro.getHeading(AngleUnit.RADIANS);
+
+        } else if (pid_on) {
+            turn = pid.getCorrectionHeading(gyro.getHeading(AngleUnit.RADIANS), setPoint);
+        }
+        pid_on_last_cycle = pid_on;
+        BaseOpMode.addData("Rate Of Change", currentRateOfChange);
+        BaseOpMode.addData("Actual Heading", gyro.getHeading(AngleUnit.RADIANS));
+        BaseOpMode.addData("SetPoint", setPoint);
+
+        pid.setConstants(HP, 0, HD);
+        move(new Vector(-drive, -turn));
+    }
+
+    public void PIDdrive(double drive, double turn, double power){
+
+        double currentRateOfChange = gyro.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS);
+        if (turn != 0) {
+            pid_on = false;
+        } else if (currentRateOfChange <= rateOfChange) {
+            pid_on = true;
+        }
+
+        if (pid_on && !pid_on_last_cycle) {
+
+            setPoint = gyro.getHeading(AngleUnit.RADIANS);
+
+        } else if (pid_on) {
+            turn = pid.getCorrectionHeading(gyro.getHeading(AngleUnit.RADIANS), setPoint);
+        }
+        pid_on_last_cycle = pid_on;
+        BaseOpMode.addData("Rate Of Change", currentRateOfChange);
+        BaseOpMode.addData("Actual Heading", gyro.getHeading(AngleUnit.RADIANS));
+        BaseOpMode.addData("SetPoint", setPoint);
+
+        pid.setConstants(HP, 0, HD);
+        drive = drive*power;
+        turn = turn*power;
+        move(new Vector(-drive, -turn));
     }
 
 }

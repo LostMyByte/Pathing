@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -8,7 +9,6 @@ import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper;
 
 @TeleOp(name="Indexer test", group="Iterative Opmode")
 public class IndexerTest extends BaseOpMode {
-    Hopper hopper;
     ElapsedTime timeWaste = new ElapsedTime();
     Boolean canTransfer = true;
     Boolean cross = false;
@@ -64,3 +64,5 @@ public class IndexerTest extends BaseOpMode {
     }
 }
 
+
+ */
