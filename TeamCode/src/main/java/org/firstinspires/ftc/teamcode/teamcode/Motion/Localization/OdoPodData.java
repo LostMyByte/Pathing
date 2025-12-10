@@ -21,8 +21,8 @@ public class OdoPodData extends Signal {
 
     public GoBildaPinpointDriver odoPods;
 
-    public static double xOffset = -114.3;
-    public static double yOffset = -152.4;
+    public static double xOffset = 10;
+    public static double yOffset = -90;
     public static double alpha = 1;
 
     double oldAngle;
@@ -34,7 +34,7 @@ public class OdoPodData extends Signal {
         odoPods = BaseOpMode.getHardwareMap().get(GoBildaPinpointDriver.class, Hardware.odoWheels);
         odoPods.setOffsets(xOffset,yOffset);
         odoPods.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        odoPods.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        odoPods.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
         odoPods.recalibrateIMU();
     }
 
