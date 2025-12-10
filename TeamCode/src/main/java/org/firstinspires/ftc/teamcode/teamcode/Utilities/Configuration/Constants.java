@@ -1,8 +1,11 @@
 // Primary Author: Mixed
 package org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration;
 
+import com.acmerobotics.dashboard.config.Config;
+
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+@Config
 public class Constants {
     public static double fieldSizeY = 141.5;
     public static double fieldSizeX = 141.5;
@@ -10,12 +13,18 @@ public class Constants {
 
     public static double goalAprilTagHeight = 0.7493; //meters
     public static double limelightLensHeightFromGround = 0.1143; //meters, this is for test setup
-    public static double limelightAngleOffset = 0;//radians, this is again for test setup
+    public static double limelightAngleOffset = 22.5;//degrees, this is again for test setup
     public static double visionTurnDeadzone = 5; //silly (ignore this stuff)
     public static double VisionTurn = 0.008;
     public static double VisionDrive = -0.012;
     public static double VisionDriveDeadzone = 1;
     public static double VisionDistanceTarget = 180;
+    public static double goalAngle = -53;
+    public static double goalAprilTagCornerDistanceX = -28;
+    public static double goalAprilTagCornerDistanceY = 29;
+    public static double LimeLightOffsetRadius = 12.5;
+    public static double TurretOffsetX = 0;
+    public static double TurretOffsetY = 0;
     public double angleRad;
     public static double tag16x = fieldSizeX-22.25;
     public static double tag11x = 23.25;

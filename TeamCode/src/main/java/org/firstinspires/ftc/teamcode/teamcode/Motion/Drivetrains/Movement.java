@@ -57,10 +57,10 @@ public abstract class Movement extends Subsystem {
     public void update() {
         if (correctionSignal != null) {
             moveRaw(correctionSignal.getCorrection());
-            if (correctionSignal.targetPositionError().magnitude()<0.5) {
+            /*if (correctionSignal.targetPositionError().magnitude()<0.5) {
                 Signal.signals.remove(profile);
                 correctionSignal = null;
-            }
+            }*/
         }
     }
 

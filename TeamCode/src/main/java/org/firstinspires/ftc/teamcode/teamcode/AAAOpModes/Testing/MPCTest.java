@@ -76,6 +76,7 @@ public class MPCTest extends BaseOpMode {
         test.setName("Test Path");
         test.setStart(0, 0, 0, 0, 0);
         test.build();
+        test.doTelemetry = true;
         //test.addObstacle(new PointObstacle(TestMPCParams.OX, TestMPCParams.OY, TestMPCParams.OSize, TestMPCParams.OStrength));
         try {
             test.load();

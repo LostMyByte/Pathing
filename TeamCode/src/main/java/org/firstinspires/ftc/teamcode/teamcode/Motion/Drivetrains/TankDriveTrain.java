@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
@@ -26,8 +27,7 @@ public class TankDriveTrain extends Movement {
 
     public void setPowers(Vector powers) {
 
-        BaseOpMode.addData("Power L", powers.get(0));
-        BaseOpMode.addData("Power R", powers.get(1));
+
         this.L1.setPower(powers.get(0));
         this.L2.setPower(powers.get(0));
         this.R1.setPower(powers.get(1));
@@ -54,6 +54,7 @@ public class TankDriveTrain extends Movement {
     }
 
     public void moveRaw(Vector target) {
+        //Location.input = target;
         setPowers(target);
     }
 

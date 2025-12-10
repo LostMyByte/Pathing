@@ -91,7 +91,7 @@ public class RedFrontAuto extends BaseOpMode {
     public void externalInit() {
         stateTime = new ElapsedTime();
 
-        loc = new Location(new Vector(new double[] {RedPositions.X0, RedPositions.Y0, RedPositions.H0}));
+        loc = new Location(0,0,0);
         drive = new TankDriveTrain();
 
         initPaths();

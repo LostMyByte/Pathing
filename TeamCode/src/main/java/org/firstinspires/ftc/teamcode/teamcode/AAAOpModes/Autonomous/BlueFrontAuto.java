@@ -91,7 +91,7 @@ public class BlueFrontAuto extends BaseOpMode {
     public void externalInit() {
         stateTime = new ElapsedTime();
 
-        loc = new Location(new Vector(new double[] {BlueFrontPositions.X0, BlueFrontPositions.Y0, BlueFrontPositions.H0}));
+        loc = new Location(0, 0, 0);
         drive = new TankDriveTrain();
 
         initPaths();

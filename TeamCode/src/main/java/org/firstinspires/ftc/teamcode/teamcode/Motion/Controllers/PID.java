@@ -35,7 +35,7 @@ public class PID extends Controller {
         return correction;
     }
 
-    public PID(ReferenceSignal referenceSignal, Signal dataSignal, PIDCoefficients coefficients) {
+    public PID(Signal referenceSignal, Signal dataSignal, PIDCoefficients coefficients) {
         super(referenceSignal, dataSignal);
         this.coeffs = coefficients;
     }
