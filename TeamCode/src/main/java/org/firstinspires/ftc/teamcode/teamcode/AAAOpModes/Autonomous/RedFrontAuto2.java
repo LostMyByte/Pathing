@@ -17,14 +17,14 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 import java.io.FileNotFoundException;
 
 
-@Autonomous(name = "Red Front Auto")
-public class RedFrontAuto extends BaseOpMode {
+@Autonomous(name = "Red Front Auto 2")
+public class RedFrontAuto2 extends BaseOpMode {
 
     @Config
     public static class RedPositions {
-        public static double X0 = 0;
-        public static double Y0 = 0;
-        public static double H0 = 0;
+        public static double X0 = 60;
+        public static double Y0 = 30;
+        public static double H0 = Math.PI/4;
 
 
         public static double X1 = -70;
@@ -87,8 +87,6 @@ public class RedFrontAuto extends BaseOpMode {
 
     Location loc;
 
-    MPCPath.MPCParams slow;
-
     @Override
     public void externalInit() {
         stateTime = new ElapsedTime();
@@ -97,8 +95,6 @@ public class RedFrontAuto extends BaseOpMode {
         drive = new TankDriveTrain();
 
         initPaths();
-
-        slow = DriveWheels.defaultParams
 
         state = States.Launch;
 
