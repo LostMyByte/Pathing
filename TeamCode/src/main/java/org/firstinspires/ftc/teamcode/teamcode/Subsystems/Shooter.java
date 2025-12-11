@@ -86,6 +86,9 @@ public class Shooter extends Subsystem{
     private double runningOffsetSum = 0;
     private boolean offsetCalibrated = false;
 
+    Servos.Turret turret;
+    Servos.Turret2 turret2;
+
 
 
     public Shooter(HardwareMap hardwareMap, double turretStartAngle, Constants.Team team){
@@ -94,8 +97,8 @@ public class Shooter extends Subsystem{
         shooter1 = new Motor(Hardware.shooter1, false, true);
         shooter2 = new Motor(Hardware.shooter2, true, true);
         hood = new Servos.Hood();
-        //turret = new Servos.Turret();
-        //turret2 = new Servos.Turret2();
+        turret = new Servos.Turret();
+        turret2 = new Servos.Turret2();
 
         //turretEncoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
         shooterPDF = new PID(0,0,0);
