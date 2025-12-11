@@ -66,6 +66,35 @@ public class MPCPath extends Controller{
         public double lambdaMax = 10000000; // Max lambda (for descent)
 
         public double voltage = 13;
+
+        public MPCParams copy() {
+            MPCParams result = new MPCParams();
+
+            result.QX = this.QX;
+            result.QY = this.QY;
+            result.QH = this.QH;
+            result.QV = this.QV;
+            result.QHV = this.QFV;
+
+            result.QFX = this.QFX;
+            result.QFY = this.QFY;
+            result.QFH = this.QFH;
+            result.QFV = this.QFV;
+            result.QFHV = this.QFHV;
+
+            result.R = this.R;
+
+            result.lr = this.lr;
+            result.lambdaMax = this.lambdaMax;
+            result.voltage = this.voltage;
+
+            return result;
+        }
+
+        public void scaleVelocity(double scale) {
+            this.QV *= 1/scale;
+            this.QFV *= 1/scale;
+        }
     }
 
     /**
