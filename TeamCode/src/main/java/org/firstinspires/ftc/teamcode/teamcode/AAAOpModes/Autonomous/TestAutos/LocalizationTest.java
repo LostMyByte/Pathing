@@ -12,7 +12,7 @@ public class LocalizationTest extends BaseOpMode{
 
     @Override
     public void externalInit() {
-        loc = new Location(60,30,Math.PI/4);
+        loc = new Location(120,340,3*Math.PI/4);
     }
 
     @Override

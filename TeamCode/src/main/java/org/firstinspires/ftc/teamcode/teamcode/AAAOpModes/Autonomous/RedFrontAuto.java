@@ -57,6 +57,7 @@ public class RedFrontAuto extends BaseOpMode {
         public static double resolution = 10;
 
         public static boolean alwaysCompile = false;
+        public static double speedscale = 0.1;
     }
 
     enum States {
@@ -95,14 +96,16 @@ public class RedFrontAuto extends BaseOpMode {
 
         loc = new Location(0,0,0);
         drive = new TankDriveTrain();
-
+        slow = DriveWheels.defaultParams.copy();
+        slow.scaleVelocity(RedPositions.speedscale);
         initPaths();
 
-        slow = DriveWheels.defaultParams
+
 
         state = States.Launch;
 
-        loadPaths();
+        compilePaths();
+        //loadPaths();
 
         if (RedPositions.alwaysCompile) {
             compilePaths();
@@ -158,6 +161,8 @@ public class RedFrontAuto extends BaseOpMode {
             path.setParams(DriveWheels.defaultParams);
             path.setModel(driveModel);
         }
+
+        spike1.setParams(slow);
     }
 
     Vector position;

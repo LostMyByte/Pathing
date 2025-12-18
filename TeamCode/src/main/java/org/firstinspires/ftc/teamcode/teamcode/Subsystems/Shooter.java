@@ -88,6 +88,8 @@ public class Shooter extends Subsystem{
 
     Servos.Turret turret;
     Servos.Turret2 turret2;
+    public boolean panic = false;
+    public boolean ballFollowing = false;
 
 
 
@@ -143,6 +145,9 @@ public class Shooter extends Subsystem{
     }
 
     public void updateShooter(){
+        if (panic){
+            targetShooterRPM = 1500;
+        }
         shooterPDF.setConstants(PIDTuningDash.ShooterP,0,PIDTuningDash.ShooterD);
         //sets the feedforward to the voltage needed to hold the target velocity. Values ob
         if (targetShooterRPM > 0){
@@ -194,10 +199,16 @@ public class Shooter extends Subsystem{
 
     }
     public void updateTurret(){
-        updateTargetTurretAngle();
+        if (panic) {
+            turretTargetAngle = 0;
+        } else if (ballFollowing) {
+            updateBallFollowAngle();
+        } else {
+            updateTargetTurretAngle();
+        }
 
-        //turret.setPositionInterpolated(turretTargetAngle);
-        //turret2.setPositionInterpolated(turretTargetAngle);
+        turret.setPositionInterpolated(turretTargetAngle);
+        turret2.setPositionInterpolated(turretTargetAngle);
 
         //DONT angle wrap because the wiring means we can't actually spin around multiple times
 
@@ -267,7 +278,11 @@ public class Shooter extends Subsystem{
     }
 
     public void aim(){
-        hood.setPositionInterpolated(getHoodAngle());
+        if (!panic){
+            hood.setPositionInterpolated(getHoodAngleMovingCase());
+        } else {
+            hood.setPositionInterpolated(45);
+        }
 
         //This is the target angle relative to facing directly at the aprilTag
         //yaw is current angle of the aprilTag relative to the shooter
@@ -422,17 +437,40 @@ public class Shooter extends Subsystem{
         double angle = Math.atan(x/y);
 
         //make it so that x velocity is perpendicular to the goal and y is parallel
-        //Vector goalRelativeVelocity = fieldRelativeVelocity.rotated(angle);
-        //double vX = goalRelativeVelocity.get(0);
+        Vector goalRelativeVelocity = fieldRelativeVelocity.rotated(angle);
+        double vX = goalRelativeVelocity.get(0);
 
         //the angle the robot would need to turn to hit the target
-        //angle += h;
+        angle += h;
 
         //account for robot velocity
-        //angle -= Math.asin(vX/getTargetBallSpeedX());
+        angle -= Math.asin(vX/getTargetBallSpeedX());
         //this gives me an angle between 0 and 2pi. In order to work nicely with kieran's code,
         //I subtract pi/2 to make the angle be between -pi/2 and 3pi/2
         angle -= Math.PI/2;
+
+        //this will be an angle between -pi/2 and 3pi/2. The servos are capable of 400 degrees
+        //of rotation, which is helpful because there is some overlap and results in fewer resets.
+        //To make use of this overlap, if the angle is in the area of overlap (between -pi/2 and
+        //Math.toRadians(-5)) we check what the last angle was. If it was less than pi/2, keep the
+        //angle as is. if it was greater than pi/2, add 2pi to the angle.
+        if (angle > -Math.PI/2 && angle < Math.toRadians(-5) && turretTargetAngle > Math.PI/2){
+            turretTargetAngle = angle + 2*Math.PI;
+
+        } else {
+            turretTargetAngle = angle;
+        }
+    }
+
+    public void updateBallFollowAngle(){
+        double angle;
+        if (Constants.team == BLUE){
+            //the angle the robot would need to turn to hit the target
+            angle = h - Math.PI/2;
+        } else {
+            angle = h - 3*Math.PI/2;
+        }
+
 
         //this will be an angle between -pi/2 and 3pi/2. The servos are capable of 400 degrees
         //of rotation, which is helpful because there is some overlap and results in fewer resets.
@@ -510,8 +548,6 @@ public class Shooter extends Subsystem{
         BaseOpMode.addData("t5",t5);
 
         //If this works, if it can't find a new angle, it will return the last good angle.
-
-
         if(Double.isNaN(input)){
             //this is the case where the equation returns NaN (it couldn't hit the target)
             //In this case, it declares that it can't shoot and returns the last good angle
@@ -645,7 +681,7 @@ public class Shooter extends Subsystem{
     }
 
     public enum ShooterStates{
-        ACTIVE, NOTACTIVE, OBELISK, SHOOTERTESTING;
+        ACTIVE, NOTACTIVE, OBELISK, SHOOTERTESTING, BALLFOLLOWING;
     }
     public ShooterStates getState(){
         return shooterState;

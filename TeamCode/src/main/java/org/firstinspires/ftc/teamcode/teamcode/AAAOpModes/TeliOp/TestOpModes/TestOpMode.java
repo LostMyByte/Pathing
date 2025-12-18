@@ -17,18 +17,18 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorColor;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
-import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Hopper;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.DashPositions;
 
 @TeleOp(name="Test Teleop", group="Iterative Opmode")
 public class TestOpMode extends BaseOpMode {
 
   /*  NormalizedColorSensor sensor;
     final float[] hsvValues = new float[3];*/
-    TouchSensor breakBeam;
+    DigitalChannel breakbeam;
     @Override
     public void externalInit() {
         //sensor = hardwareMap.get(NormalizedColorSensor.class, "Color");
-        breakBeam = hardwareMap.get(TouchSensor.class, "pin0");
+        breakbeam = hardwareMap.get(DigitalChannel.class, "breakbeam");
     }
 
     @Override
@@ -37,8 +37,6 @@ public class TestOpMode extends BaseOpMode {
         Color.colorToHSV(colors.toColor(), hsvValues);
 
         BaseOpMode.addData("hue",hsvValues[0]);*/
-        telemetry.update();
-
-        BaseOpMode.addData("beam broken",breakBeam.getValue());
+        BaseOpMode.addData("sensorState",breakbeam.getState());
     }
 }

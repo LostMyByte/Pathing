@@ -39,15 +39,14 @@ public class DimitriTeleop extends BaseOpMode{
         shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getPosH(), loc.getTranslationalVelocity());
         intake.setIndexMode(driver1.options.isToggled());
 
-        if (shooterActive){
+        shooter.panic = driver1.share.isToggled();
+
+        if (!driver1.dpad_up.isToggled()){
             shooter.setState(ACTIVE);
         } else {
             shooter.setState(NOTACTIVE);
         }
 
-        if (driver1.dpad_up.isTapped()){
-            shooterActive = !shooterActive;
-        }
 
         if (driver1.leftTrigger.isPressed()){
             intake.setState(IntakeMagazine.IntakeMagazineStates.INTAKEREAR);
