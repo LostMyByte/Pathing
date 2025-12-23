@@ -12,16 +12,15 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.HardwareDevices.Motor;
 
 public class IntakeMagazine extends Subsystem{
 
 
-    Servos.ShooterDoor shooterDoor;
     Motor frontIntake;
     Motor rearIntake;
-    Servos.indexIn indexIn;
     CRServo indexWheel;
     //the ramp closest to the back side of the robot
     Servos.FliPrampBack backRamp;
@@ -32,22 +31,20 @@ public class IntakeMagazine extends Subsystem{
 
     IndexStates indexState = IndexStates.SCORE;
     ElapsedTime timer;
-    NormalizedColorSensor[] colorSensors = new NormalizedColorSensor[2];
-    TouchSensor[] breakBeams = new TouchSensor[2];
-    boolean[] breakBeamReads = new boolean[2];
-    boolean[] preShotBreakBeams = new boolean[2];
+    NormalizedColorSensor[] colorSensors = new NormalizedColorSensor[3];
+    TouchSensor[] breakBeams = new TouchSensor[3];
+    boolean[] breakBeamReads = new boolean[3];
+    boolean[] preShotBreakBeams = new boolean[3];
     final float[] hsv = new float[3];
     public boolean indexMode = false;
     ElapsedTime indexingTimer;
     boolean firstLoop1 = true;
 
     public IntakeMagazine(HardwareMap hardwareMap){
-        shooterDoor = new Servos.ShooterDoor();
         frontRamp = new Servos.FliPrampFront();
         backRamp = new Servos.FliPrampBack();
-        frontIntake = new Motor(Hardware.frontIntake);
-        rearIntake = new Motor(Hardware.rearIntake);
-        indexIn = new Servos.indexIn();
+        frontIntake = new Motor(Hardware.frontIntake, true);
+        rearIntake = new Motor(Hardware.rearIntake, true);
         indexWheel = hardwareMap.get(CRServo.class, Hardware.indexServo2);
         timer = new ElapsedTime();
         indexingTimer = new ElapsedTime();
@@ -127,7 +124,6 @@ public class IntakeMagazine extends Subsystem{
         }
         frontIntake.setPower(1);
         rearIntake.setPower(1);
-        shooterDoor.open();
         indexWheel.setPower(-1);
         //if all positions are full when we start shooting
         if (preShotBreakBeams[1] && preShotBreakBeams[0]){
@@ -165,7 +161,7 @@ public class IntakeMagazine extends Subsystem{
     public void idle(){
         frontIntake.setPower(0);
         rearIntake.setPower(0);
-        shooterDoor.closed();
+        indexWheel.setPower(0);
         frontRamp.mid();
         backRamp.mid();
         if (indexMode && breakBeamReads[2]){
@@ -192,8 +188,7 @@ public class IntakeMagazine extends Subsystem{
     //active intake into the opposite side intake. When there is a ball in the opposite side intake, stop
     //that intake.
     public void intakeFront(){
-        frontIntake.setPower(1);
-        shooterDoor.closed();
+        frontIntake.setPower(0.5);
         frontRamp.flat();
         backRamp.flat();
         //if there is a ball in the rear intake, stop reversing that intake
@@ -208,8 +203,7 @@ public class IntakeMagazine extends Subsystem{
 
     }
     public void intakeRear(){
-        rearIntake.setPower(1);
-        shooterDoor.closed();
+        rearIntake.setPower(0.5);
         frontRamp.flat();
         backRamp.flat();
         //if there is a ball in the front intake, stop reversing that intake
@@ -218,17 +212,10 @@ public class IntakeMagazine extends Subsystem{
         } else {
             frontIntake.setPower(-0.5);
         }
-        //Because intaking is unpredictable by nature, reset all the break beam reads except for the front
-        //intake, because when the front intake reads true that should stay true and we need that read to
-        //be accurate at this time
-        breakBeamReads[1] = false;
-        breakBeamReads[2] = false;
-        breakBeamReads[3] = false;
 
     }
 
     public void clearMagazine(){
-        shooterDoor.closed();
         frontRamp.flat();
         backRamp.flat();
         rearIntake.setPower(-1);
@@ -257,7 +244,6 @@ public class IntakeMagazine extends Subsystem{
         switch(indexState){
             case SCORE:
                 if (indexingTimer.seconds() < 1){
-                    indexIn.home();
                     indexWheel.setPower(-1);
                 } else {
                     indexWheel.setPower(0);
@@ -265,10 +251,8 @@ public class IntakeMagazine extends Subsystem{
                 break;
             case INDEX:
                 if (indexingTimer.seconds() < 1){
-                    indexIn.index();
                     indexWheel.setPower(1);
                 } else {
-                    indexIn.home();
                     indexWheel.setPower(0);
                 }
         }
@@ -278,12 +262,14 @@ public class IntakeMagazine extends Subsystem{
     @Override
     public void update() {
         work();
-        indexerStateMachine();
+        BaseOpMode.addData("beam0", breakBeamReads[0]);
+        BaseOpMode.addData("beam1", breakBeamReads[1]);
+        BaseOpMode.addData("beam2", breakBeamReads[2    ]);
     }
 
     @Override
     public void updateSensors(){
-        for(int sensorNum = 0; sensorNum <= breakBeams.length && state != SHOOTING; sensorNum++){
+        for(int sensorNum = 0; sensorNum < breakBeams.length && state != SHOOTING; sensorNum++){
             breakBeamReads[sensorNum] = breakBeams[sensorNum].isPressed();
         }
     }

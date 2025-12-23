@@ -70,34 +70,13 @@ public class Servos {
         }
     }
 
-    public static class indexIn extends Servo {
-        public indexIn(){super(Hardware.indexServo1);}
-        public void index(){}
-        public void home(){}
-    }
-    public static class indexOut extends Servo {
-        public indexOut(){super(Hardware.indexServo2);}
-        public void shootPosition(){}
-        public void home(){}
-    }
 
-    public static class ShooterDoor extends Servo{
-        public ShooterDoor(){
-            super(Hardware.shooterDoor);
-        }
-        public void open(){}
-        public void closed(){}
-    }
-
-    public static class Transfer extends Servo{
-        public Transfer(){super(Hardware.transfer);}
-    }
 
     public static class Turret extends Servo{
-        public Turret(){super(Hardware.turret,0,0,0,0);}
+        public Turret(){super(Hardware.turret,.92,Math.PI/2,.41,-Math.PI/2);}
     }
     public static class Turret2 extends Servo{
-        public Turret2(){super(Hardware.turret2,0,0,0,0);}
+        public Turret2(){super(Hardware.turret2,.92,Math.PI/2,.41,-Math.PI/2);}
     }
     public static class FliPrampFront extends Servo{
         public FliPrampFront(){super(Hardware.fliPrampFront);}

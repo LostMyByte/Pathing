@@ -18,18 +18,18 @@ public class Hardware {
     public static final String odoWheels = "odoWheels";
 
     public static final String
-            leftFront = "chub0white", rightFront = "chub2red",
-            leftBack = "chub1blue", rightBack = "chub3grey";
+            leftFront = "ehub0red", rightFront = "ehub1blue",
+            leftBack = "chub0gray", rightBack = "chub1white";
 
-    public static final String indexServo1 = "IndexServo1", indexServo2 = "IndexServo2", shooterDoor = "shooterDoor";
+    public static final String indexServo1 = "IndexServo1", indexServo2 = "shub0red", shooterDoor = "shooterDoor";
 
-    public static final String hood = "hood";
+    public static final String hood = "shub5purple";
 
     public static final String mecanum1 = "mecanum1", mecanum2 = "mecanum2";
-    public static final String frontIntake = "frontIntake", rearIntake = "rearIntake";
-    public static final String shooter1 = "shooter1", shooter2 = "shooter2";
+    public static final String frontIntake = "ehub2green", rearIntake = "chub2orange";
+    public static final String shooter1 = "chub3purple", shooter2 = "ehub3black ";
     public static final String transfer = "transfer";
-    public static final String turret = "turret", turret2 = "turret2";
-    public static final String fliPrampFront = "turret", fliPrampRear = "turret2";
+    public static final String turret = "shub1gray", turret2 = "shub4black";
+    public static final String fliPrampFront = "shub3brown", fliPrampRear = "shub2green";
 
 }

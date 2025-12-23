@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter.ShooterStates.ACTIVE;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter.ShooterStates.NOTACTIVE;
 
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
@@ -12,9 +14,10 @@ import org.firstinspires.ftc.teamcode.teamcode.Subsystems.TeliOpDrivetrain;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
+@TeleOp
 public class DimitriTeleop extends BaseOpMode{
     Shooter shooter;
-    IntakeMagazine intake;
+    //IntakeMagazine intake;
     TeliOpDrivetrain drive;
     boolean shooterActive = true;
     boolean wasIntaking = false;
@@ -24,20 +27,20 @@ public class DimitriTeleop extends BaseOpMode{
     @Override
     public void externalInit() {
         shooter = new Shooter(hardwareMap, 0, Constants.team);
-        intake = new IntakeMagazine(hardwareMap);
+        shooter.setState(NOTACTIVE);
+        //intake = new IntakeMagazine(hardwareMap);
         drive = new TeliOpDrivetrain(hardwareMap,0);
-        loc = new Location(0, 0,0);
+        loc = new Location(.25, 2,-Math.PI/2);
+        loc.doTelemetry = true;
     }
 
     @Override
     public void externalLoop() {
-        if (driver1.rightStick.isPressed()){
-            drive.PIDdrive(driver1.leftStick.Y(), -driver1.rightStick.X(), 0.3);
-        } else {
-            drive.PIDdrive(driver1.leftStick.Y(), -driver1.rightStick.X(), 1);
-        }
+
+        drive.PIDdrive(driver1.leftStick.Y(), -driver1.rightStick.X(), 1);
+
         shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getPosH(), loc.getTranslationalVelocity());
-        intake.setIndexMode(driver1.options.isToggled());
+        //intake.setIndexMode(driver1.options.isToggled());
 
         shooter.panic = driver1.share.isToggled();
 
@@ -47,7 +50,7 @@ public class DimitriTeleop extends BaseOpMode{
             shooter.setState(NOTACTIVE);
         }
 
-
+        /*
         if (driver1.leftTrigger.isPressed()){
             intake.setState(IntakeMagazine.IntakeMagazineStates.INTAKEREAR);
             wasIntaking = true;
@@ -62,16 +65,11 @@ public class DimitriTeleop extends BaseOpMode{
             wasIntaking = false;
         }
 
-        if (intake.getState() == IntakeMagazine.IntakeMagazineStates.IDLE && driver1.cross.isTapped()){
-            if (!intake.indexMode) {
-                intake.setState(IntakeMagazine.IntakeMagazineStates.SHOOTING);
-            } else {
-                intake.setState(IntakeMagazine.IntakeMagazineStates.LOADANDSHOOTUNINDEXED);
-            }
-        } else if (intake.indexMode && intake.getState() == IntakeMagazine.IntakeMagazineStates.IDLE && driver1.square.isTapped()){
-            intake.setState(IntakeMagazine.IntakeMagazineStates.LOADPURPLE);
-        } else if (intake.indexMode && intake.getState() == IntakeMagazine.IntakeMagazineStates.IDLE && driver1.triangle.isTapped()){
-            intake.setState(IntakeMagazine.IntakeMagazineStates.LOADGREEN);
+        if (intake.getState() == IntakeMagazine.IntakeMagazineStates.IDLE && driver1.cross.isTapped()) {
+            intake.setState(IntakeMagazine.IntakeMagazineStates.LOADANDSHOOTUNINDEXED);
         }
+
+         */
     }
+
 }

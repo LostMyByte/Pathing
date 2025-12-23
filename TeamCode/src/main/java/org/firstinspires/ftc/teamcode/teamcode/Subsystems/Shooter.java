@@ -90,14 +90,14 @@ public class Shooter extends Subsystem{
     Servos.Turret2 turret2;
     public boolean panic = false;
     public boolean ballFollowing = false;
-
+    Vector goalRelativeVelocity;
 
 
     public Shooter(HardwareMap hardwareMap, double turretStartAngle, Constants.Team team){
         //Things are commented to prepare for the first tests of the shooter where we will only have the flywheel.
 
         shooter1 = new Motor(Hardware.shooter1, false, true);
-        shooter2 = new Motor(Hardware.shooter2, true, true);
+        shooter2 = new Motor(Hardware.shooter2, true);
         hood = new Servos.Hood();
         turret = new Servos.Turret();
         turret2 = new Servos.Turret2();
@@ -118,6 +118,8 @@ public class Shooter extends Subsystem{
         shooterState = ShooterStates.OBELISK;
         //currentRamp = new ArrayList<BallColors>();
         this.turretStartAngle = turretStartAngle;
+        fieldRelativeVelocity = new Vector(0,0);
+        goalRelativeVelocity = new Vector(0,0);
 
         //readyToShootIndicator = new Servo(Hardware.indicatorLight);
         //angleWrapWarningLight = new Servo(Hardware.angleWrapWarningLight);
@@ -161,8 +163,8 @@ public class Shooter extends Subsystem{
 
 
 
-        shooter1.setPower(correction);
-        shooter2.setPower(correction);
+        //shooter1.setPower(correction);
+        //shooter2.setPower(correction);
     }
 
     public void getPattern(){
@@ -206,9 +208,10 @@ public class Shooter extends Subsystem{
         } else {
             updateTargetTurretAngle();
         }
-
+        BaseOpMode.addData("turretTargetAngle", turretTargetAngle);
+        if (!Double.isNaN(turretTargetAngle)){
         turret.setPositionInterpolated(turretTargetAngle);
-        turret2.setPositionInterpolated(turretTargetAngle);
+        turret2.setPositionInterpolated(turretTargetAngle);}
 
         //DONT angle wrap because the wiring means we can't actually spin around multiple times
 
@@ -257,7 +260,7 @@ public class Shooter extends Subsystem{
     double filteredRPM = 0;
     double rpmAlpha = 0.2;
     public double getShooterRPM(){
-        double rpm = (Math.abs(shooter1.getVelocity()/ShooterTest.ShooterDash.ticksPerRotation*60)+Math.abs(shooter2.getVelocity()/ShooterTest.ShooterDash.ticksPerRotation*60))/2;
+        double rpm = Math.abs(shooter1.getVelocity()/ShooterTest.ShooterDash.ticksPerRotation*60);
 
         filteredRPM = alpha*(rpm) + (1-rpmAlpha) * filteredRPM;
         if(shooter1.getVelocity() > 0){
@@ -279,10 +282,11 @@ public class Shooter extends Subsystem{
 
     public void aim(){
         if (!panic){
-            hood.setPositionInterpolated(getHoodAngleMovingCase());
+            //hood.setPositionInterpolated(getHoodAngleMovingCase());
         } else {
             hood.setPositionInterpolated(45);
         }
+        BaseOpMode.addData("hood Angle", getHoodAngleMovingCase());
 
         //This is the target angle relative to facing directly at the aprilTag
         //yaw is current angle of the aprilTag relative to the shooter
@@ -435,31 +439,24 @@ public class Shooter extends Subsystem{
 
         //the angle the robot would need to face to hit the target
         double angle = Math.atan(x/y);
+        BaseOpMode.addData("angle1", angle);
 
         //make it so that x velocity is perpendicular to the goal and y is parallel
-        Vector goalRelativeVelocity = fieldRelativeVelocity.rotated(angle);
+        goalRelativeVelocity = fieldRelativeVelocity.rotated(angle);
         double vX = goalRelativeVelocity.get(0);
 
         //the angle the robot would need to turn to hit the target
         angle += h;
+        BaseOpMode.addData("angle2", angle);
 
         //account for robot velocity
         angle -= Math.asin(vX/getTargetBallSpeedX());
+        BaseOpMode.addData("angle3", angle);
         //this gives me an angle between 0 and 2pi. In order to work nicely with kieran's code,
         //I subtract pi/2 to make the angle be between -pi/2 and 3pi/2
-        angle -= Math.PI/2;
 
-        //this will be an angle between -pi/2 and 3pi/2. The servos are capable of 400 degrees
-        //of rotation, which is helpful because there is some overlap and results in fewer resets.
-        //To make use of this overlap, if the angle is in the area of overlap (between -pi/2 and
-        //Math.toRadians(-5)) we check what the last angle was. If it was less than pi/2, keep the
-        //angle as is. if it was greater than pi/2, add 2pi to the angle.
-        if (angle > -Math.PI/2 && angle < Math.toRadians(-5) && turretTargetAngle > Math.PI/2){
-            turretTargetAngle = angle + 2*Math.PI;
-
-        } else {
-            turretTargetAngle = angle;
-        }
+        //ensures the angle is within the range the turret is capable of reaching
+        turretTargetAngle = Range.clip(angle, Math.toRadians(-135), Math.PI/2);
     }
 
     public void updateBallFollowAngle(){
@@ -496,6 +493,8 @@ public class Shooter extends Subsystem{
         this.h = h;
         this.fieldRelativeVelocity = fieldRelativeVelocity;
         this.distanceAway = Math.sqrt(x*x + y*y);
+
+        BaseOpMode.addData("distanceAway", distanceAway);
     }
 
     public Vector getGoalRelativeVelocity(){
@@ -618,9 +617,7 @@ public class Shooter extends Subsystem{
 
     public void selectRPM(){
         //Populate this with all the RPM Ranges
-        if (distanceAway < 1){
-            targetShooterRPM = 1180;
-        }
+        setTargetShooterRPM(500*distanceAway+700);
     }
     public boolean canRobotShoot(){
         return (hoodCanShoot && turretCanShoot);
@@ -676,8 +673,7 @@ public class Shooter extends Subsystem{
     @Override
     public void update() {
         work();
-        //updateTagDistanceHybridCorrected();
-        //updateTargeting();
+        selectRPM();
     }
 
     public enum ShooterStates{
