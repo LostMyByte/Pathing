@@ -80,15 +80,17 @@ public class Servos {
     }
     public static class FliPrampFront extends Servo{
         public FliPrampFront(){super(Hardware.fliPrampFront);}
-        public void shoot(){}
-        public void mid(){}
-        public void flat(){}
+        public void shoot(){this.setPosition(.22);}
+        public void mid(){this.setPosition(.15);}
+        public void lessMid(){this.setPosition(.12);}
+        public void flat(){this.setPosition(.08);}
     }
-    public static class FliPrampBack extends Servo{
+    public static class FliPrampBack extends Servo {
         public FliPrampBack(){super(Hardware.fliPrampRear);}
-        public void shoot(){}
-        public void mid(){}
-        public void flat(){}
+        public void shoot(){this.setPosition(.7);}
+        public void mid(){this.setPosition(.8);}
+        public void lessMid(){this.setPosition(.83);}
+        public void flat(){this.setPosition(.87);}
     }
 }
 

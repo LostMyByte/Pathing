@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp;
 
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.DONOTHING;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter.ShooterStates.ACTIVE;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter.ShooterStates.NOTACTIVE;
 
@@ -16,8 +17,8 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 @TeleOp
 public class DimitriTeleop extends BaseOpMode{
-    Shooter shooter;
-    //IntakeMagazine intake;
+    //Shooter shooter;
+    IntakeMagazine intake;
     TeliOpDrivetrain drive;
     boolean shooterActive = true;
     boolean wasIntaking = false;
@@ -26,9 +27,10 @@ public class DimitriTeleop extends BaseOpMode{
 
     @Override
     public void externalInit() {
-        shooter = new Shooter(hardwareMap, 0, Constants.team);
-        shooter.setState(NOTACTIVE);
-        //intake = new IntakeMagazine(hardwareMap);
+        //shooter = new Shooter(hardwareMap, 0, Constants.team);
+        //shooter.setState(NOTACTIVE);
+        intake = new IntakeMagazine(hardwareMap);
+        intake.setState(DONOTHING);
         drive = new TeliOpDrivetrain(hardwareMap,0);
         loc = new Location(.25, 2,-Math.PI/2);
         loc.doTelemetry = true;
@@ -39,18 +41,16 @@ public class DimitriTeleop extends BaseOpMode{
 
         drive.PIDdrive(driver1.leftStick.Y(), -driver1.rightStick.X(), 1);
 
-        shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getPosH(), loc.getTranslationalVelocity());
-        //intake.setIndexMode(driver1.options.isToggled());
-
-        shooter.panic = driver1.share.isToggled();
+        //shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getPosH(), loc.getTranslationalVelocity());
+        //shooter.panic = driver1.share.isToggled();
 
         if (!driver1.dpad_up.isToggled()){
-            shooter.setState(ACTIVE);
+        //    shooter.setState(ACTIVE);
         } else {
-            shooter.setState(NOTACTIVE);
+        //    shooter.setState(NOTACTIVE);
         }
 
-        /*
+
         if (driver1.leftTrigger.isPressed()){
             intake.setState(IntakeMagazine.IntakeMagazineStates.INTAKEREAR);
             wasIntaking = true;
@@ -69,7 +69,7 @@ public class DimitriTeleop extends BaseOpMode{
             intake.setState(IntakeMagazine.IntakeMagazineStates.LOADANDSHOOTUNINDEXED);
         }
 
-         */
+
     }
 
 }

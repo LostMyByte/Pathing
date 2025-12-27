@@ -210,8 +210,10 @@ public class Shooter extends Subsystem{
         }
         BaseOpMode.addData("turretTargetAngle", turretTargetAngle);
         if (!Double.isNaN(turretTargetAngle)){
-        turret.setPositionInterpolated(turretTargetAngle);
-        turret2.setPositionInterpolated(turretTargetAngle);}
+        //turret.setPositionInterpolated(turretTargetAngle);
+        //turret2.setPositionInterpolated(turretTargetAngle);
+        }
+
 
         //DONT angle wrap because the wiring means we can't actually spin around multiple times
 

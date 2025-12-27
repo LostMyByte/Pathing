@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.teamcode.Subsystems;
 
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.IDLE;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.INTAKEFRONT;
+import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.INTAKEREAR;
 import static org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine.IntakeMagazineStates.SHOOTING;
 
 import android.graphics.Color;
@@ -28,9 +30,12 @@ public class IntakeMagazine extends Subsystem{
     Servos.FliPrampFront frontRamp;
 
     IntakeMagazineStates state = IDLE;
+    IntakeMagazineStates lastState = IDLE;
 
     IndexStates indexState = IndexStates.SCORE;
+
     ElapsedTime timer;
+    
     NormalizedColorSensor[] colorSensors = new NormalizedColorSensor[3];
     TouchSensor[] breakBeams = new TouchSensor[3];
     boolean[] breakBeamReads = new boolean[3];
@@ -39,21 +44,22 @@ public class IntakeMagazine extends Subsystem{
     public boolean indexMode = false;
     ElapsedTime indexingTimer;
     boolean firstLoop1 = true;
+    boolean firstLoop2 = true;
 
     public IntakeMagazine(HardwareMap hardwareMap){
         frontRamp = new Servos.FliPrampFront();
         backRamp = new Servos.FliPrampBack();
         frontIntake = new Motor(Hardware.frontIntake, true);
-        rearIntake = new Motor(Hardware.rearIntake, true);
+        rearIntake = new Motor(Hardware.rearIntake, false);
         indexWheel = hardwareMap.get(CRServo.class, Hardware.indexServo2);
         timer = new ElapsedTime();
         indexingTimer = new ElapsedTime();
         colorSensors[0] = hardwareMap.get(NormalizedColorSensor.class, "colorSensor0");
         colorSensors[1] = hardwareMap.get(NormalizedColorSensor.class, "colorSensor1");
         colorSensors[2] = hardwareMap.get(NormalizedColorSensor.class, "colorSensor2");
-        breakBeams[0] = hardwareMap.get(TouchSensor.class, "breakbeam0");
-        breakBeams[1] = hardwareMap.get(TouchSensor.class, "breakbeam1");
-        breakBeams[2] = hardwareMap.get(TouchSensor.class, "breakbeam2");
+        breakBeams[0] = hardwareMap.get(TouchSensor.class, "breakbeam2");
+        breakBeams[1] = hardwareMap.get(TouchSensor.class, "breakbeam0");
+        breakBeams[2] = hardwareMap.get(TouchSensor.class, "breakbeam1");
     }
 
 
@@ -64,7 +70,6 @@ public class IntakeMagazine extends Subsystem{
             case SHOOTING:
                 shoot();
                 break;
-
             case IDLE:
                 idle();
                 break;
@@ -76,6 +81,8 @@ public class IntakeMagazine extends Subsystem{
                 break;
             case CLEAR:
                 clearMagazine();
+                break;
+            case DONOTHING:
                 break;
         }
     }
@@ -159,21 +166,23 @@ public class IntakeMagazine extends Subsystem{
     //if we are in index mode and there is a ball in the middle position, move it to the indexed position.
     //When it is in the indexed position, indicate that it is there, and declare the shooting position empty
     public void idle(){
-        frontIntake.setPower(0);
-        rearIntake.setPower(0);
-        indexWheel.setPower(0);
-        frontRamp.mid();
-        backRamp.mid();
-        if (indexMode && breakBeamReads[2]){
-            if (firstLoop1){
-                setIndexState(IndexStates.INDEX);
-                firstLoop1 = false;
-            }
-            if (timer.seconds() > 0.5){
-                breakBeamReads[2] = false;
-                breakBeamReads[3] = true;
-            }
+        indexWheel.setPower(-.5);
+        frontRamp.lessMid();
+        backRamp.lessMid();
+        //if there is a ball in the front intake
+        if (!breakBeamReads[0] && firstLoop1){
+            frontIntake.setPower(-.5);
+        } else {
+            frontIntake.setPower(0.2);
+            firstLoop1 = false;
         }
+        if (!breakBeamReads[1] && firstLoop2){
+            rearIntake.setPower(-.5);
+        } else {
+            rearIntake.setPower(0.2);
+            firstLoop2 = false;
+        }
+
     }
 
     //if avery requests a green to be shot, check all the slots for a green, and if there is a green,
@@ -188,29 +197,37 @@ public class IntakeMagazine extends Subsystem{
     //active intake into the opposite side intake. When there is a ball in the opposite side intake, stop
     //that intake.
     public void intakeFront(){
-        frontIntake.setPower(0.5);
-        frontRamp.flat();
-        backRamp.flat();
-        //if there is a ball in the rear intake, stop reversing that intake
-        if(breakBeamReads[1]){
-            rearIntake.setPower(0);
+        indexWheel.setPower(-.5);
+        if (getNumBalls() != 3) {
+            frontIntake.setPower(.85);
+            frontRamp.flat();
+            backRamp.flat();
+            //if there is a ball in the front intake, stop reversing that intake
+            if (!breakBeamReads[1]) {
+                rearIntake.setPower(0.1);
+            } else {
+                rearIntake.setPower(-0.5);
+            }
         } else {
-            rearIntake.setPower(-0.5);
+            rearIntake.setPower(0);
+            frontIntake.setPower(0);
         }
-        //Because intaking is unpredictable by nature, reset all the break beam reads except for the rear
-        //intake, because when the rear intake reads true that should stay true and we need that read to
-        //be accurate at this time
-
     }
     public void intakeRear(){
-        rearIntake.setPower(0.5);
-        frontRamp.flat();
-        backRamp.flat();
-        //if there is a ball in the front intake, stop reversing that intake
-        if(breakBeamReads[0]){
-            frontIntake.setPower(0);
+        indexWheel.setPower(-.5);
+        if (getNumBalls() != 3) {
+            rearIntake.setPower(.85);
+            frontRamp.flat();
+            backRamp.flat();
+            //if there is a ball in the front intake, stop reversing that intake
+            if (!breakBeamReads[0]) {
+                frontIntake.setPower(0.1);
+            } else {
+                frontIntake.setPower(-0.5);
+            }
         } else {
-            frontIntake.setPower(-0.5);
+            rearIntake.setPower(0);
+            frontIntake.setPower(0);
         }
 
     }
@@ -233,7 +250,18 @@ public class IntakeMagazine extends Subsystem{
         breakBeamReads[0] = false;
         breakBeamReads[1] = false;
         breakBeamReads[2] = false;
-        breakBeamReads[3] = false;
+    }
+
+    public int getNumBalls(){
+        int num = 0;
+        if (!breakBeamReads[0]){
+            num++;
+        } if (!breakBeamReads[1]){
+            num++;
+        } if (!breakBeamReads[2]){
+            num++;
+        }
+        return num;
     }
 
     public void setIndexState(IndexStates state){
@@ -264,7 +292,8 @@ public class IntakeMagazine extends Subsystem{
         work();
         BaseOpMode.addData("beam0", breakBeamReads[0]);
         BaseOpMode.addData("beam1", breakBeamReads[1]);
-        BaseOpMode.addData("beam2", breakBeamReads[2    ]);
+        BaseOpMode.addData("beam2", breakBeamReads[2]);
+        BaseOpMode.addData("numBalls", getNumBalls());
     }
 
     @Override
@@ -280,7 +309,7 @@ public class IntakeMagazine extends Subsystem{
     }*/
 
     public enum IntakeMagazineStates{
-        IDLE, INTAKEFRONT, INTAKEREAR, SHOOTING, CLEAR, LOADANDSHOOTUNINDEXED
+        IDLE, INTAKEFRONT, INTAKEREAR, SHOOTING, CLEAR, LOADANDSHOOTUNINDEXED, DONOTHING
     }
 
     public enum BallColors{
@@ -293,9 +322,11 @@ public class IntakeMagazine extends Subsystem{
     }
 
     public void setState(IntakeMagazineStates state){
+        lastState = this.state;
         this.state = state;
         timer.reset();
         firstLoop1 = true;
+        firstLoop2 = true;
     }
 
     public IntakeMagazineStates getState(){
