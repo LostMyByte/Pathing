@@ -79,6 +79,7 @@ public class Shooter extends Subsystem{
     double degreesYtoApriltag;
     double radsYtoApriltag;
     double distanceAway;
+    double ballSpeed;
 
 
     // Calibration state variables
@@ -163,8 +164,8 @@ public class Shooter extends Subsystem{
 
 
 
-        //shooter1.setPower(correction);
-        //shooter2.setPower(correction);
+        shooter1.setPower(correction);
+        shooter2.setPower(correction);
     }
 
     public void getPattern(){
@@ -210,8 +211,8 @@ public class Shooter extends Subsystem{
         }
         BaseOpMode.addData("turretTargetAngle", turretTargetAngle);
         if (!Double.isNaN(turretTargetAngle)){
-        //turret.setPositionInterpolated(turretTargetAngle);
-        //turret2.setPositionInterpolated(turretTargetAngle);
+        turret.setPositionInterpolated(turretTargetAngle);
+        turret2.setPositionInterpolated(turretTargetAngle);
         }
 
 
@@ -283,8 +284,8 @@ public class Shooter extends Subsystem{
     }
 
     public void aim(){
-        if (!panic){
-            //hood.setPositionInterpolated(getHoodAngleMovingCase());
+        if (!panic && !Double.isNaN(getHoodAngleMovingCase())){
+            hood.setPositionInterpolated(getHoodAngleMovingCase());
         } else {
             hood.setPositionInterpolated(45);
         }
@@ -441,7 +442,6 @@ public class Shooter extends Subsystem{
 
         //the angle the robot would need to face to hit the target
         double angle = Math.atan(x/y);
-        BaseOpMode.addData("angle1", angle);
 
         //make it so that x velocity is perpendicular to the goal and y is parallel
         goalRelativeVelocity = fieldRelativeVelocity.rotated(angle);
@@ -449,11 +449,9 @@ public class Shooter extends Subsystem{
 
         //the angle the robot would need to turn to hit the target
         angle += h;
-        BaseOpMode.addData("angle2", angle);
 
         //account for robot velocity
-        angle -= Math.asin(vX/getTargetBallSpeedX());
-        BaseOpMode.addData("angle3", angle);
+        angle += Math.asin(vX/getTargetBallSpeedX());
         //this gives me an angle between 0 and 2pi. In order to work nicely with kieran's code,
         //I subtract pi/2 to make the angle be between -pi/2 and 3pi/2
 
@@ -490,12 +488,13 @@ public class Shooter extends Subsystem{
     Vector fieldRelativeVelocity;
 
     public void recieveOdoInputs(double x, double y, double h, Vector fieldRelativeVelocity){
-        this.x = x;
-        this.y = y;
+        this.x = x/100;
+        this.y = y/100;
         this.h = h;
-        this.fieldRelativeVelocity = fieldRelativeVelocity;
-        this.distanceAway = Math.sqrt(x*x + y*y);
-
+        this.fieldRelativeVelocity = fieldRelativeVelocity.multiplied(.01);
+        this.distanceAway = Math.sqrt(this.x*this.x + this.y*this.y);
+        BaseOpMode.addData("x", this.x);
+        BaseOpMode.addData("y", this.y);
         BaseOpMode.addData("distanceAway", distanceAway);
     }
 
@@ -574,7 +573,7 @@ public class Shooter extends Subsystem{
         double a1 = a0 - fPrecomputed()/dfPrecomputed();
         double a2 = a1 - f(a1)/df(a1);
 
-        return Math.toDegrees(a2);
+        return Range.clip(Math.toDegrees(a2),33,65);
     }
 
     //The original equation for newton's method
@@ -582,8 +581,8 @@ public class Shooter extends Subsystem{
         double sina = Math.sin(a);
         double cosa = Math.cos(a);
 
-        double t1 = (getTargetBallSpeed()*sina*distanceAway)/(getTargetBallSpeed()*cosa+getGoalRelativeVelocity().get(1));
-        double t2 = (Constants.g/2)*Math.pow(distanceAway/(getTargetBallSpeed()*cosa+getGoalRelativeVelocity().get(1)),2);
+        double t1 = (ballSpeed*sina*distanceAway)/(ballSpeed*cosa+getGoalRelativeVelocity().get(1));
+        double t2 = (Constants.g/2)*Math.pow(distanceAway/(ballSpeed*cosa+getGoalRelativeVelocity().get(1)),2);
         double t3 = .99-limelightLensHeightFromGround;
 
         return t1-t2-t3;
@@ -593,8 +592,8 @@ public class Shooter extends Subsystem{
         double sina = Math.sin(a);
         double cosa = Math.cos(a);
 
-        double t1 = (Constants.g*distanceAway*distanceAway*getTargetBallSpeed()*sina)/Math.pow(getTargetBallSpeed()*cosa+getGoalRelativeVelocity().get(1),3);
-        double t2 = (getTargetBallSpeed()*distanceAway*(getTargetBallSpeed()+getGoalRelativeVelocity().get(1)*cosa))/Math.pow(getTargetBallSpeed()*
+        double t1 = (Constants.g*distanceAway*distanceAway*ballSpeed*sina)/Math.pow(ballSpeed*cosa+getGoalRelativeVelocity().get(1),3);
+        double t2 = (ballSpeed*distanceAway*(ballSpeed+getGoalRelativeVelocity().get(1)*cosa))/Math.pow(ballSpeed*
                 cosa+getGoalRelativeVelocity().get(1),2);
 
         return t2-t1;
@@ -602,8 +601,8 @@ public class Shooter extends Subsystem{
 
     public double fPrecomputed(){
         //This precomputes the trig functions because every loop we get the sin and cos of 45, which is pointless
-        double t1 = (getTargetBallSpeed()*.7071*distanceAway)/(getTargetBallSpeed()*.7071+getGoalRelativeVelocity().get(1));
-        double t2 = (Constants.g/2)*Math.pow(distanceAway/(getTargetBallSpeed()*.7071+getGoalRelativeVelocity().get(1)),2);
+        double t1 = (ballSpeed*.7071*distanceAway)/(ballSpeed*.7071+getGoalRelativeVelocity().get(1));
+        double t2 = (Constants.g/2)*Math.pow(distanceAway/(ballSpeed*.7071+getGoalRelativeVelocity().get(1)),2);
         double t3 = .99-limelightLensHeightFromGround;
 
         return t1-t2-t3;
@@ -611,8 +610,8 @@ public class Shooter extends Subsystem{
 
     public double dfPrecomputed(){
         //This precomputes the trig functions because every loop we get the sin and cos of 45, which is pointless
-        double t1 = (Constants.g*distanceAway*distanceAway*getTargetBallSpeed()*.7071)/Math.pow(getTargetBallSpeed()*.7071+getGoalRelativeVelocity().get(1),3);
-        double t2 = (getTargetBallSpeed()*distanceAway*(getTargetBallSpeed()+getGoalRelativeVelocity().get(1)*.7071))/Math.pow(getTargetBallSpeed()*.7071+getGoalRelativeVelocity().get(1),2);
+        double t1 = (Constants.g*distanceAway*distanceAway*ballSpeed*.7071)/Math.pow(ballSpeed*.7071+getGoalRelativeVelocity().get(1),3);
+        double t2 = (ballSpeed*distanceAway*(ballSpeed+getGoalRelativeVelocity().get(1)*.7071))/Math.pow(ballSpeed*.7071+getGoalRelativeVelocity().get(1),2);
 
         return t2-t1;
     }
@@ -669,7 +668,7 @@ public class Shooter extends Subsystem{
 
     @Override
     public void updateSensors() {
-
+        ballSpeed = getBallSpeed();
     }
 
     @Override

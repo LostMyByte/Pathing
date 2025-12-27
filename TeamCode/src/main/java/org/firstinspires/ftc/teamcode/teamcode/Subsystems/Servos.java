@@ -88,7 +88,7 @@ public class Servos {
     public static class FliPrampBack extends Servo {
         public FliPrampBack(){super(Hardware.fliPrampRear);}
         public void shoot(){this.setPosition(.7);}
-        public void mid(){this.setPosition(.8);}
+        public void mid(){this.setPosition(.82);}
         public void lessMid(){this.setPosition(.83);}
         public void flat(){this.setPosition(.87);}
     }

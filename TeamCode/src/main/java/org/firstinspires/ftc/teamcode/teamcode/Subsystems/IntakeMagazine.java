@@ -40,6 +40,8 @@ public class IntakeMagazine extends Subsystem{
     TouchSensor[] breakBeams = new TouchSensor[3];
     boolean[] breakBeamReads = new boolean[3];
     boolean[] preShotBreakBeams = new boolean[3];
+
+    boolean[] preSeatBreakBeams = new boolean[3];
     final float[] hsv = new float[3];
     public boolean indexMode = false;
     ElapsedTime indexingTimer;
@@ -84,6 +86,9 @@ public class IntakeMagazine extends Subsystem{
                 break;
             case DONOTHING:
                 break;
+            case SEATBALLS:
+                seatBalls();
+                break;
         }
     }
 
@@ -109,14 +114,14 @@ public class IntakeMagazine extends Subsystem{
             if (breakBeamReads[2]){
                 frontRamp.shoot();
             } else {
-                frontRamp.mid();
+                frontRamp.lessMid();
             }
         } else {
             frontRamp.flat();
             if (breakBeamReads[2]){
                 backRamp.shoot();
             } else {
-                backRamp.mid();
+                backRamp.lessMid();
             }
         }
     }
@@ -129,32 +134,24 @@ public class IntakeMagazine extends Subsystem{
             preShotBreakBeams = breakBeamReads;
             firstLoop1 = false;
         }
-        frontIntake.setPower(1);
-        rearIntake.setPower(1);
-        indexWheel.setPower(-1);
-        //if all positions are full when we start shooting
-        if (preShotBreakBeams[1] && preShotBreakBeams[0]){
-            if (timer.seconds() > 0.7 && !breakBeamReads[2]){
-                setState(IDLE);
-            }
-            else if (timer.seconds() < 0.5){
-                handleRamps(RobotSide.BACK);
+        if (timer.seconds() < .3){
+            backRamp.flat();
+            if (!breakBeamReads[2]){
+                frontRamp.shoot();
             } else {
-                handleRamps(RobotSide.FRONT);
+                frontRamp.mid();
             }
-        } else if (preShotBreakBeams[1]){
-            handleRamps(RobotSide.BACK);
-            if (timer.seconds() > 0.5){
-                setState(IDLE);
-            }
-        }
-        else if (preShotBreakBeams[0]) {
-            handleRamps(RobotSide.FRONT);
-            if (timer.seconds() > 0.5) {
-                setState(IDLE);
-            }
-        } else {
+            frontIntake.setPower(.85);
+        } else if (timer.seconds() > 1.3){
             setState(IDLE);
+        } else {
+            frontRamp.flat();
+            if (!breakBeamReads[2]){
+                backRamp.shoot();
+            } else {
+                backRamp.mid();
+            }
+            rearIntake.setPower(.85);
         }
     }
 
@@ -169,20 +166,17 @@ public class IntakeMagazine extends Subsystem{
         indexWheel.setPower(-.5);
         frontRamp.lessMid();
         backRamp.lessMid();
+        frontIntake.setPower(0);
+        rearIntake.setPower(0);
         //if there is a ball in the front intake
-        if (!breakBeamReads[0] && firstLoop1){
-            frontIntake.setPower(-.5);
+    }
+    public void seatBalls(){
+        if (getNumBalls() == 3 && timer.seconds() < .15){
+            rearIntake.setPower(-.6);
+            frontIntake.setPower(-.4);
         } else {
-            frontIntake.setPower(0.2);
-            firstLoop1 = false;
+            setState(IDLE);
         }
-        if (!breakBeamReads[1] && firstLoop2){
-            rearIntake.setPower(-.5);
-        } else {
-            rearIntake.setPower(0.2);
-            firstLoop2 = false;
-        }
-
     }
 
     //if avery requests a green to be shot, check all the slots for a green, and if there is a green,
@@ -198,34 +192,52 @@ public class IntakeMagazine extends Subsystem{
     //that intake.
     public void intakeFront(){
         indexWheel.setPower(-.5);
-        if (getNumBalls() != 3) {
-            frontIntake.setPower(.85);
+        if (getNumBalls() != 3){
+            frontIntake.setPower(.8);
+        }
+        if (!breakBeamReads[2] && breakBeamReads[1] && breakBeamReads[0]){
+            frontRamp.lessMid();
+            backRamp.lessMid();
+
+        } else {
             frontRamp.flat();
             backRamp.flat();
-            //if there is a ball in the front intake, stop reversing that intake
+        }
+        if (getNumBalls() == 2) {
+            frontIntake.setPower(.8);
+            //if there are 2 balls and there isn't a ball in the back intake, reverse the back intake
             if (!breakBeamReads[1]) {
                 rearIntake.setPower(0.1);
             } else {
-                rearIntake.setPower(-0.5);
+                rearIntake.setPower(-0.7);
             }
-        } else {
+        } else if (getNumBalls() == 3){
             rearIntake.setPower(0);
             frontIntake.setPower(0);
         }
     }
     public void intakeRear(){
         indexWheel.setPower(-.5);
-        if (getNumBalls() != 3) {
-            rearIntake.setPower(.85);
+        if (getNumBalls() != 3){
+            rearIntake.setPower(.8);
+        }
+        if (!breakBeamReads[2] && breakBeamReads[1] && breakBeamReads[0]){
+            frontRamp.lessMid();
+            backRamp.lessMid();
+
+        } else {
             frontRamp.flat();
             backRamp.flat();
-            //if there is a ball in the front intake, stop reversing that intake
+        }
+        if (getNumBalls() == 2) {
+            rearIntake.setPower(.8);
+            //if there are 2 balls and there isn't a ball in the back intake, reverse the back intake
             if (!breakBeamReads[0]) {
                 frontIntake.setPower(0.1);
             } else {
-                frontIntake.setPower(-0.5);
+                frontIntake.setPower(-0.55);
             }
-        } else {
+        } else if (getNumBalls() == 3){
             rearIntake.setPower(0);
             frontIntake.setPower(0);
         }
@@ -294,22 +306,19 @@ public class IntakeMagazine extends Subsystem{
         BaseOpMode.addData("beam1", breakBeamReads[1]);
         BaseOpMode.addData("beam2", breakBeamReads[2]);
         BaseOpMode.addData("numBalls", getNumBalls());
+        BaseOpMode.addData("state", state);
     }
 
     @Override
     public void updateSensors(){
-        for(int sensorNum = 0; sensorNum < breakBeams.length && state != SHOOTING; sensorNum++){
+        for(int sensorNum = 0; sensorNum < breakBeams.length; sensorNum++){
             breakBeamReads[sensorNum] = breakBeams[sensorNum].isPressed();
         }
     }
 
-    /*@Override
-    public void update() {
-        work();
-    }*/
 
     public enum IntakeMagazineStates{
-        IDLE, INTAKEFRONT, INTAKEREAR, SHOOTING, CLEAR, LOADANDSHOOTUNINDEXED, DONOTHING
+        IDLE, INTAKEFRONT, INTAKEREAR, SHOOTING, CLEAR, LOADANDSHOOTUNINDEXED, DONOTHING, SEATBALLS
     }
 
     public enum BallColors{

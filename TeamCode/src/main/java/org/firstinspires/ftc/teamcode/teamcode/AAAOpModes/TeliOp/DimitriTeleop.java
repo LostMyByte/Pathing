@@ -17,9 +17,9 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 @TeleOp
 public class DimitriTeleop extends BaseOpMode{
-    //Shooter shooter;
+    Shooter shooter;
     IntakeMagazine intake;
-    TeliOpDrivetrain drive;
+    //0TeliOpDrivetrain drive;
     boolean shooterActive = true;
     boolean wasIntaking = false;
 
@@ -27,27 +27,26 @@ public class DimitriTeleop extends BaseOpMode{
 
     @Override
     public void externalInit() {
-        //shooter = new Shooter(hardwareMap, 0, Constants.team);
-        //shooter.setState(NOTACTIVE);
+        shooter = new Shooter(hardwareMap, 0, Constants.Team.RED);
+        shooter.setState(NOTACTIVE);
         intake = new IntakeMagazine(hardwareMap);
         intake.setState(DONOTHING);
-        drive = new TeliOpDrivetrain(hardwareMap,0);
-        loc = new Location(.25, 2,-Math.PI/2);
-        loc.doTelemetry = true;
+        //drive = new TeliOpDrivetrain(hardwareMap,0);
+        loc = new Location(183, 183,-Math.PI/2);
     }
 
     @Override
     public void externalLoop() {
 
-        drive.PIDdrive(driver1.leftStick.Y(), -driver1.rightStick.X(), 1);
+        //drive.PIDdrive(driver1.leftStick.Y(), -driver1.rightStick.X(), 1);
 
-        //shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getPosH(), loc.getTranslationalVelocity());
+        shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getPosH(), loc.getTranslationalVelocity());
         //shooter.panic = driver1.share.isToggled();
 
         if (!driver1.dpad_up.isToggled()){
-        //    shooter.setState(ACTIVE);
+            shooter.setState(ACTIVE);
         } else {
-        //    shooter.setState(NOTACTIVE);
+            shooter.setState(NOTACTIVE);
         }
 
 
@@ -61,12 +60,12 @@ public class DimitriTeleop extends BaseOpMode{
             intake.setState(IntakeMagazine.IntakeMagazineStates.CLEAR);
             wasIntaking = true;
         } else if (wasIntaking){
-            intake.setState(IntakeMagazine.IntakeMagazineStates.IDLE);
+            intake.setState(IntakeMagazine.IntakeMagazineStates.SEATBALLS);
             wasIntaking = false;
         }
 
         if (intake.getState() == IntakeMagazine.IntakeMagazineStates.IDLE && driver1.cross.isTapped()) {
-            intake.setState(IntakeMagazine.IntakeMagazineStates.LOADANDSHOOTUNINDEXED);
+            intake.setState(IntakeMagazine.IntakeMagazineStates.SHOOTING);
         }
 
 
