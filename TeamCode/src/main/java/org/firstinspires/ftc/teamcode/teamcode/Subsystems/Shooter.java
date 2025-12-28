@@ -212,7 +212,7 @@ public class Shooter extends Subsystem{
         }
         BaseOpMode.addData("turretTargetAngle", turretTargetAngle);
         if (!Double.isNaN(turretTargetAngle)){
-            LimeLightData.turretAngle = turretTargetAngle;
+            LimeLightData.turretAngle = -turretTargetAngle;
             turret.setPositionInterpolated(turretTargetAngle);
             turret2.setPositionInterpolated(turretTargetAngle);
         }

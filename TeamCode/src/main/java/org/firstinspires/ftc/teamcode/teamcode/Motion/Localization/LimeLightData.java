@@ -40,6 +40,8 @@ public class LimeLightData extends Signal {
     public boolean goodData;
     Limelight3A limelight;
 
+    public static Vector rawData;
+
 
     public static double turretAngle = 0;
     public static double botHeading = 0;
@@ -116,14 +118,8 @@ public class LimeLightData extends Signal {
                 Vector pos = pitchCorrection.multiplied(new Vector(-x, z, y)).multiplied(100);
                 //BaseOpMode.addData("LL Height", pos.get(2));
                 pos = toFieldSpace.multiplied(pos);
-                pos.add(new Vector((team ==BLUE ? 1 : -1) * Constants.goalAprilTagCornerDistanceX, Constants.goalAprilTagCornerDistanceY));
-                //Turret radial offset
-                pos.add(new Vector(-Math.sin(yaw + turretAngle), Math.cos(yaw + turretAngle)).multiplied(-Constants.LimeLightOffsetRadius));
-                //Turret position offset
-                pos.add(new Vector(Math.cos(yaw), Math.sin(yaw)).multiplied(Constants.TurretOffsetX));
-
-
-
+                rawData = new Vector(pos.get(0), pos.get(1));
+                pos = handleOffsets(pos, yaw, turretAngle);
 
                 /*BaseOpMode.addData("LL robot Pitch", fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.RADIANS));
                 BaseOpMode.addData("LL robot Yaw", fid.getCameraPoseTargetSpace().getOrientation().getYaw(AngleUnit.DEGREES));
@@ -141,6 +137,16 @@ public class LimeLightData extends Signal {
 
                 ///Heading and telemetry
             }
+    }
+
+    public static Vector handleOffsets(Vector pos, double yaw, double turretAngle) {
+        pos.add(new Vector((team ==BLUE ? 1 : -1) * Constants.goalAprilTagCornerDistanceX, Constants.goalAprilTagCornerDistanceY));
+        //Turret radial offset
+        pos.add(new Vector(-Math.sin(yaw + turretAngle), Math.cos(yaw + turretAngle)).multiplied(-Constants.LimeLightOffsetRadius));
+        //Turret position offset
+        pos.add(new Vector(Math.cos(yaw), Math.sin(yaw)).multiplied(Constants.TurretOffsetX));
+
+        return pos;
     }
     @Override
     public void telemetry() {
