@@ -20,6 +20,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes.ShooterTest;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.LimeLightData;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
@@ -211,8 +212,9 @@ public class Shooter extends Subsystem{
         }
         BaseOpMode.addData("turretTargetAngle", turretTargetAngle);
         if (!Double.isNaN(turretTargetAngle)){
-        turret.setPositionInterpolated(turretTargetAngle);
-        turret2.setPositionInterpolated(turretTargetAngle);
+            LimeLightData.turretAngle = turretTargetAngle;
+            turret.setPositionInterpolated(turretTargetAngle);
+            turret2.setPositionInterpolated(turretTargetAngle);
         }
 
 
@@ -442,16 +444,19 @@ public class Shooter extends Subsystem{
 
         //the angle the robot would need to face to hit the target
         //double angle = Math.atan2(x, y);
-        double angle = Math.tan(x/y);
+        double angle = Math.atan(x/y);
+        BaseOpMode.addData("angle1",angle);
         //make it so that x velocity is perpendicular to the goal and y is parallel
         goalRelativeVelocity = fieldRelativeVelocity.rotated(angle);
         double vX = goalRelativeVelocity.get(0);
 
         //the angle the robot would need to turn to hit the target
-        angle += h;
+        angle -= h + Math.PI;
+        BaseOpMode.addData("angle2", angle);
 
         //account for robot velocity
         angle -= Math.asin(vX/getTargetBallSpeedX());
+        BaseOpMode.addData("angle3", angle);
         //this gives me an angle between 0 and 2pi. In order to work nicely with kieran's code,
         //I subtract pi/2 to make the angle be between -pi/2 and 3pi/2
 
@@ -490,7 +495,7 @@ public class Shooter extends Subsystem{
     public void recieveOdoInputs(double x, double y, double h, Vector fieldRelativeVelocity){
         this.x = x/100;
         this.y = y/100;
-        this.h = h;
+        this.h = -h;
         this.fieldRelativeVelocity = fieldRelativeVelocity.multiplied(.01);
         this.distanceAway = Math.sqrt(this.x*this.x + this.y*this.y);
         BaseOpMode.addData("x", this.x);

@@ -51,10 +51,10 @@ public class Location extends Signal {
      */
     public double getWrappedAngle() {
         double angle = getPosH();
-        while (angle < 0) {
+        while (angle < -Math.PI) {
             angle += Math.PI * 2;
         }
-        while (angle > 2* Math.PI) {
+        while (angle > Math.PI) {
             angle -= Math.PI * 2;
         }
         return angle;
