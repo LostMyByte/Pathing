@@ -26,7 +26,7 @@ public class Location extends Signal {
 
 
 
-    public static double llAlpha = 0.05;
+    public static double llAlpha = 0.0;
     public Location(double startx, double starty, double starth) {
         super(3);
         odoPods = new OdoPodData(startx, starty, starth);

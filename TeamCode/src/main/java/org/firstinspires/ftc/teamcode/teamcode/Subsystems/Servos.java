@@ -73,10 +73,10 @@ public class Servos {
 
 
     public static class Turret extends Servo{
-        public Turret(){super(Hardware.turret,.92,Math.PI/2,.41,-Math.PI/2);}
+        public Turret(){super(Hardware.turret,.94,Math.PI/2,.43,-Math.PI/2);}
     }
     public static class Turret2 extends Servo{
-        public Turret2(){super(Hardware.turret2,.92,Math.PI/2,.41,-Math.PI/2);}
+        public Turret2(){super(Hardware.turret2,.94,Math.PI/2,.43,-Math.PI/2);}
     }
     public static class FliPrampFront extends Servo{
         public FliPrampFront(){super(Hardware.fliPrampFront);}

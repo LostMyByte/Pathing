@@ -32,8 +32,8 @@ public class TestOpMode extends BaseOpMode {
     @Override
     public void externalInit() {
         //sensor = hardwareMap.get(NormalizedColorSensor.class, "Color");
-        servo = new Servo(Hardware.fliPrampRear);
-        servo2 = new Servo(Hardware.fliPrampFront);
+        servo = new Servo(Hardware.turret);
+        servo2 = new Servo(Hardware.turret2);
     }
 
     @Override
@@ -43,6 +43,6 @@ public class TestOpMode extends BaseOpMode {
 
         BaseOpMode.addData("hue",hsvValues[0]);*/
         servo.setPosition(DashPositions.servoTest);
-        servo2.setPosition(DashPositions.intakeDown);
+        servo2.setPosition(DashPositions.servoTest);
     }
 }

@@ -134,24 +134,31 @@ public class IntakeMagazine extends Subsystem{
             preShotBreakBeams = breakBeamReads;
             firstLoop1 = false;
         }
-        if (timer.seconds() < .3){
+        if (timer.seconds() < .5){
             backRamp.flat();
             if (!breakBeamReads[2]){
                 frontRamp.shoot();
             } else {
                 frontRamp.mid();
             }
-            frontIntake.setPower(.85);
-        } else if (timer.seconds() > 1.3){
+            if (timer.seconds() < .2 || timer.seconds() > .3){
+                frontIntake.setPower(.7);
+            } else {
+                frontIntake.setPower(0);
+            }
+        } else if (timer.seconds() > 2){
             setState(IDLE);
         } else {
+            frontIntake.setPower(0);
             frontRamp.flat();
-            if (!breakBeamReads[2]){
+            if (!breakBeamReads[2]) {
                 backRamp.shoot();
             } else {
                 backRamp.mid();
             }
-            rearIntake.setPower(.85);
+            if (timer.seconds() > 0.7) {
+                rearIntake.setPower(.85);
+            }
         }
     }
 
@@ -171,8 +178,8 @@ public class IntakeMagazine extends Subsystem{
         //if there is a ball in the front intake
     }
     public void seatBalls(){
-        if (getNumBalls() == 3 && timer.seconds() < .15){
-            rearIntake.setPower(-.6);
+        if (getNumBalls() == 3 && timer.seconds() < .125){
+            rearIntake.setPower(-.4);
             frontIntake.setPower(-.4);
         } else {
             setState(IDLE);

@@ -622,7 +622,6 @@ public class Shooter extends Subsystem{
     }
 
     public void selectRPM(){
-        //Populate this with all the RPM Ranges
         setTargetShooterRPM(500*distanceAway+700);
     }
     public boolean canRobotShoot(){

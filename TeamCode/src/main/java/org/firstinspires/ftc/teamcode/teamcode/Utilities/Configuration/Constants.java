@@ -20,8 +20,8 @@ public class Constants {
     public static double VisionDriveDeadzone = 1;
     public static double VisionDistanceTarget = 180;
     public static double goalAngle = -53;
-    public static double goalAprilTagCornerDistanceX = -37;
-    public static double goalAprilTagCornerDistanceY = 35;
+    public static double goalAprilTagCornerDistanceX = -42;
+    public static double goalAprilTagCornerDistanceY = 27.5;
     public static double LimeLightOffsetRadius = 12.5;
     public static double TurretOffsetX = 7.5;
     public static double TurretOffsetY = 0;
