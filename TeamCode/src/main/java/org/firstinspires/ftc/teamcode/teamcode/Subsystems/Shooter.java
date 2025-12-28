@@ -441,8 +441,8 @@ public class Shooter extends Subsystem{
     public void updateTargetTurretAngle(){
 
         //the angle the robot would need to face to hit the target
-        double angle = Math.atan(x/y);
-
+        //double angle = Math.atan2(x, y);
+        double angle = Math.tan(x/y);
         //make it so that x velocity is perpendicular to the goal and y is parallel
         goalRelativeVelocity = fieldRelativeVelocity.rotated(angle);
         double vX = goalRelativeVelocity.get(0);
@@ -451,7 +451,7 @@ public class Shooter extends Subsystem{
         angle += h;
 
         //account for robot velocity
-        angle += Math.asin(vX/getTargetBallSpeedX());
+        angle -= Math.asin(vX/getTargetBallSpeedX());
         //this gives me an angle between 0 and 2pi. In order to work nicely with kieran's code,
         //I subtract pi/2 to make the angle be between -pi/2 and 3pi/2
 

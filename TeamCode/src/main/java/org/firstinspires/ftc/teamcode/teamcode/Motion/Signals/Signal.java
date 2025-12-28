@@ -16,7 +16,7 @@ import java.util.ArrayList;
 @Config
 public abstract class Signal {
 
-    private static ElapsedTime timer;
+    protected static ElapsedTime timer;
     public static ArrayList<Signal> signals = new ArrayList<>();
     public static double deltaTime = 0.1;
 

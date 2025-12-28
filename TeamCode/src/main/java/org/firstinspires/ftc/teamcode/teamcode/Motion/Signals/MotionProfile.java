@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 /**
  * A signal generated from a path object
  */
+@Deprecated
 public class MotionProfile extends ReferenceSignal {
 
 
@@ -32,7 +33,8 @@ public class MotionProfile extends ReferenceSignal {
 
     @Override
     public Vector getGradient() {
-        return targetPath.getAcceleration(time).multiplied(speed);
+        //return targetPath.getAcceleration(time).multiplied(speed);
+        return null;
     }
 
     @Override
@@ -50,7 +52,7 @@ public class MotionProfile extends ReferenceSignal {
         BaseOpMode.addData("Target Velocity X", data.getData()[0]);
         BaseOpMode.addData("Target Velocity Y", data.getData()[1]);
         BaseOpMode.addData("Target Velocity H", data.getData()[2]);
-        BaseOpMode.addData("Target Acceleration (mag)", this.targetPath.getAcceleration(time).multiplied(speed).magnitude());
+        //BaseOpMode.addData("Target Acceleration (mag)", this.targetPath.getAcceleration(time).multiplied(speed).magnitude());
 
         BaseOpMode.addData("Profile Time", time);
 

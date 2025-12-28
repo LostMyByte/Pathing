@@ -119,11 +119,13 @@ public class LimeLightData extends Signal {
                 pos.add(new Vector((team ==BLUE ? 1 : -1) * Constants.goalAprilTagCornerDistanceX, Constants.goalAprilTagCornerDistanceY));
                 //Turret radial offset
                 pos.add(new Vector(-Math.sin(yaw + turretAngle), Math.cos(yaw + turretAngle)).multiplied(-Constants.LimeLightOffsetRadius));
+                //Turret position offset
+                pos.add(new Vector(Math.cos(yaw), Math.sin(yaw)).multiplied(Constants.TurretOffsetX));
 
 
-                /*BaseOpMode.addData("LL robot X", pos.get(0));
-                BaseOpMode.addData("LL robot Y", pos.get(1));
-                BaseOpMode.addData("LL robot Pitch", fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.RADIANS));
+
+
+                /*BaseOpMode.addData("LL robot Pitch", fid.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.RADIANS));
                 BaseOpMode.addData("LL robot Yaw", fid.getCameraPoseTargetSpace().getOrientation().getYaw(AngleUnit.DEGREES));
                 BaseOpMode.addData("LL robot Roll", fid.getCameraPoseTargetSpace().getOrientation().getRoll(AngleUnit.DEGREES));
                 */

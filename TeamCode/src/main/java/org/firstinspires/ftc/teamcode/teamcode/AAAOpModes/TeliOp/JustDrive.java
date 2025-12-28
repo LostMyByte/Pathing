@@ -23,9 +23,9 @@ public class JustDrive extends BaseOpMode {
     @Override
     public void externalLoop () {
         if (driver1.rightStick.isPressed()){
-            drive.PIDdrive(driver1.leftStick.Y(), -driver1.rightStick.X(), 0.3);
+            drive.PIDdrive(-driver1.leftStick.Y(), driver1.rightStick.X(), 0.3);
         } else {
-            drive.PIDdrive(driver1.leftStick.Y(), -driver1.rightStick.X(), 1);
+            drive.PIDdrive(-driver1.leftStick.Y(), driver1.rightStick.X(), 1);
         }
     }
 }

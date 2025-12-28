@@ -7,10 +7,15 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 public interface SystemModel {
 
+    int getDimensions();
+    int getControls();
+
     /** Converts from a standard state into state space.
      * @param data Sensor data signal
      */
     Vector toStateSpace(Signal data);
+
+    Vector toStateSpace(Vector data, Vector gradient);
 
     /**
      * Control Limiting Function.

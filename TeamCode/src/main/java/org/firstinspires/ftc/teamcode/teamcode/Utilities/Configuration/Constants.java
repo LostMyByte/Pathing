@@ -23,7 +23,7 @@ public class Constants {
     public static double goalAprilTagCornerDistanceX = -28;
     public static double goalAprilTagCornerDistanceY = 29;
     public static double LimeLightOffsetRadius = 12.5;
-    public static double TurretOffsetX = 0;
+    public static double TurretOffsetX = 8;
     public static double TurretOffsetY = 0;
     public double angleRad;
     public static double tag16x = fieldSizeX-22.25;

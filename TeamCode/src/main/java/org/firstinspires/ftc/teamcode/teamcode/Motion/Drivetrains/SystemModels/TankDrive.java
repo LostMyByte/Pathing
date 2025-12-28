@@ -204,9 +204,19 @@ public class TankDrive implements SystemModel{
     }
 
     @Override
+    public int getDimensions() {
+        return 5;
+    }
+
+    @Override
+    public int getControls() {
+        return 2;
+    }
+
+    @Override
     public Vector toStateSpace(Signal data) {
         double angle = data.getData()[2];
-        double driveVelocity = new Vector(Math.cos(-angle), Math.sin(-angle)).dotProduct(new Vector(data.getGradient().get(1), data.getGradient().get(0)));
+        double driveVelocity = new Vector(Math.cos(angle), -Math.sin(angle)).dotProduct(new Vector(data.getGradient().get(1), data.getGradient().get(0)));
         BaseOpMode.addData("Velocity Drive", driveVelocity);
         return new Vector(new double[] {
                 data.getData()[0],
@@ -214,6 +224,19 @@ public class TankDrive implements SystemModel{
                 angle,
                 driveVelocity,
                 data.getGradient().get(2)
+        });
+    }
+
+    @Override
+    public Vector toStateSpace(Vector data, Vector gradient) {
+        double angle = data.getData()[2];
+        double driveVelocity = new Vector(Math.cos(angle), -Math.sin(angle)).dotProduct(new Vector(gradient.get(1), gradient.get(0)));
+        return new Vector(new double[] {
+                data.getData()[0],
+                data.getData()[1],
+                angle,
+                driveVelocity,
+                gradient.get(2)
         });
     }
 

@@ -41,10 +41,10 @@ public class MPCTest extends BaseOpMode {
 
         public static boolean enabled = true;
 
-        public static double OX = 0;
+        /*public static double OX = 0;
         public static double OY = 50;
         public static double OSize = 20;
-        public static double OStrength = 500;
+        public static double OStrength = 500;*/
 
     }
 
@@ -62,9 +62,9 @@ public class MPCTest extends BaseOpMode {
 
 
 
+        Location.llAlpha = 0; // Disable Limelight
         path = new SequentialSignal(new ConstantSignal(new Vector(0, 100, 0, TestMPCParams.TV, TestMPCParams.THV)), new ConstantSignal(new Vector(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, 0, 0)), TestMPCParams.Swap);
         drivemodel = new TankDrive();
-
         test = new MPCPath();
         test.setAccuracy(TestMPCParams.threshold);
         test.setMoveTime(TestMPCParams.Horizon);
@@ -135,6 +135,10 @@ public class MPCTest extends BaseOpMode {
         }
         else {
             drive.move(new Vector(0,0));
+        }
+
+        if (gamepad1.square) {
+            externalInit();
         }
 
     }

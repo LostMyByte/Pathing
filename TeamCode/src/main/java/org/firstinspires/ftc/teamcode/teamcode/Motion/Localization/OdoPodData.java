@@ -21,8 +21,8 @@ public class OdoPodData extends Signal {
 
     public GoBildaPinpointDriver odoPods;
 
-    public static double yOffset = 10;
-    public static double xOffset = -90;
+    public static double yOffset = 85;
+    public static double xOffset = -8;
     public static double alpha = 1;
 
     double oldAngle;

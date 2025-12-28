@@ -27,12 +27,14 @@ public class DimitriTeleop extends BaseOpMode{
 
     @Override
     public void externalInit() {
+        Constants.team = Constants.Team.RED;
         shooter = new Shooter(hardwareMap, 0, Constants.Team.RED);
         shooter.setState(NOTACTIVE);
         intake = new IntakeMagazine(hardwareMap);
         intake.setState(DONOTHING);
         //drive = new TeliOpDrivetrain(hardwareMap,0);
-        loc = new Location(183, 183,-Math.PI/2);
+        loc = new Location(183, 183,Math.PI/2);
+        loc.doTelemetry = true;
     }
 
     @Override

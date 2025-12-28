@@ -168,6 +168,16 @@ public class MechanumDrive implements SystemModel {
     }
 
     @Override
+    public int getDimensions() {
+        return 6;
+    }
+
+    @Override
+    public int getControls() {
+        return 4;
+    }
+
+    @Override
     public Vector toStateSpace(Signal data) {
         return new Vector(new double[] {
                 data.getData()[0],
@@ -178,6 +188,18 @@ public class MechanumDrive implements SystemModel {
                 data.getDerivatives()[2],
         });
 
+    }
+
+    @Override
+    public Vector toStateSpace(Vector data, Vector gradient) {
+        return new Vector(new double[] {
+                data.getData()[0],
+                data.getData()[1],
+                data.getData()[2],
+                gradient.getData()[0],
+                gradient.getData()[1],
+                gradient.getData()[2],
+        });
     }
 
     /**

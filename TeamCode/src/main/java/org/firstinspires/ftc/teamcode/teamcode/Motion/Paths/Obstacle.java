@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teamcode.Motion.Paths;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
+@Deprecated
 public abstract class Obstacle {
 
     public abstract double getCost(Vector position);

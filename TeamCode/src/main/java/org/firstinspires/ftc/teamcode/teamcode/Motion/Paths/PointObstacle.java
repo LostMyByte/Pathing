@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
+@Deprecated
 public class PointObstacle extends Obstacle {
 
     double repulsion;
