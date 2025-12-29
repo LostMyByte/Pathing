@@ -134,19 +134,19 @@ public class IntakeMagazine extends Subsystem{
             preShotBreakBeams = breakBeamReads;
             firstLoop1 = false;
         }
-        if (timer.seconds() < .5){
+        if (timer.seconds() < .7){
             backRamp.flat();
             if (!breakBeamReads[2]){
                 frontRamp.shoot();
             } else {
                 frontRamp.mid();
             }
-            if (timer.seconds() < .2 || timer.seconds() > .3){
+            if (timer.seconds() < .2 || timer.seconds() > .4){
                 frontIntake.setPower(.7);
             } else {
                 frontIntake.setPower(0);
             }
-        } else if (timer.seconds() > 2){
+        } else if (timer.seconds() > 2.3){
             setState(IDLE);
         } else {
             frontIntake.setPower(0);
@@ -156,7 +156,7 @@ public class IntakeMagazine extends Subsystem{
             } else {
                 backRamp.mid();
             }
-            if (timer.seconds() > 0.7) {
+            if (timer.seconds() > 1.2) {
                 rearIntake.setPower(.85);
             }
         }

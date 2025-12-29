@@ -34,7 +34,6 @@ public class DimitriTeleop extends BaseOpMode{
         intake.setState(DONOTHING);
         //drive = new TeliOpDrivetrain(hardwareMap,0);
         loc = new Location(183, 183,Math.PI/2);
-        loc.doTelemetry = true;
     }
 
     @Override
@@ -42,7 +41,7 @@ public class DimitriTeleop extends BaseOpMode{
 
         //drive.PIDdrive(driver1.leftStick.Y(), -driver1.rightStick.X(), 1);
 
-        shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getWrappedAngle(), loc.getTranslationalVelocity());
+        shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getPosH(), loc.getTranslationalVelocity());
         //shooter.panic = driver1.share.isToggled();
 
         if (!driver1.dpad_up.isToggled()){

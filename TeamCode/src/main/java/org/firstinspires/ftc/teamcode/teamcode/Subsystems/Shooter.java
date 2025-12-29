@@ -161,7 +161,7 @@ public class Shooter extends Subsystem{
         }
 
         double correction = shooterPDF.getCorrection(getShooterRPM(),targetShooterRPM);
-
+        BaseOpMode.addData("shootercorrection", correction);
 
 
 
@@ -204,9 +204,8 @@ public class Shooter extends Subsystem{
     }
     public void updateTurret(){
         if (panic) {
+
             turretTargetAngle = 0;
-        } else if (ballFollowing) {
-            updateBallFollowAngle();
         } else {
             updateTargetTurretAngle();
         }
@@ -269,6 +268,7 @@ public class Shooter extends Subsystem{
 
         filteredRPM = alpha*(rpm) + (1-rpmAlpha) * filteredRPM;
         if(shooter1.getVelocity() > 0){
+            BaseOpMode.addData("shooterRPM",filteredRPM);
             return filteredRPM;
         } else {return 0;}
     }
@@ -457,6 +457,15 @@ public class Shooter extends Subsystem{
         //account for robot velocity
         angle -= Math.asin(vX/getTargetBallSpeedX());
         BaseOpMode.addData("angle3", angle);
+
+        while (angle < -Math.PI) {
+            angle += Math.PI * 2;
+        }
+        while (angle > Math.PI) {
+            angle -= Math.PI * 2;
+        }
+
+
         //this gives me an angle between 0 and 2pi. In order to work nicely with kieran's code,
         //I subtract pi/2 to make the angle be between -pi/2 and 3pi/2
 
@@ -464,28 +473,6 @@ public class Shooter extends Subsystem{
         turretTargetAngle = Range.clip(angle, Math.toRadians(-135), Math.PI/2);
     }
 
-    public void updateBallFollowAngle(){
-        double angle;
-        if (Constants.team == BLUE){
-            //the angle the robot would need to turn to hit the target
-            angle = h - Math.PI/2;
-        } else {
-            angle = h - 3*Math.PI/2;
-        }
-
-
-        //this will be an angle between -pi/2 and 3pi/2. The servos are capable of 400 degrees
-        //of rotation, which is helpful because there is some overlap and results in fewer resets.
-        //To make use of this overlap, if the angle is in the area of overlap (between -pi/2 and
-        //Math.toRadians(-5)) we check what the last angle was. If it was less than pi/2, keep the
-        //angle as is. if it was greater than pi/2, add 2pi to the angle.
-        if (angle > -Math.PI/2 && angle < Math.toRadians(-5) && turretTargetAngle > Math.PI/2){
-            turretTargetAngle = angle + 2*Math.PI;
-
-        } else {
-            turretTargetAngle = angle;
-        }
-    }
 
     double x;
     double y;
@@ -496,8 +483,19 @@ public class Shooter extends Subsystem{
         this.x = x/100;
         this.y = y/100;
         this.h = -h;
+
+        //account for the turret having
+        this.x -= .1*Math.cos(this.h);
+        this.y += .1*Math.sin(this.h);
+
         this.fieldRelativeVelocity = fieldRelativeVelocity.multiplied(.01);
         this.distanceAway = Math.sqrt(this.x*this.x + this.y*this.y);
+        //if we are very close to the goal, do not aim for the back of the goal, instead aim for the slanted plastic part
+        if (distanceAway < 1.5){
+            this.x -= .176;
+            this.y -= .176;
+            this.distanceAway = Math.sqrt(this.x*this.x + this.y*this.y);
+        }
         BaseOpMode.addData("x", this.x);
         BaseOpMode.addData("y", this.y);
         BaseOpMode.addData("distanceAway", distanceAway);
@@ -577,6 +575,7 @@ public class Shooter extends Subsystem{
         double a0 = Math.PI/4;
         double a1 = a0 - fPrecomputed()/dfPrecomputed();
         double a2 = a1 - f(a1)/df(a1);
+        BaseOpMode.addData("unclipped hood angle", a2);
 
         return Range.clip(Math.toDegrees(a2),33,65);
     }
@@ -622,7 +621,8 @@ public class Shooter extends Subsystem{
     }
 
     public void selectRPM(){
-        setTargetShooterRPM(500*distanceAway+700);
+
+        setTargetShooterRPM(Range.clip(333*distanceAway+867,0,1900));
     }
     public boolean canRobotShoot(){
         return (hoodCanShoot && turretCanShoot);
@@ -677,8 +677,8 @@ public class Shooter extends Subsystem{
 
     @Override
     public void update() {
-        work();
         selectRPM();
+        work();
     }
 
     public enum ShooterStates{
