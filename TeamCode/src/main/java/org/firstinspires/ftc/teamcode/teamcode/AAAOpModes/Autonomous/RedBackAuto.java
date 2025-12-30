@@ -1,6 +1,10 @@
 // Primary Author: Kieran Mattingly
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous;
 
+import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.RedBackAuto.RedPositions.H0;
+import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.RedBackAuto.RedPositions.X0;
+import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.RedBackAuto.RedPositions.Y0;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -11,6 +15,8 @@ import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.SystemModel;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
@@ -18,14 +24,14 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 import java.io.FileNotFoundException;
 
 
-@Autonomous(name = "Red Front Auto")
-public class RedFrontAuto extends BaseOpMode {
+@Autonomous(name = "NormalRedBackAuto")
+public class RedBackAuto extends BaseOpMode {
 
     @Config
     public static class RedPositions {
-        public static double X0 = 0;
-        public static double Y0 = 0;
-        public static double H0 = 0;
+        public static double X0 = 140;
+        public static double Y0 = 341;
+        public static double H0 = Math.PI;
 
 
         public static double X1 = -70;
@@ -46,7 +52,7 @@ public class RedFrontAuto extends BaseOpMode {
 
         public static double V = 0;
 
-        public static double Tlaunch = 2;
+        public static double Tlaunch = 1.5;
         public static double T1 = 3;
         public static double T1launch = 3;
         public static double T2 = 5;
@@ -90,16 +96,22 @@ public class RedFrontAuto extends BaseOpMode {
     Location loc;
 
     MPCPath.MPCParams slow;
+    Shooter shooter;
+    IntakeMagazine intake;
 
     @Override
     public void externalInit() {
         stateTime = new ElapsedTime();
 
-        loc = new Location(0,0,0);
+        loc = new Location(X0, Y0, H0);
         drive = new TankDriveTrain();
         slow = DriveWheels.defaultParams.copy();
         slow.scaleVelocity(RedPositions.speedscale);
         initPaths();
+        shooter = new Shooter(hardwareMap, Constants.Team.RED);
+        shooter.setState(Shooter.ShooterStates.NOTACTIVE);
+        intake = new IntakeMagazine(hardwareMap);
+        intake.setState(IntakeMagazine.IntakeMagazineStates.DONOTHING);
 
 
 
@@ -118,8 +130,8 @@ public class RedFrontAuto extends BaseOpMode {
     public void initPaths() {
         launch = new MPCPath();
         launch.setMoveTime(RedPositions.Tlaunch);
-        launch.setStart(RedPositions.X0, RedPositions.Y0, RedPositions.H0, 0, 0);
-        launch.setTarget(RedPositions.XLaunch, RedPositions.YLaunch, RedPositions.HLaunch, 0, 0);
+        launch.setStart(X0, Y0, H0, 0, 0);
+        launch.setTarget(X0, Y0, H0, 0, 0);
         launch.setName("Launch");
 
 
@@ -233,8 +245,13 @@ public class RedFrontAuto extends BaseOpMode {
 
 
     public void launch() {
-        drive.moveRaw(launch.getCorrection(position));
-        if (launch.getState() == MPCPath.ControllerStates.Finished) setState(States.Spike1);
+        shooter.setState(Shooter.ShooterStates.ACTIVE);
+        if (stateTime.seconds() > 2){
+            intake.setState(IntakeMagazine.IntakeMagazineStates.SHOOTING);
+        }
+        if(intake.getNumBalls() == 0){
+            setState(States.Spike1);
+        }
     }
     private void spike1() {
         drive.moveRaw(spike1.getCorrection(position));
@@ -257,3 +274,4 @@ public class RedFrontAuto extends BaseOpMode {
     }
 
 }
+

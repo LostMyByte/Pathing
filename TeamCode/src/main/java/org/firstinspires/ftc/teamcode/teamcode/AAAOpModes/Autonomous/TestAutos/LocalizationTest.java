@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
 
 @Autonomous
 public class LocalizationTest extends BaseOpMode{
@@ -12,7 +13,8 @@ public class LocalizationTest extends BaseOpMode{
 
     @Override
     public void externalInit() {
-        loc = new Location(120,340,3*Math.PI/4);
+        Constants.team = Constants.Team.RED;
+        loc = new Location(140,341,Math.PI);
     }
 
     @Override

@@ -38,7 +38,7 @@ public class KieranLLTest extends BaseOpMode {
     public void externalInit() {
         Constants.team = Constants.Team.RED;
 
-        ballGun = new Shooter(hardware, 0, Constants.Team.RED);
+        ballGun = new Shooter(hardware, Constants.Team.RED);
         ballGun.setState(Shooter.ShooterStates.ACTIVE);
         ballGun.setTargetShooterRPM(0);
         Location.llAlpha = 0;
@@ -52,7 +52,7 @@ public class KieranLLTest extends BaseOpMode {
         ballGun.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getWrappedAngle(), loc.getTranslationalVelocity());
 
         if (gamepad1.circle || LLTestParams.update) {
-            loc.setPositionToLL();
+            //loc.setPositionToLL();
         }
 
         if (gamepad1.square) {

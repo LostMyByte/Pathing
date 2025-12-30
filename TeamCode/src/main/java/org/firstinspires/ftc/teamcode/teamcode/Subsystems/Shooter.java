@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.sun.tools.javac.comp.DeferredAttr;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Shooter extends Subsystem{
+    double ffTimeModifier = 0;
 
     Motor shooter1;
     Motor shooter2;
@@ -95,7 +97,7 @@ public class Shooter extends Subsystem{
     Vector goalRelativeVelocity;
 
 
-    public Shooter(HardwareMap hardwareMap, double turretStartAngle, Constants.Team team){
+    public Shooter(HardwareMap hardwareMap, Constants.Team team){
         //Things are commented to prepare for the first tests of the shooter where we will only have the flywheel.
 
         shooter1 = new Motor(Hardware.shooter1, false, true);
@@ -119,7 +121,6 @@ public class Shooter extends Subsystem{
 
         shooterState = ShooterStates.OBELISK;
         //currentRamp = new ArrayList<BallColors>();
-        this.turretStartAngle = turretStartAngle;
         fieldRelativeVelocity = new Vector(0,0);
         goalRelativeVelocity = new Vector(0,0);
 
@@ -136,7 +137,6 @@ public class Shooter extends Subsystem{
                 updateShooter();
                 break;
             case NOTACTIVE:
-                aim();
                 break;
             case OBELISK:
                 getPattern();
@@ -155,7 +155,7 @@ public class Shooter extends Subsystem{
         shooterPDF.setConstants(PIDTuningDash.ShooterP,0,PIDTuningDash.ShooterD);
         //sets the feedforward to the voltage needed to hold the target velocity. Values ob
         if (targetShooterRPM > 0){
-            shooterPDF.setFeedForward(((targetShooterRPM * 0.00318451)+1.48267)/12);
+            shooterPDF.setFeedForward(((targetShooterRPM * 0.00318451)+1.48267 + ffTimeModifier)/12);
         } else {
             shooterPDF.setFeedForward(0);
         }
@@ -167,6 +167,11 @@ public class Shooter extends Subsystem{
 
         shooter1.setPower(correction);
         shooter2.setPower(correction);
+    }
+
+    //adjusts the feedforward based on how long teleop has been running
+    public void updateFFTimeModifier(double time){
+        ffTimeModifier = time/200;
     }
 
     public void getPattern(){
@@ -204,14 +209,12 @@ public class Shooter extends Subsystem{
     }
     public void updateTurret(){
         if (panic) {
-
             turretTargetAngle = 0;
         } else {
             updateTargetTurretAngle();
         }
         BaseOpMode.addData("turretTargetAngle", turretTargetAngle);
         if (!Double.isNaN(turretTargetAngle)){
-            LimeLightData.turretAngle = -turretTargetAngle;
             turret.setPositionInterpolated(turretTargetAngle);
             turret2.setPositionInterpolated(turretTargetAngle);
         }
@@ -445,6 +448,8 @@ public class Shooter extends Subsystem{
         //the angle the robot would need to face to hit the target
         //double angle = Math.atan2(x, y);
         double angle = Math.atan(x/y);
+
+
         BaseOpMode.addData("angle1",angle);
         //make it so that x velocity is perpendicular to the goal and y is parallel
         goalRelativeVelocity = fieldRelativeVelocity.rotated(angle);
@@ -480,7 +485,11 @@ public class Shooter extends Subsystem{
     Vector fieldRelativeVelocity;
 
     public void recieveOdoInputs(double x, double y, double h, Vector fieldRelativeVelocity){
-        this.x = x/100;
+        if (Constants.team == BLUE) {
+            this.x = -x / 100;
+        } else {
+            this.x = x / 100;
+        }
         this.y = y/100;
         this.h = -h;
 
@@ -621,7 +630,6 @@ public class Shooter extends Subsystem{
     }
 
     public void selectRPM(){
-
         setTargetShooterRPM(Range.clip(333*distanceAway+867,0,1900));
     }
     public boolean canRobotShoot(){

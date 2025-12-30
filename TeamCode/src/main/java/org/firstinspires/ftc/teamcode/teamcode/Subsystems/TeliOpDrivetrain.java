@@ -312,7 +312,7 @@ public static double
             setPoint = loc.getPosH();
 
         } else if (pid_on) {
-            turn = pid.getCorrection(loc.getPosH(), setPoint);
+            //turn = pid.getCorrection(loc.getPosH(), setPoint);
         }
         pid_on_last_cycle = pid_on;
         BaseOpMode.addData("Actual Heading", loc.getPosH());
