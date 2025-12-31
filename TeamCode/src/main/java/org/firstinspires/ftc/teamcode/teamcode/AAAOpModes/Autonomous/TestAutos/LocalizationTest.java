@@ -14,7 +14,7 @@ public class LocalizationTest extends BaseOpMode{
     @Override
     public void externalInit() {
         Constants.team = Constants.Team.RED;
-        loc = new Location(140,341,Math.PI);
+        loc = new Location(161,341,Math.PI);
     }
 
     @Override

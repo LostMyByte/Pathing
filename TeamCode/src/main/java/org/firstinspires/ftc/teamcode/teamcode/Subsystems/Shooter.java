@@ -452,15 +452,15 @@ public class Shooter extends Subsystem{
 
         BaseOpMode.addData("angle1",angle);
         //make it so that x velocity is perpendicular to the goal and y is parallel
-        goalRelativeVelocity = fieldRelativeVelocity.rotated(angle);
-        double vX = goalRelativeVelocity.get(0);
+        //goalRelativeVelocity = fieldRelativeVelocity.rotated(angle);
+        //double vX = goalRelativeVelocity.get(0);
 
         //the angle the robot would need to turn to hit the target
         angle -= h + Math.PI;
         BaseOpMode.addData("angle2", angle);
 
         //account for robot velocity
-        angle -= Math.asin(vX/getTargetBallSpeedX());
+        //angle -= Math.asin(vX/getTargetBallSpeedX());
         BaseOpMode.addData("angle3", angle);
 
         while (angle < -Math.PI) {
@@ -485,11 +485,7 @@ public class Shooter extends Subsystem{
     Vector fieldRelativeVelocity;
 
     public void recieveOdoInputs(double x, double y, double h, Vector fieldRelativeVelocity){
-        if (Constants.team == BLUE) {
-            this.x = -x / 100;
-        } else {
-            this.x = x / 100;
-        }
+        this.x = x/100;
         this.y = y/100;
         this.h = -h;
 

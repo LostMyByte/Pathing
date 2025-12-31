@@ -74,7 +74,7 @@ public class MPCTest extends BaseOpMode {
         //test.setPath(path);
         test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
         test.setName("Test Path");
-        test.setStart(0, 0, 0, 0, 0);
+        test.setStart(0, 0, Math.PI, 0, 0);
         test.build();
         test.doTelemetry = true;
         //test.addObstacle(new PointObstacle(TestMPCParams.OX, TestMPCParams.OY, TestMPCParams.OSize, TestMPCParams.OStrength));
@@ -90,7 +90,7 @@ public class MPCTest extends BaseOpMode {
         }
 
 
-        loc = new Location(0, 0, 0);
+        loc = new Location(0, 0, Math.PI);
         loc.doTelemetry = true;
         test.setSensor(loc);
         drive = new TankDriveTrain();

@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous;
 
 import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.RedBackAuto.RedPositions.H0;
 import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.RedBackAuto.RedPositions.X0;
+import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.RedBackAuto.RedPositions.X1;
 import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.RedBackAuto.RedPositions.Y0;
+import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.RedBackAuto.RedPositions.Y1;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -29,14 +31,14 @@ public class RedBackAuto extends BaseOpMode {
 
     @Config
     public static class RedPositions {
-        public static double X0 = 140;
+        public static double X0 = 161;
         public static double Y0 = 341;
-        public static double H0 = Math.PI;
+        public static double H0 = 0;
 
 
-        public static double X1 = -70;
-        public static double Y1 = 75;
-        public static double H1 = 3*Math.PI/4;
+        public static double X1 = 161;
+        public static double Y1 = 187;
+        public static double H1 = 0;
 
         public static double X2 = -120;
         public static double Y2 = 100;
@@ -52,14 +54,14 @@ public class RedBackAuto extends BaseOpMode {
 
         public static double V = 0;
 
-        public static double Tlaunch = 1.5;
+        public static double Tlaunch = 4;
         public static double T1 = 3;
         public static double T1launch = 3;
         public static double T2 = 5;
         public static double T2launch = 5;
         public static double Tleave= 5;
 
-        public static double accuracy = 0.001;
+        public static double accuracy = 0.0001;
 
         public static double resolution = 10;
 
@@ -98,12 +100,15 @@ public class RedBackAuto extends BaseOpMode {
     MPCPath.MPCParams slow;
     Shooter shooter;
     IntakeMagazine intake;
+    boolean firstLoop1 = true;
 
     @Override
     public void externalInit() {
+        Constants.team = Constants.Team.RED;
         stateTime = new ElapsedTime();
 
-        loc = new Location(X0, Y0, H0);
+        loc = new Location(164, 341, 0);
+        loc.doTelemetry = true;
         drive = new TankDriveTrain();
         slow = DriveWheels.defaultParams.copy();
         slow.scaleVelocity(RedPositions.speedscale);
@@ -119,6 +124,7 @@ public class RedBackAuto extends BaseOpMode {
 
         compilePaths();
         //loadPaths();
+        loc.setPosition(X0, Y0, H0);
 
         if (RedPositions.alwaysCompile) {
             compilePaths();
@@ -131,14 +137,14 @@ public class RedBackAuto extends BaseOpMode {
         launch = new MPCPath();
         launch.setMoveTime(RedPositions.Tlaunch);
         launch.setStart(X0, Y0, H0, 0, 0);
-        launch.setTarget(X0, Y0, H0, 0, 0);
+        launch.setTarget(X1, Y1, RedPositions.H1, 0, 0);
         launch.setName("Launch");
 
 
         spike1 = new MPCPath();
         spike1.setMoveTime(RedPositions.T1);
         spike1.continueFrom(launch);
-        spike1.setTarget(RedPositions.X1, RedPositions.Y1, RedPositions.H1, RedPositions.V, 0);
+        spike1.setTarget(X1, Y1, RedPositions.H1, RedPositions.V, 0);
         spike1.setName("Spike1");
 
         spike1Launch = new MPCPath();
@@ -210,15 +216,21 @@ public class RedBackAuto extends BaseOpMode {
         stateTime.reset();
 
         launch.start();
+        launch.doTelemetry = true;
         launch.getCorrection(position);
 
     }
+
 
     @Override
     public void externalLoop() {
         BaseOpMode.addData("State", state);
         position = loc.getPositionForTankDrive();
         stateMachine();
+    }
+
+    public void externalStart(){
+        intake.setState(IntakeMagazine.IntakeMagazineStates.IDLE);
     }
 
     @Override
@@ -236,21 +248,24 @@ public class RedBackAuto extends BaseOpMode {
             case Spike2Launch: spike2Launch(); break;
             case Leave: leave(); break;
         }
+        shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(),loc.getPosH(), new Vector(0,0,0));
     }
 
     public void setState(States state) {
         this.stateTime.reset();
         this.state = state;
+        firstLoop1 = true;
     }
 
 
     public void launch() {
+        drive.moveRaw(launch.getCorrection(position));
         shooter.setState(Shooter.ShooterStates.ACTIVE);
-        if (stateTime.seconds() > 2){
+        if (launch.getState() == MPCPath.ControllerStates.Finished && firstLoop1){
             intake.setState(IntakeMagazine.IntakeMagazineStates.SHOOTING);
+            firstLoop1 = false;
         }
         if(intake.getNumBalls() == 0){
-            setState(States.Spike1);
         }
     }
     private void spike1() {

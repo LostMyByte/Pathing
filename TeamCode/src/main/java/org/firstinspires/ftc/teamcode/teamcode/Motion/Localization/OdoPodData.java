@@ -23,7 +23,7 @@ public class OdoPodData extends Signal {
 
     public static double yOffset = 85;
     public static double xOffset = -8;
-    public static double alpha = 0.5;
+    public static double alpha = 0.9;
 
     double oldAngle;
 

@@ -50,7 +50,7 @@ public class MPCPath extends Controller{
     public static class MPCParams {
         public double QX = 10; // Ongoing position cost in X
         public double QY = 10; // Ongoing position cost in Y
-        public double QH = 10; // Ongoing position cost in Heading
+        public double QH = 50; // Ongoing position cost in Heading
         public double QV = 0.1;  // Ongoing Velocity cost
         public double QHV = 0; // Ongoing Heading Velocity cost
 
