@@ -48,19 +48,19 @@ public class MPCPath extends Controller{
      * A set of parameters to use for Model Predictive Control
      */
     public static class MPCParams {
-        public double QX = 100; // Ongoing position cost in X
-        public double QY = 100; // Ongoing position cost in Y
-        public double QH = 500; // Ongoing position cost in Heading
-        public double QV = 10;  // Ongoing Velocity cost
-        public double QHV = 10; // Ongoing Heading Velocity cost
+        public double QX = 10; // Ongoing position cost in X
+        public double QY = 10; // Ongoing position cost in Y
+        public double QH = 10; // Ongoing position cost in Heading
+        public double QV = 0.1;  // Ongoing Velocity cost
+        public double QHV = 0; // Ongoing Heading Velocity cost
 
-        public double QFX = 20; // Final Position cost in X
-        public double QFY = 20; // Final Position cost in Y
-        public double QFH = 2000; // Final Position cost in Heading
+        public double QFX = 0; // Final Position cost in X
+        public double QFY = 0; // Final Position cost in Y
+        public double QFH = 10; // Final Position cost in Heading
         public double QFV = 10; // Final Velocity cost
-        public double QFHV = 10; // Final Heading Velocity cost 
+        public double QFHV = 20; // Final Heading Velocity cost
 
-        public double R = 10000; // Control cost
+        public double R = 10; // Control cost
 
         public double lr = 2; // Learning rate
         public double lambdaMax = 10000000; // Max lambda (for descent)

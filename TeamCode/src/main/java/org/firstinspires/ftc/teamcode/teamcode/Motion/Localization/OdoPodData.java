@@ -23,7 +23,7 @@ public class OdoPodData extends Signal {
 
     public static double yOffset = 85;
     public static double xOffset = -8;
-    public static double alpha = 1;
+    public static double alpha = 0.5;
 
     double oldAngle;
 
@@ -66,15 +66,16 @@ public class OdoPodData extends Signal {
 
         this.data = new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), oldAngle);
 
-        driveVelocity = new Vector(Math.cos(-angle), Math.sin(-angle)).dotProduct(new Vector(velocity.get(1), velocity.get(0)));
+        driveVelocity += alpha * (new Vector(Math.cos(-angle), Math.sin(-angle)).dotProduct(new Vector(velocity.get(1), velocity.get(0))) - driveVelocity);
+
         BaseOpMode.addData("Velocity Drive", driveVelocity);
     }
 
     @Override
     public Vector getGradient() {
         return new Vector(
-                odoPods.getVelX(DistanceUnit.CM),
-                odoPods.getVelY(DistanceUnit.CM),
+                driveVelocity * -Math.sin(data.get(2)),
+                driveVelocity * Math.cos(data.get(2)),
                 odoPods.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS)
         );
     }
