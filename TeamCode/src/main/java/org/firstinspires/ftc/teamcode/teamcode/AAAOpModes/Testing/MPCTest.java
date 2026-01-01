@@ -1,6 +1,10 @@
 // Primary Author: Kieran Mattingly
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Testing;
 
+import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.RedBackAuto.RedPositions.H0;
+import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.RedBackAuto.RedPositions.X0;
+import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.RedBackAuto.RedPositions.Y0;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -26,14 +30,14 @@ public class MPCTest extends BaseOpMode {
     @Config
     public static class TestMPCParams {
 
-        public static int N = 40;
+        public static int N = 50;
         public static int Horizon = 5;
         public static int Swap = 3;
         public static double threshold = 0.0001;
 
-        public static double TX = 0;
-        public static double TY = 100;
-        public static double TH = 0;
+        public static double TX = 150;
+        public static double TY = 170;
+        public static double TH = Math.toRadians(40);
         public static double TV = 0;
         public static double THV = 0;
 
@@ -74,7 +78,7 @@ public class MPCTest extends BaseOpMode {
         //test.setPath(path);
         test.setTarget(TestMPCParams.TX, TestMPCParams.TY, TestMPCParams.TH, TestMPCParams.TV, TestMPCParams.THV);
         test.setName("Test Path");
-        test.setStart(0, 0, 0, 0, 0);
+        test.setStart(161, 341, 0, 0, 0);
         test.build();
         test.doTelemetry = true;
         //test.addObstacle(new PointObstacle(TestMPCParams.OX, TestMPCParams.OY, TestMPCParams.OSize, TestMPCParams.OStrength));
@@ -90,10 +94,11 @@ public class MPCTest extends BaseOpMode {
         }
 
 
-        loc = new Location(0, 0, 0);
+        loc = new Location(161, 341, 0);
         loc.doTelemetry = true;
         test.setSensor(loc);
         drive = new TankDriveTrain();
+        loc.setPosition(X0, Y0, H0);
 
     }
 

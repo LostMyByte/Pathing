@@ -94,6 +94,9 @@ public class MPCPath extends Controller{
         public void scaleVelocity(double scale) {
             this.QV *= 1/scale;
             this.QFV *= 1/scale;
+
+            this.QFX *= 2;
+            this.QFY *= 2;
         }
     }
 

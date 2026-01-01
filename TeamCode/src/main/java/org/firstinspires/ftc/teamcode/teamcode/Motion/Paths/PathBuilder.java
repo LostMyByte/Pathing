@@ -13,6 +13,8 @@ public class PathBuilder extends ReferenceSignal {
     public PathBuilder(SystemModel model) {
         super(model.getDimensions());
         this.model = model;
+        segments = new java.util.Vector<>();
+        times = new java.util.Vector<>();
     }
 
     @Override

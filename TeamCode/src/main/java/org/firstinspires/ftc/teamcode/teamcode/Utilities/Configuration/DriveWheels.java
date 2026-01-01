@@ -32,8 +32,8 @@ public class DriveWheels {
 
     public static MPCPath.MPCParams defaultParams = new MPCPath.MPCParams();
 
-    public static double driveAcceleration = 1300;
-    public static double angularAcceleration = 20;
+    public static double driveAcceleration = 1200;
+    public static double angularAcceleration = 50;
 
 
     public static double controlLimit = 0.7;
@@ -44,7 +44,7 @@ public class DriveWheels {
     public static double Kvh = 0;
     public static double strength = 1;
     public static double Kp = 0;
-    public static double Lhs = 0.2;
+    public static double Lhs = 0.1;
     public static double Lhdp = 0.05;
     public static double Lhdv = 0.5;
 

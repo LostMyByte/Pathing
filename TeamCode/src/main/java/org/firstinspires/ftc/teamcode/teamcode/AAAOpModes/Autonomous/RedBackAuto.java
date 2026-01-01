@@ -17,6 +17,8 @@ import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.SystemModel;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Paths.BezierPath;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Paths.PathBuilder;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
@@ -31,7 +33,7 @@ public class RedBackAuto extends BaseOpMode {
 
     @Config
     public static class RedPositions {
-        public static double X0 = 161;
+        public static double X0 = 142;
         public static double Y0 = 341;
         public static double H0 = 0;
 
@@ -55,7 +57,7 @@ public class RedBackAuto extends BaseOpMode {
         public static double V = 0;
 
         public static double Tlaunch = 4;
-        public static double T1 = 3;
+        public static double T1 = 4;
         public static double T1launch = 3;
         public static double T2 = 5;
         public static double T2launch = 5;
@@ -100,6 +102,7 @@ public class RedBackAuto extends BaseOpMode {
     Location loc;
 
     MPCPath.MPCParams slow;
+    //MPCPath.MPCParams reckless;
     Shooter shooter;
     IntakeMagazine intake;
     boolean firstLoop1 = true;
@@ -109,11 +112,15 @@ public class RedBackAuto extends BaseOpMode {
         Constants.team = Constants.Team.RED;
         stateTime = new ElapsedTime();
 
-        loc = new Location(143, 341, 0);
+        loc = new Location(142, 341, 0);
         loc.doTelemetry = true;
         drive = new TankDriveTrain();
         slow = DriveWheels.defaultParams.copy();
         slow.scaleVelocity(RedPositions.speedscale);
+        //reckless = DriveWheels.defaultParams.copy();
+        //reckless.R /= 10;
+        //reckless.QFX *= 5;
+        //reckless.QFY *= 5;
         initPaths();
         shooter = new Shooter(hardwareMap, Constants.Team.RED);
         shooter.setState(Shooter.ShooterStates.NOTACTIVE);
@@ -139,25 +146,29 @@ public class RedBackAuto extends BaseOpMode {
         launch = new MPCPath();
         launch.setMoveTime(RedPositions.Tlaunch);
         launch.setStart(X0, Y0, H0, 0, 0);
-        launch.setTarget(X1, Y1, RedPositions.H1, 0, 0);
+        launch.setTarget(X1, Y1, Math.toRadians(20), 0, 0);
         launch.setName("Launch");
 
         spike1I = new MPCPath();
         spike1I.setMoveTime(RedPositions.T1);
         spike1I.continueFrom(launch);
-        spike1I.setTarget(95, 268, Math.PI/2, RedPositions.V, 0);
-        spike1I.setName("Spike1");
+        spike1I.setTarget(125, 280, 0.5*Math.PI, RedPositions.V, 0);
+        spike1I.setName("Spike1I");
 
         spike1 = new MPCPath();
         spike1.setMoveTime(RedPositions.T1);
-        spike1.setStart(155, 170, 0.2145,0,0);
-        spike1.setTarget(X1, Y1, RedPositions.H1, RedPositions.V, 0);
+        //spike1.setStart(155, 170, 0.2145,0,0);
+        //PathBuilder pb = new PathBuilder(driveModel);
+        //pb.addPath(new BezierPath(new Vector(125, 270, Math.PI/2), new Vector(60, 270, Math.PI/2), new Vector(0,0,0), new Vector(0,0,0), 0.25), 4);
+        spike1.setStart(125, 270, Math.PI/2, 0, 0);
+        spike1.setTarget(60, 270, Math.PI/2, RedPositions.V, 0);
+        //spike1.setPath(pb);
         spike1.setName("Spike1");
 
         spike1Launch = new MPCPath();
         spike1Launch.setMoveTime(RedPositions.T1launch);
         spike1Launch.continueFrom(spike1);
-        spike1Launch.setTarget(RedPositions.XLaunch, RedPositions.YLaunch, RedPositions.HLaunch, 0, 0);
+        spike1Launch.setTarget(165, 345, 3.5*Math.PI/4, 0, 0);
         spike1Launch.setName("Spike1Launch");
 
         spike2 = new MPCPath();
@@ -178,7 +189,7 @@ public class RedBackAuto extends BaseOpMode {
         leave.setTarget(RedPositions.XLeave, RedPositions.YLeave, RedPositions.HLeave, 0, 0);
         leave.setName("Leave");
 
-        allPaths = new MPCPath[]{launch, spike1, spike1I, spike1Launch, spike2, spike2Launch, leave};
+        allPaths = new MPCPath[]{launch, spike1I, spike1, spike1Launch, spike2, spike2Launch, leave};
 
         for (MPCPath path : allPaths) {
             path.setAccuracy(RedPositions.accuracy);
@@ -189,6 +200,7 @@ public class RedBackAuto extends BaseOpMode {
         }
 
         spike1.setParams(slow);
+        //spike1I.setParams(reckless);
     }
 
     Vector position;
@@ -224,7 +236,9 @@ public class RedBackAuto extends BaseOpMode {
 
         launch.start();
         launch.doTelemetry = true;
-        //spike1I.doTelemetry = true;
+        spike1I.doTelemetry = true;
+        spike1.doTelemetry = true;
+        spike1Launch.doTelemetry = true;
         launch.getCorrection(position);
 
     }
@@ -269,27 +283,34 @@ public class RedBackAuto extends BaseOpMode {
 
     public void launch() {
         drive.moveRaw(launch.getCorrection(position));
-        //shooter.setState(Shooter.ShooterStates.ACTIVE);
-        if(intake.getNumBalls() == 0){
+        shooter.setState(Shooter.ShooterStates.ACTIVE);
+        if(intake.getNumBalls() == 0 && stateTime.seconds()>5){
             setState(States.Spike1Intermittent);
         } else if (launch.getState() == MPCPath.ControllerStates.Finished && intake.getState() == IntakeMagazine.IntakeMagazineStates.IDLE){
-            //intake.setState(IntakeMagazine.IntakeMagazineStates.SHOOTING);
+            intake.setState(IntakeMagazine.IntakeMagazineStates.SHOOTING);
             firstLoop1 = false;
         }
     }
     private void spike1I() {
         drive.moveRaw(spike1I.getCorrection(position));
-        if (spike1.getState() == MPCPath.ControllerStates.Finished) {
-            //setState(States.Spike1);
+        if (spike1I.getState() == MPCPath.ControllerStates.Finished) {
+            setState(States.Spike1);
         }
     }
     private void spike1() {
+        intake.setState(IntakeMagazine.IntakeMagazineStates.INTAKEFRONT);
         drive.moveRaw(spike1.getCorrection(position));
         if (spike1.getState() == MPCPath.ControllerStates.Finished) setState(States.Spike1Launch);
     }
     private void spike1Launch() {
         drive.moveRaw(spike1Launch.getCorrection(position));
-        if (spike1Launch.getState() == MPCPath.ControllerStates.Finished) setState(States.Spike2);
+        shooter.setState(Shooter.ShooterStates.ACTIVE);
+        if(intake.getNumBalls() == 0 && stateTime.seconds()>5){
+            //setState(States.Spike1Intermittent);
+        } else if (launch.getState() == MPCPath.ControllerStates.Finished ){
+            intake.setState(IntakeMagazine.IntakeMagazineStates.SHOOTING);
+            firstLoop1 = false;
+        }
     }
 
     private void spike2() {
