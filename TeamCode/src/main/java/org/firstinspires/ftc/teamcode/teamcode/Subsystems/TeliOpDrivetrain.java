@@ -10,6 +10,8 @@ import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Co
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants.fx;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HD;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.HP;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.Kdh;
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.Kph;
 import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash.rateOfChange;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -30,6 +32,7 @@ import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Control.PID;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.PIDTuningDash;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Vision.BallChaser;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -38,18 +41,18 @@ public class TeliOpDrivetrain extends TankDriveTrain {
     @Config
     public static class DrivetrainDash {
         public static double rateOfChangeThreshold = 120;
-//        public static double-
+        //        public static double-
 //                p = 0.05,
 //                i = 0,
 //                d = 0;
 //
-public static double
-        kPturn = 0.001,
-        kIturn = 0,
-        kDturn = 0.005,
-        kPdrive = 0.007,
-        kIdrive = 0,
-        kDdrive = -0.005;
+        public static double
+                kPturn = 0.001,
+                kIturn = 0,
+                kDturn = 0.005,
+                kPdrive = 0.007,
+                kIdrive = 0,
+                kDdrive = -0.005;
 
         public static double visionTurnDeadzone = 3; //silly (ignore this stuff)
         public static double visionTurn = 0.0001;
@@ -76,42 +79,45 @@ public static double
     PID visionTurnPID;
     PID visionDrivePID;
 
-    Vector theFuckassTankDriveVector = new Vector(0,0,0);
+    Vector theFuckassTankDriveVector = new Vector(0, 0, 0);
 
     @Override
-    public void update(){}
-    public void update(AprilTagDetection tagNum, double x, double y, double heading, double cameraNumber){}
+    public void update() {
+    }
+
+    public void update(AprilTagDetection tagNum, double x, double y, double heading, double cameraNumber) {
+    }
 
     @Override
     public void updateSensors() {
     }
 
-    public void telemetry(){
+    public void telemetry() {
         BaseOpMode.addData("Heading", gyro.getHeading());
     }
 
     public TeliOpDrivetrain(HardwareMap hardware, double heading) {
 
         gamepad1 = new Gamepad();
-      //  driveWheels = new MecanumDrive();
+        //  driveWheels = new MecanumDrive();
         visionTurnPID = new PID(DrivetrainDash.kPturn, DrivetrainDash.kIturn, kDturn);
         visionDrivePID = new PID(DrivetrainDash.kPdrive, DrivetrainDash.kIdrive, DrivetrainDash.kDdrive);
 
 
-        pid = new PID(HP,0, HD);
-
+        pid = new PID(HP, 0, HD);
+        drivePID = new PID(0, 0, 0);
 
 
     }
 
 
-    public void stopDrive(){
+    public void stopDrive() {
         //driveWheels.veryDirectDrive(0,0,0,0);
     }
 
 
-    public void nonDriverOrientedDrive (double drive, double strafe, double turn){
-     //   driveWheels.veryDirectDrive((drive + strafe - turn),-(drive - strafe + turn),(drive - strafe - turn),-(drive + strafe + turn));
+    public void nonDriverOrientedDrive(double drive, double strafe, double turn) {
+        //   driveWheels.veryDirectDrive((drive + strafe - turn),-(drive - strafe + turn),(drive - strafe - turn),-(drive + strafe + turn));
     }
 
     public void drive(double drive, double strafe, double turn, double speed, boolean lockHeading) {
@@ -141,10 +147,10 @@ public static double
             BaseOpMode.addData("Actual Heading", loc.getPosH());
             BaseOpMode.addData("SetPoint", setPoint);
         } else {
-            turn = pid.getCorrectionHeading(loc.getPosH(),turn);
+            turn = pid.getCorrectionHeading(loc.getPosH(), turn);
         }
         pid.setConstants(HP, 0, HD);
-            //SET POINT JUST INCREASES constantly
+        //SET POINT JUST INCREASES constantly
 //        BaseOpMode.addData("targetHeading", setPoint);
 //        BaseOpMode.addData("pidOn", pid_on);
 //        BaseOpMode.addData("current roc", currentRateOfChange);
@@ -161,23 +167,23 @@ public static double
 
          */
 
-      //  driveWheels.veryDirectDrive((drive + strafe - turn) * speed,-(drive - strafe + turn) * speed,(drive - strafe - turn) * speed,-(drive + strafe + turn) * speed);
+        //  driveWheels.veryDirectDrive((drive + strafe - turn) * speed,-(drive - strafe + turn) * speed,(drive - strafe - turn) * speed,-(drive + strafe + turn) * speed);
     }
 
 
-    public void updatePID(){
-        pid.setConstants(0,0,0);
+    public void updatePID() {
+        pid.setConstants(0, 0, 0);
     }
 
-    public double getHeading(){
+    public double getHeading() {
         return gyro.getHeading();
     }
 
-    public void setTargetHeading(double heading){
+    public void setTargetHeading(double heading) {
         setPoint = heading;
     }
 
-    public void ballFollow(int visionDistanceTarget, boolean trueIfGreen){
+    public void ballFollow(int visionDistanceTarget, boolean trueIfGreen) {
 
         //Rect rectangle = TestPipelineBlue.getRectangle();
 
@@ -189,15 +195,15 @@ public static double
             drive = 1;
         }*/
 
-        double aspectRatio =( (double) (BallChaser.getWidth(trueIfGreen))/(BallChaser.getHeight(trueIfGreen)));
+        double aspectRatio = ((double) (BallChaser.getWidth(trueIfGreen)) / (BallChaser.getHeight(trueIfGreen)));
 
-       // double strafe = 0; //this ain't meccanum
-        double turn = 0 ;
+        // double strafe = 0; //this ain't meccanum
+        double turn = 0;
 
 
 //this should correct for the x coordinate
 
-        if(Math.abs(BallChaser.getError(trueIfGreen))> DrivetrainDash.visionTurnDeadzone && BallChaser.targetDetected&& BallChaser.getWidth(trueIfGreen)>30){
+        if (Math.abs(BallChaser.getError(trueIfGreen)) > DrivetrainDash.visionTurnDeadzone && BallChaser.targetDetected && BallChaser.getWidth(trueIfGreen) > 30) {
             //error 199
             visionTurnPID.setFeedForward(visionTurn);
             //error 199
@@ -210,35 +216,34 @@ public static double
 
                     -visionTurnPID.getCorrection(BallChaser.getError(trueIfGreen));
 
-        } else{
+        } else {
             // multTelemetry.addData("Status","not moving");
             turn = 0;
             //   strafe = 0;
         }
         double distanceError = scuffedDistance(BallChaser.getWidth(trueIfGreen), visionDistanceTarget, trueIfGreen);
         //double distanceError = distance(BallDetector.getWidth(false)) - DrivetrainDash.visionDistanceTarget;
-        if(Math.abs(distanceError) > DrivetrainDash.visionDriveDeadzone && BallChaser.targetDetected&& BallChaser.getWidth(trueIfGreen)>30){
+        if (Math.abs(distanceError) > DrivetrainDash.visionDriveDeadzone && BallChaser.targetDetected && BallChaser.getWidth(trueIfGreen) > 30) {
             visionDrivePID.setFeedForward(DrivetrainDash.visionDrive);
             drive = visionDrivePID.getCorrection(distanceError);
             //distanceError * DrivetrainDash.visionDrive+0.001;
-        }else{
+        } else {
             drive = 0;
         }
 
 
-
         multTelemetry.addData("Error", BallChaser.getError(trueIfGreen));
-      //  multTelemetry.addData("distance error", distanceError);
-        multTelemetry.addData("turn", turn );
+        //  multTelemetry.addData("distance error", distanceError);
+        multTelemetry.addData("turn", turn);
         multTelemetry.addData("drive", drive);
         multTelemetry.addData("Width", BallChaser.getWidth(trueIfGreen));
         multTelemetry.addData("height", BallChaser.getHeight(trueIfGreen));
-       // multTelemetry.addData("distance", distance(BallDetector.getWidth(false)));
+        // multTelemetry.addData("distance", distance(BallDetector.getWidth(false)));
         multTelemetry.addData("angle in radians", angleRad);
         multTelemetry.addData("scuffed distance", scuffedDistance(BallChaser.getWidth(trueIfGreen), visionDistanceTarget, trueIfGreen));
         multTelemetry.addData("aspect ratio", aspectRatio);
-        drive(drive,turn);
-      //  driveWheels.veryDirectDrive(drive +strafe -turn,drive -strafe +turn,drive -strafe -turn,drive +strafe +turn);
+        drive(drive, turn);
+        //  driveWheels.veryDirectDrive(drive +strafe -turn,drive -strafe +turn,drive -strafe -turn,drive +strafe +turn);
 //if check aspect ratio of detection, then multiply target width by ratio
 /* fl.setPower((drive -strafe +turn));
        fr.setPower((drive +strafe -turn));
@@ -246,12 +251,13 @@ public static double
         br.setPower((drive -strafe -turn));*/
 
     }
-    public double distance(double widthPixels){
+
+    public double distance(double widthPixels) {
         //double angleDeg = ((120*widthPixels)/320) /2;
-       // angleRad = angleDeg * (PI/180);
-        double diameterOfObject = 12.7/100; //in meters
+        // angleRad = angleDeg * (PI/180);
+        double diameterOfObject = 12.7 / 100; //in meters
         double distance;
-        distance = diameterOfObject*fx/widthPixels-focalLengthMM;
+        distance = diameterOfObject * fx / widthPixels - focalLengthMM;
         //distance = pixelsToMeters*widthPixels; //this will never work, but it's a neat idea
         //not real yet, ran out of time
         //real diameter times focal length in px over pixel diameter minus focal length MM
@@ -259,21 +265,21 @@ public static double
         return distance;
     }
 
-    public double scuffedDistance(int widthPixels, int targetDistance, boolean trueIfGreen){
+    public double scuffedDistance(int widthPixels, int targetDistance, boolean trueIfGreen) {
 
-        double aspectRatio =( (double) (BallChaser.getWidth(trueIfGreen))/(BallChaser.getHeight(trueIfGreen)));
+        double aspectRatio = ((double) (BallChaser.getWidth(trueIfGreen)) / (BallChaser.getHeight(trueIfGreen)));
         double distance;
-           distance = (targetDistance*aspectRatio)-widthPixels;
+        distance = (targetDistance * aspectRatio) - widthPixels;
 
         return distance;
         //gives dist in pixels, trust
     }
 
-    public void resetHeading(){
+    public void resetHeading() {
         gyro.resetPosAndIMU();
     }
 
-    public void PIDdrive(double drive, double turn){
+    public void PIDdrive(double drive, double turn) {
 
         double currentRateOfChange = gyro.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS);
         if (turn != 0) {
@@ -298,7 +304,7 @@ public static double
         move(new Vector(-drive, -turn));
     }
 
-    public void PIDdrive(double drive, double turn, double power){
+    public void PIDdrive(double drive, double turn, double power) {
 
         double currentRateOfChange = loc.getVelH();
         if (turn != 0) {
@@ -319,9 +325,51 @@ public static double
         BaseOpMode.addData("SetPoint", setPoint);
 
         pid.setConstants(HP, 0, HD);
-        drive = drive*power;
-        turn = turn*power;
+        drive = drive * power;
+        turn = turn * power;
         move(new Vector(-drive, -turn));
     }
 
+    double x = 0;
+    double y = 0;
+    double h = 0;
+    double startX;
+    double startY;
+    PID drivePID;
+
+    public void updateOdo(double x, double y, double h) {
+        this.x = x;
+        this.y = y;
+        this.h = h;
+    }
+
+    //takes in how much you want to drive. Do not try to turn and drive simultaneously it WILL SUCK
+    public void driveDumb(double targDist, double targHeading, double power, boolean newPath) {
+        //first loop running the path newPath == true, then set to false
+        if (newPath) {
+            startX = x;
+            startY = y;
+        }
+        double deltaX = x - startX;
+        double deltaY = y - startY;
+        double distanceTraveled = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * Math.signum(targDist);
+
+        drivePID.setConstants(PIDTuningDash.Kpd, 0, PIDTuningDash.Kdd);
+        drivePID.setFeedForward(PIDTuningDash.Kfd);
+
+        pid.setConstants(HP, 0, HD);
+        pid.setFeedForward(PIDTuningDash.HF);
+
+        double drive = drivePID.getCorrection(targDist - distanceTraveled) * power;
+        double turn = pid.getCorrection(h - targHeading);
+
+        move(new Vector(-drive, -turn));
+
+        BaseOpMode.addData("deltaX", deltaX);
+        BaseOpMode.addData("deltaY", deltaY);
+        BaseOpMode.addData("distanceTraveled", distanceTraveled);
+        BaseOpMode.addData("drive", drive);
+        BaseOpMode.addData("h", h);
+        BaseOpMode.addData("targh", targHeading);
+    }
 }

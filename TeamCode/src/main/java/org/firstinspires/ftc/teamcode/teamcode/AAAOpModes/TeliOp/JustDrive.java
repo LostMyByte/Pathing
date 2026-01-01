@@ -14,14 +14,18 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 public class JustDrive extends BaseOpMode {
 
     TeliOpDrivetrain drive;
+    Location loc;
 
     @Override
     public void externalInit () {
         drive = new TeliOpDrivetrain(hardware, 0);
+        loc = new Location(0,0,0);
+        loc.doTelemetry = true;
     }
 
     @Override
     public void externalLoop () {
+        drive.updateOdo(loc.getPosX(), loc.getPosY(), loc.getPosH());
         if (driver1.rightStick.isPressed()){
             drive.PIDdrive(-driver1.leftStick.Y(), driver1.rightStick.X(), 0.3);
         } else {
