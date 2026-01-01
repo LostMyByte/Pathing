@@ -23,8 +23,8 @@ public class DriveWheels {
     // Loopback constants
     public static double Lxk = 0.3;
     public static double Lhk = -0.15;
-    public static double Lml = 0.185;
-    public static double Lmr = 0.185;
+    public static double Lml = 0.15;
+    public static double Lmr = 0.15;
     public static double Lmk = 0.1;
 
 
@@ -32,7 +32,7 @@ public class DriveWheels {
 
     public static MPCPath.MPCParams defaultParams = new MPCPath.MPCParams();
 
-    public static double driveAcceleration = 1000;
+    public static double driveAcceleration = 2000;
     public static double angularAcceleration = 100;
 
 

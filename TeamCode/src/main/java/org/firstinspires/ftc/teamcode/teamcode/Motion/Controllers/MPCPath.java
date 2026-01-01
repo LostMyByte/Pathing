@@ -52,7 +52,7 @@ public class MPCPath extends Controller{
         public double QY = 10; // Ongoing position cost in Y
         public double QH = 50; // Ongoing position cost in Heading
         public double QV = 0.1;  // Ongoing Velocity cost
-        public double QHV = 0; // Ongoing Heading Velocity cost
+        public double QHV = 0.1; // Ongoing Heading Velocity cost
 
         public double QFX = 0; // Final Position cost in X
         public double QFY = 0; // Final Position cost in Y
@@ -60,7 +60,7 @@ public class MPCPath extends Controller{
         public double QFV = 10; // Final Velocity cost
         public double QFHV = 20; // Final Heading Velocity cost
 
-        public double R = 10; // Control cost
+        public double R = 8000; // Control cost
 
         public double lr = 2; // Learning rate
         public double lambdaMax = 10000000; // Max lambda (for descent)
