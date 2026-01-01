@@ -131,7 +131,7 @@ public class MPC {
 
         // Add terminal cost
         Vector finalState = currentTrajectory[currentTrajectory.length-1];
-        currentCost += finalState.dotProduct(QF.multiplied(finalState));
+        currentCost += finalState.dotProduct(QF.multiplied(referenceSignal.target().subtracted(finalState)));
 
         return currentCost;
     }

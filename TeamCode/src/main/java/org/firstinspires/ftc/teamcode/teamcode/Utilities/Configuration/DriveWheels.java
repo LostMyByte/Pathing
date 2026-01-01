@@ -32,7 +32,7 @@ public class DriveWheels {
 
     public static MPCPath.MPCParams defaultParams = new MPCPath.MPCParams();
 
-    public static double driveAcceleration = 1000;
+    public static double driveAcceleration = 1300;
     public static double angularAcceleration = 20;
 
 

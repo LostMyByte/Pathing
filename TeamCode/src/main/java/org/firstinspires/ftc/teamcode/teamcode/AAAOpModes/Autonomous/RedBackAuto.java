@@ -144,7 +144,7 @@ public class RedBackAuto extends BaseOpMode {
 
         spike1I = new MPCPath();
         spike1I.setMoveTime(RedPositions.T1);
-        spike1I.setStart(155, 170, 0.2145,0,0);
+        spike1I.continueFrom(launch);
         spike1I.setTarget(95, 268, Math.PI/2, RedPositions.V, 0);
         spike1I.setName("Spike1");
 
@@ -224,7 +224,7 @@ public class RedBackAuto extends BaseOpMode {
 
         launch.start();
         launch.doTelemetry = true;
-        spike1I.doTelemetry = true;
+        //spike1I.doTelemetry = true;
         launch.getCorrection(position);
 
     }
@@ -269,11 +269,11 @@ public class RedBackAuto extends BaseOpMode {
 
     public void launch() {
         drive.moveRaw(launch.getCorrection(position));
-        shooter.setState(Shooter.ShooterStates.ACTIVE);
+        //shooter.setState(Shooter.ShooterStates.ACTIVE);
         if(intake.getNumBalls() == 0){
             setState(States.Spike1Intermittent);
         } else if (launch.getState() == MPCPath.ControllerStates.Finished && intake.getState() == IntakeMagazine.IntakeMagazineStates.IDLE){
-            intake.setState(IntakeMagazine.IntakeMagazineStates.SHOOTING);
+            //intake.setState(IntakeMagazine.IntakeMagazineStates.SHOOTING);
             firstLoop1 = false;
         }
     }
