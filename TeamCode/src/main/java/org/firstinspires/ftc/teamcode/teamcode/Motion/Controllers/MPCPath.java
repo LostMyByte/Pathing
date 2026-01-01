@@ -54,8 +54,8 @@ public class MPCPath extends Controller{
         public double QV = 0.1;  // Ongoing Velocity cost
         public double QHV = 0.1; // Ongoing Heading Velocity cost
 
-        public double QFX = 0; // Final Position cost in X
-        public double QFY = 0; // Final Position cost in Y
+        public double QFX = 5; // Final Position cost in X
+        public double QFY = 5; // Final Position cost in Y
         public double QFH = 10; // Final Position cost in Heading
         public double QFV = 10; // Final Velocity cost
         public double QFHV = 20; // Final Heading Velocity cost
