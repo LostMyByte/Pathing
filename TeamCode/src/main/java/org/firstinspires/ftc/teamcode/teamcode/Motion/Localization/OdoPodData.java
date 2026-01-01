@@ -49,6 +49,7 @@ public class OdoPodData extends Signal {
     Vector velocity = new Vector(0, 0, 0);
     @Override
     public void update() {
+        odoPods.setOffsets(xOffset,yOffset);
         odoPods.update();
 
         velocity = new Vector(odoPods.getVelX(DistanceUnit.CM), odoPods.getVelY(DistanceUnit.CM),odoPods.getHeadingVelocity());

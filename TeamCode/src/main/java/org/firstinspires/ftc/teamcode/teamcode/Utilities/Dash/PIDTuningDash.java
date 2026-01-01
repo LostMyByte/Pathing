@@ -21,6 +21,7 @@ public class PIDTuningDash {
     public static double AFF = 0;
     public static double HP = 1.2;
     public static double HD = 0;
+    public static double HF = 0;
     public static double rateOfChange = 1;
     //New stuff, this definitely needs to be looked at
 
