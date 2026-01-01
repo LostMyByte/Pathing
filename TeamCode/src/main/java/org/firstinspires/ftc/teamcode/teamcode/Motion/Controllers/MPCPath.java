@@ -56,11 +56,11 @@ public class MPCPath extends Controller{
 
         public double QFX = 5; // Final Position cost in X
         public double QFY = 5; // Final Position cost in Y
-        public double QFH = 100; // Final Position cost in Heading
+        public double QFH = 2000; // Final Position cost in Heading
         public double QFV = 10; // Final Velocity cost
         public double QFHV = 20; // Final Heading Velocity cost
 
-        public double R = 10000; // Control cost
+        public double R = 2000; // Control cost
 
         public double lr = 2; // Learning rate
         public double lambdaMax = 10000000; // Max lambda (for descent)
@@ -361,12 +361,12 @@ public class MPCPath extends Controller{
 
         Vector error = getStateError(sensorData, time);
 
-        if (Math.abs(error.get(2)) > 0.2 & Math.abs(sensorData.get(4)) < 0.1) {
-            loopback.add(0, 0.2 * Math.signum(error.get(2)));
-            loopback.add(1, -0.2 * Math.signum(error.get(2)));
+        if (Math.abs(error.get(2)) > DriveWheels.Lhdp & Math.abs(sensorData.get(4)) < DriveWheels.Lhdv) {
+            loopback.add(0, DriveWheels.Lhs * Math.signum(error.get(2)));
+            loopback.add(1, -DriveWheels.Lhs * Math.signum(error.get(2)));
         }
 
-        Vector correction = controller.getInterpolatedU(time);
+        Vector correction = model.controlLimit(controller.getInterpolatedU(time));
 
         if (time > horizonTime - startTime) {
             Vector posError = new Vector(error.get(0), error.get(1));
