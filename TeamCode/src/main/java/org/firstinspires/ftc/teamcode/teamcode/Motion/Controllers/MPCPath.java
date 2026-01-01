@@ -56,11 +56,11 @@ public class MPCPath extends Controller{
 
         public double QFX = 5; // Final Position cost in X
         public double QFY = 5; // Final Position cost in Y
-        public double QFH = 10; // Final Position cost in Heading
+        public double QFH = 100; // Final Position cost in Heading
         public double QFV = 10; // Final Velocity cost
         public double QFHV = 20; // Final Heading Velocity cost
 
-        public double R = 8000; // Control cost
+        public double R = 10000; // Control cost
 
         public double lr = 2; // Learning rate
         public double lambdaMax = 10000000; // Max lambda (for descent)
@@ -359,18 +359,23 @@ public class MPCPath extends Controller{
         // TODO: MAke work for not tank drive
         Vector loopback = TankDrive.getLoopback(sensorData);
 
-        sensorData = getStateError(sensorData, time);
+        Vector error = getStateError(sensorData, time);
+
+        if (Math.abs(error.get(2)) > 0.2 & Math.abs(sensorData.get(4)) < 0.1) {
+            loopback.add(0, 0.2 * Math.signum(error.get(2)));
+            loopback.add(1, -0.2 * Math.signum(error.get(2)));
+        }
 
         Vector correction = controller.getInterpolatedU(time);
 
         if (time > horizonTime - startTime) {
-            Vector posError = new Vector(sensorData.get(0), sensorData.get(1));
-            Vector heading = new Vector(-Math.sin(sensorData.get(2)), Math.cos(sensorData.get(2)));
+            Vector posError = new Vector(error.get(0), error.get(1));
+            Vector heading = new Vector(-Math.sin(error.get(2)), Math.cos(error.get(2)));
             posError = heading.multiplied(heading.dotProduct(posError));
 
             if (!MPCSettings.fullEndCorrection) {
-                sensorData.put(0, posError.get(0));
-                sensorData.put(1, posError.get(1));
+                error.put(0, posError.get(0));
+                error.put(1, posError.get(1));
             }
             correction.add(new Vector(heading.dotProduct(posError) * DriveWheels.Kp, posError.magnitude() * DriveWheels.Kp));
         }
@@ -389,14 +394,14 @@ public class MPCPath extends Controller{
         if (MPCSettings.invertdSdU) K = K.inverted();
         K = K.multiplied(controller.getInterpolatedK(time));
 
-        sensorData = model.h(sensorData.multiplied(MPCSettings.invertHScale ? -1 : 1)).multiplied(sensorData);
+        error = model.h(error.multiplied(MPCSettings.invertHScale ? -1 : 1)).multiplied(error);
 
-        Vector modelResponse = K.multiplied(DriveWheels.strength).multiplied(sensorData);
+        Vector modelResponse = K.multiplied(DriveWheels.strength).multiplied(error);
         if (doTelemetry) BaseOpMode.addData("MH", modelResponse.get(1)-modelResponse.get(0));
         if (doTelemetry) BaseOpMode.addData("MV", modelResponse.get(1)+modelResponse.get(0));
         correction.add(modelResponse);
 
-        correction.add(feedback.multiplied(sensorData).added(loopback));
+        correction.add(feedback.multiplied(error).added(loopback));
 
         if (MPCSettings.voltageCorrection) correction.multiply(params.voltage/voltage.getVoltage());
 

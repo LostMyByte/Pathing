@@ -36,9 +36,9 @@ public class RedBackAuto extends BaseOpMode {
         public static double H0 = 0;
 
 
-        public static double X1 = 161;
-        public static double Y1 = 187;
-        public static double H1 = 0;
+        public static double X1 = 150;
+        public static double Y1 = 170;
+        public static double H1 = Math.toRadians(40);
 
         public static double X2 = -120;
         public static double Y2 = 100;
@@ -71,6 +71,7 @@ public class RedBackAuto extends BaseOpMode {
 
     enum States {
         Launch,
+        Spike1Intermittent,
         Spike1,
         Spike1Launch,
         Spike2,
@@ -82,6 +83,7 @@ public class RedBackAuto extends BaseOpMode {
 
     MPCPath launch;
     MPCPath spike1;
+    MPCPath spike1I;
     MPCPath spike1Launch;
     MPCPath spike2;
     MPCPath spike2Launch;
@@ -107,7 +109,7 @@ public class RedBackAuto extends BaseOpMode {
         Constants.team = Constants.Team.RED;
         stateTime = new ElapsedTime();
 
-        loc = new Location(164, 341, 0);
+        loc = new Location(143, 341, 0);
         loc.doTelemetry = true;
         drive = new TankDriveTrain();
         slow = DriveWheels.defaultParams.copy();
@@ -140,10 +142,15 @@ public class RedBackAuto extends BaseOpMode {
         launch.setTarget(X1, Y1, RedPositions.H1, 0, 0);
         launch.setName("Launch");
 
+        spike1I = new MPCPath();
+        spike1I.setMoveTime(RedPositions.T1);
+        spike1I.setStart(155, 170, 0.2145,0,0);
+        spike1I.setTarget(95, 268, Math.PI/2, RedPositions.V, 0);
+        spike1I.setName("Spike1");
 
         spike1 = new MPCPath();
         spike1.setMoveTime(RedPositions.T1);
-        spike1.continueFrom(launch);
+        spike1.setStart(155, 170, 0.2145,0,0);
         spike1.setTarget(X1, Y1, RedPositions.H1, RedPositions.V, 0);
         spike1.setName("Spike1");
 
@@ -171,7 +178,7 @@ public class RedBackAuto extends BaseOpMode {
         leave.setTarget(RedPositions.XLeave, RedPositions.YLeave, RedPositions.HLeave, 0, 0);
         leave.setName("Leave");
 
-        allPaths = new MPCPath[]{launch, spike1, spike1Launch, spike2, spike2Launch, leave};
+        allPaths = new MPCPath[]{launch, spike1, spike1I, spike1Launch, spike2, spike2Launch, leave};
 
         for (MPCPath path : allPaths) {
             path.setAccuracy(RedPositions.accuracy);
@@ -217,6 +224,7 @@ public class RedBackAuto extends BaseOpMode {
 
         launch.start();
         launch.doTelemetry = true;
+        spike1I.doTelemetry = true;
         launch.getCorrection(position);
 
     }
@@ -242,6 +250,7 @@ public class RedBackAuto extends BaseOpMode {
     public void stateMachine() {
         switch (state) {
             case Launch: launch(); break;
+            case Spike1Intermittent: spike1I(); break;
             case Spike1: spike1(); break;
             case Spike1Launch: spike1Launch(); break;
             case Spike2: spike2(); break;
@@ -261,11 +270,17 @@ public class RedBackAuto extends BaseOpMode {
     public void launch() {
         drive.moveRaw(launch.getCorrection(position));
         shooter.setState(Shooter.ShooterStates.ACTIVE);
-        if (launch.getState() == MPCPath.ControllerStates.Finished && firstLoop1){
+        if(intake.getNumBalls() == 0){
+            setState(States.Spike1Intermittent);
+        } else if (launch.getState() == MPCPath.ControllerStates.Finished && intake.getState() == IntakeMagazine.IntakeMagazineStates.IDLE){
             intake.setState(IntakeMagazine.IntakeMagazineStates.SHOOTING);
             firstLoop1 = false;
         }
-        if(intake.getNumBalls() == 0){
+    }
+    private void spike1I() {
+        drive.moveRaw(spike1I.getCorrection(position));
+        if (spike1.getState() == MPCPath.ControllerStates.Finished) {
+            //setState(States.Spike1);
         }
     }
     private void spike1() {
@@ -276,6 +291,7 @@ public class RedBackAuto extends BaseOpMode {
         drive.moveRaw(spike1Launch.getCorrection(position));
         if (spike1Launch.getState() == MPCPath.ControllerStates.Finished) setState(States.Spike2);
     }
+
     private void spike2() {
         drive.moveRaw(spike2.getCorrection(position));
         if (spike2.getState() == MPCPath.ControllerStates.Finished) setState(States.Spike2Launch);
