@@ -404,6 +404,7 @@ public class TeliOpDrivetrain extends TankDriveTrain {
             BaseOpMode.addData("Actual Heading", targetHeading);
 
             BaseOpMode.addData("Power scale", powscale);
+            if (Math.abs(loc.getPosH() - oldAngle) < Math.toRadians(20)) driveDumb(targetDistance, targetHeading, 0, true);
             driveDumb(targetDistance, targetHeading, power * powscale * powscale * powscale, true);
 
         }

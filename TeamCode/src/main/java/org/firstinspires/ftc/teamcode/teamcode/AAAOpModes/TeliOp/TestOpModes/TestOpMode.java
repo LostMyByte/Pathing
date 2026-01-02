@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorColor;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
@@ -38,6 +39,7 @@ public class TestOpMode extends BaseOpMode {
     IntakeMagazine intake;
     Shooter shooter;
     boolean firstLoop = true;
+    ElapsedTime timer;
     @Override
     public void externalInit() {
         //sensor = hardwareMap.get(NormalizedColorSensor.class, "Color");
@@ -51,6 +53,7 @@ public class TestOpMode extends BaseOpMode {
 
     @Override
     public void externalLoop() {
+        if (timer == null) timer = new ElapsedTime();
        /* NormalizedRGBA colors = sensor.getNormalizedColors();
         Color.colorToHSV(colors.toColor(), hsvValues);
         */
@@ -67,6 +70,7 @@ public class TestOpMode extends BaseOpMode {
             firstLoop = false;
         } else {
             drive.dumbDriveToPos(0,120,0.2);
+            if (timer.seconds() > 5) drive.dumbDriveToPos(-120,120,0.2);
             firstLoop = false;
         }
 
