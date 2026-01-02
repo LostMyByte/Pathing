@@ -44,7 +44,7 @@ public class TestOpMode extends BaseOpMode {
     public void externalInit() {
         //sensor = hardwareMap.get(NormalizedColorSensor.class, "Color");
         drive = new TeliOpDrivetrain(hardwareMap, 0);
-        loc = new Location(0,0,0);
+        loc = new Location(0,300,0);
         intake = new IntakeMagazine(hardwareMap);
         shooter = new Shooter(hardwareMap, Constants.Team.RED);
         intake.setState(IntakeMagazine.IntakeMagazineStates.IDLE);
@@ -69,8 +69,8 @@ public class TestOpMode extends BaseOpMode {
             drive.dumbDriveToPos(0,0,1);
             firstLoop = false;
         } else {
-            drive.dumbDriveToPos(0,120,0.2);
-            if (timer.seconds() > 5) drive.dumbDriveToPos(-120,120,0.2);
+            drive.dumbDriveToPos(0,200,0.2);
+            //if (timer.seconds() > 5) drive.dumbDriveToPos(-120,120,0.2);
             firstLoop = false;
         }
 

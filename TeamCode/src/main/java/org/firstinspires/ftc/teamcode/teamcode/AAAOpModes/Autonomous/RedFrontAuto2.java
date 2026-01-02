@@ -47,6 +47,7 @@ public class RedFrontAuto2 extends BaseOpMode {
         stateTime = new ElapsedTime();
 
         loc = new Location(143,341,0);
+        loc.doTelemetry = true;
         drive = new TeliOpDrivetrain(hardwareMap, 0);
 
         state = States.Launch;
@@ -55,7 +56,7 @@ public class RedFrontAuto2 extends BaseOpMode {
         shooter = new Shooter(hardwareMap, Constants.Team.RED);
         intake.setState(IntakeMagazine.IntakeMagazineStates.DONOTHING);
 
-
+        loc.setPosition(143,341,0);
     }
     public void externalStart(){
         stateTime.reset();
@@ -91,14 +92,23 @@ public class RedFrontAuto2 extends BaseOpMode {
     }
 
 
-    public void launch() {
+    public void launch(){
         shooter.setState(Shooter.ShooterStates.ACTIVE);
-        intake.setState(IntakeMagazine.IntakeMagazineStates.IDLE);
-        if (stateTime.seconds() < 4){
-            drive.dumbDriveToPos(150,170,.4);
+        if (stateTime.seconds() < 2.5) {
+            drive.dumbDriveToPos(150, 190, .2);
         } else {
             drive.driveDumb(0,Math.toRadians(20),1,firstLoop1);
             firstLoop1 = false;
+        }
+        if (stateTime.seconds() > 3 && firstLoop2){
+            intake.setState(IntakeMagazine.IntakeMagazineStates.SHOOTING);
+            firstLoop2 = false;
+        }
+        else if (stateTime.seconds() < 3){
+            intake.setState(IntakeMagazine.IntakeMagazineStates.IDLE);
+        }
+        if (stateTime.seconds() > 5){
+            setState(States.Spike1);
         }
     }
     private void spike1() {
