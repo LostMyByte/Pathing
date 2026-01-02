@@ -11,14 +11,17 @@ import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.SystemModel;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.TeliOpDrivetrain;
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 
 import java.io.FileNotFoundException;
 
 
-@Autonomous(name = "Red Front Auto 2")
+@Autonomous(name = "Red Back Auto 2")
 public class RedFrontAuto2 extends BaseOpMode {
 
 
@@ -34,6 +37,8 @@ public class RedFrontAuto2 extends BaseOpMode {
     States state = States.Launch;
     TeliOpDrivetrain drive;
     Location loc;
+    Shooter shooter;
+    IntakeMagazine intake;
     boolean firstLoop1 = true;
     boolean firstLoop2 = true;
 
@@ -46,8 +51,14 @@ public class RedFrontAuto2 extends BaseOpMode {
 
         state = States.Launch;
 
+        intake = new IntakeMagazine(hardwareMap);
+        shooter = new Shooter(hardwareMap, Constants.Team.RED);
+        intake.setState(IntakeMagazine.IntakeMagazineStates.DONOTHING);
 
 
+    }
+    public void externalStart(){
+        stateTime.reset();
     }
 
 
@@ -56,6 +67,8 @@ public class RedFrontAuto2 extends BaseOpMode {
     public void externalLoop() {
         BaseOpMode.addData("State", state);
         drive.updateOdo(loc.getPosX(), loc.getPosY(), loc.getPosH());
+        BaseOpMode.addData("headingVelocity", loc.getVelH());
+        shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getPosH(),new Vector(0,0,0), loc.getVelH());
         stateMachine();
     }
 
@@ -79,8 +92,10 @@ public class RedFrontAuto2 extends BaseOpMode {
 
 
     public void launch() {
-        if (stateTime.seconds() < 3){
-            drive.driveDumb(-155,0,.6,firstLoop1);
+        //shooter.setState(Shooter.ShooterStates.ACTIVE);
+        //intake.setState(IntakeMagazine.IntakeMagazineStates.IDLE);
+        if (stateTime.seconds() < 4){
+            drive.driveDumb(-160,0,.4,firstLoop1);
             firstLoop1 = false;
         } else {
             drive.driveDumb(0,Math.toRadians(-20), .4, firstLoop2);

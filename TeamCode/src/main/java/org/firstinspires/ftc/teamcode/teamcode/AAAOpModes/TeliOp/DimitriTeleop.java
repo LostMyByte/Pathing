@@ -51,7 +51,7 @@ public class DimitriTeleop extends BaseOpMode{
 
         drive.PIDdrive(driver1.leftStick.Y(), -driver1.rightStick.X(), 1);
 
-        shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getPosH(), loc.getTranslationalVelocity());
+        shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getPosH(), loc.getTranslationalVelocity(), loc.getVelH());
         shooter.updateFFTimeModifier(gameTimer.seconds());
         //shooter.panic = driver1.share.isToggled();
 

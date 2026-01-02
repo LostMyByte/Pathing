@@ -19,9 +19,9 @@ public class PIDTuningDash {
     public static double AI = 0;
     public static double AD = 0;
     public static double AFF = 0;
-    public static double HP = 1.2;
-    public static double HD = 0;
-    public static double HF = 0;
+    public static double HP = -.07;
+    public static double HD = -0.01;
+    public static double HF = -0.38;
     public static double rateOfChange = 1;
     //New stuff, this definitely needs to be looked at
 
@@ -49,9 +49,9 @@ public class PIDTuningDash {
 
     public static double VSlidesPCLIMB = 0.008;
     public static double VSlidesDCLIMB = 0.004;
-    public static  double Kpd = -0.05;
-    public static  double Kdd = 0.005;
-    public static double Kfd = -0.1;
+    public static  double Kpd = -0.04;
+    public static  double Kdd = -6;
+    public static double Kfd = -0.15;
 
     public static double kVd = 0.012;
     public static double maxVd = 70;

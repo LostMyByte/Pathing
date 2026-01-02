@@ -45,55 +45,34 @@ public class Shooter extends Subsystem{
     //Servos.Turret2 turret2;
     Servos.Hood hood;
 
-    double turretAngle;
+
     PID shooterPDF;
     PID turretPDL;
     double targetShooterRPM;
     double xPosition;
-    double yPosition;
-    double xVelocity;
-    double yVelocity;
+
     double tx;
     ShooterStates shooterState;
-    double ticksPerRotation = 636;
-    double turretStartAngle;
+
     double turretTargetAngle;
-    double turretError;
-    Servo readyToShootIndicator;
-    Servo angleWrapWarningLight;
 
     Limelight3A limelight;
 
     boolean hoodCanShoot = false;
     boolean turretCanShoot = false;
-    double turretMarginForError = .1;
 
-    //This has the middle of its range of motion as zero, and it can go this far in EITHER DIRECTION,
-    //notated by setting it as negative or positive
-    double turretRangeOfMotion = 3.5;
-
-    double turretMaxRotation;
-    ElapsedTime warningLightTimer;
     BallColors[] pattern;
     Constants.Team team;
 
     ArrayList<BallColors> currentRamp;
 
-    double degreesYtoApriltag;
-    double radsYtoApriltag;
     double distanceAway;
     double ballSpeed;
 
 
-    // Calibration state variables
-    private int calibrationFrameCount = 0;
-    private double runningOffsetSum = 0;
-    private boolean offsetCalibrated = false;
-
     Servos.Turret turret;
     Servos.Turret2 turret2;
     public boolean panic = false;
-    public boolean ballFollowing = false;
     Vector goalRelativeVelocity;
 
 
@@ -214,9 +193,9 @@ public class Shooter extends Subsystem{
             updateTargetTurretAngle();
         }
         BaseOpMode.addData("turretTargetAngle", turretTargetAngle);
-        if (!Double.isNaN(turretTargetAngle)){
-            turret.setPositionInterpolated(turretTargetAngle);
-            turret2.setPositionInterpolated(turretTargetAngle);
+        if (!Double.isNaN(turretTargetAngle) && hv < 1){
+            //turret.setPositionInterpolated(turretTargetAngle);
+            //turret2.setPositionInterpolated(turretTargetAngle);
         }
 
 
@@ -482,12 +461,14 @@ public class Shooter extends Subsystem{
     double x;
     double y;
     double h;
+    double hv;
     Vector fieldRelativeVelocity;
 
-    public void recieveOdoInputs(double x, double y, double h, Vector fieldRelativeVelocity){
+    public void recieveOdoInputs(double x, double y, double h, Vector fieldRelativeVelocity, double hv){
         this.x = x/100;
         this.y = y/100;
         this.h = -h;
+        this.hv = hv;
 
         //account for the turret having
         this.x -= .1*Math.cos(this.h);

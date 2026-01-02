@@ -355,10 +355,12 @@ public class TeliOpDrivetrain extends TankDriveTrain {
         double distanceTraveled = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * Math.signum(targDist);
 
         drivePID.setConstants(PIDTuningDash.Kpd, 0, PIDTuningDash.Kdd);
-        drivePID.setFeedForward(PIDTuningDash.Kfd);
+        drivePID.setLowerLimit(PIDTuningDash.Kfd);
+        drivePID.setDeadZone(2);
 
         pid.setConstants(HP, 0, HD);
-        pid.setFeedForward(PIDTuningDash.HF);
+        pid.setLowerLimit(PIDTuningDash.HF);
+        pid.setDeadZone(.1);
 
         double drive = drivePID.getCorrection(targDist - distanceTraveled) * power;
         double turn = pid.getCorrection(h - targHeading);
@@ -368,8 +370,16 @@ public class TeliOpDrivetrain extends TankDriveTrain {
         BaseOpMode.addData("deltaX", deltaX);
         BaseOpMode.addData("deltaY", deltaY);
         BaseOpMode.addData("distanceTraveled", distanceTraveled);
+        BaseOpMode.addData("targDist", targDist);
         BaseOpMode.addData("drive", drive);
         BaseOpMode.addData("h", h);
         BaseOpMode.addData("targh", targHeading);
+    }
+
+    public void dumbDriveToPos(double x, double y, double power) {
+        double targetDistance = new Vector(x-loc.getPosX(), y-loc.getPosY()).magnitude();
+        double targetHeading = Math.atan2(y - loc.getPosY(), x-loc.getPosX()) + Math.PI/2;
+        if (Math.abs(loc.getPosH() - targetHeading) > 0.3) driveDumb(0, targetHeading, power, true);
+        else driveDumb(targetDistance, targetHeading, power, true);
     }
 }

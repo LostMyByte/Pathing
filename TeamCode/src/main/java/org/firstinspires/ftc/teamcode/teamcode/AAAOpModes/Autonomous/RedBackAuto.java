@@ -271,7 +271,7 @@ public class RedBackAuto extends BaseOpMode {
             case Spike2Launch: spike2Launch(); break;
             case Leave: leave(); break;
         }
-        shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(),loc.getPosH(), new Vector(0,0,0));
+        shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(),loc.getPosH(), new Vector(0,0,0), loc.getVelH());
     }
 
     public void setState(States state) {
