@@ -343,6 +343,8 @@ public class TeliOpDrivetrain extends TankDriveTrain {
         this.h = h;
     }
 
+    double oldAngle = 0;
+
     //takes in how much you want to drive. Do not try to turn and drive simultaneously it WILL SUCK
     public void driveDumb(double targDist, double targHeading, double power, boolean newPath) {
         //first loop running the path newPath == true, then set to false
@@ -378,8 +380,35 @@ public class TeliOpDrivetrain extends TankDriveTrain {
 
     public void dumbDriveToPos(double x, double y, double power) {
         double targetDistance = new Vector(x-loc.getPosX(), y-loc.getPosY()).magnitude();
-        double targetHeading = Math.atan2(y - loc.getPosY(), x-loc.getPosX()) + Math.PI/2;
-        if (Math.abs(loc.getPosH() - targetHeading) > 0.3) driveDumb(0, targetHeading, power, true);
-        else driveDumb(targetDistance, targetHeading, power, true);
+        BaseOpMode.addData("Actual Distance", targetDistance);
+        if (targetDistance > 5) {
+            double targetHeading = Math.atan2(y - loc.getPosY(), x - loc.getPosX()) - Math.PI / 2;
+
+            while (targetHeading - oldAngle > Math.PI) {
+                targetHeading -= 2 * Math.PI;
+            }
+            while (targetHeading - oldAngle < -Math.PI) {
+                targetHeading += 2 * Math.PI;
+            }
+
+            oldAngle = targetHeading;
+            double powscale = new Vector(Math.sin(loc.getPosH()),Math.cos(loc.getPosH())).dotProduct(new Vector(Math.sin(targetHeading),Math.cos(targetHeading)));
+
+            while (targetHeading - loc.getPosH() > Math.PI/2) {
+                targetHeading -= Math.PI;
+            }
+            while (targetHeading - loc.getPosH() < -Math.PI/2) {
+                targetHeading +=  Math.PI;
+            }
+
+            BaseOpMode.addData("Actual Heading", targetHeading);
+
+            BaseOpMode.addData("Power scale", powscale);
+            driveDumb(targetDistance, targetHeading, power * powscale * powscale * powscale, true);
+
+        }
+        else {
+            move(new Vector(0,0));
+        }
     }
 }

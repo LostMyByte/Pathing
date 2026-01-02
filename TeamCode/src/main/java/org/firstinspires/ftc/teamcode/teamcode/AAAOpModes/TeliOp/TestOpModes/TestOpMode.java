@@ -62,11 +62,11 @@ public class TestOpMode extends BaseOpMode {
             firstLoop = true;
         }
 
-        if (!driver1.cross.isToggled()){
+        if (driver1.cross.isToggled()){
             drive.dumbDriveToPos(0,0,1);
             firstLoop = false;
         } else {
-            drive.dumbDriveToPos(0,120,1);
+            drive.dumbDriveToPos(0,120,0.2);
             firstLoop = false;
         }
 
