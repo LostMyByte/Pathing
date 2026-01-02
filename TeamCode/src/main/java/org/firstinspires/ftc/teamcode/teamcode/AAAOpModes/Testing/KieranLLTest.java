@@ -49,7 +49,7 @@ public class KieranLLTest extends BaseOpMode {
     @Override
     public void externalLoop() {
 
-        ballGun.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getWrappedAngle(), loc.getTranslationalVelocity());
+        ballGun.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getWrappedAngle(), loc.getTranslationalVelocity(), loc.getVelH());
 
         if (gamepad1.circle || LLTestParams.update) {
             //loc.setPositionToLL();
