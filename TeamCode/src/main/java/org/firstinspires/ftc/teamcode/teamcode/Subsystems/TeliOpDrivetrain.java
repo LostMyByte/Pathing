@@ -19,6 +19,7 @@ import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -362,9 +363,9 @@ public class TeliOpDrivetrain extends TankDriveTrain {
 
         pid.setConstants(HP, 0, HD);
         pid.setLowerLimit(PIDTuningDash.HF);
-        pid.setDeadZone(.1);
+        pid.setDeadZone(.2);
 
-        double drive = drivePID.getCorrection(targDist - distanceTraveled) * power;
+        double drive = Range.clip(drivePID.getCorrection(targDist - distanceTraveled), -1, 1) * power;
         double turn = pid.getCorrection(h - targHeading);
 
         move(new Vector(-drive, -turn));
@@ -378,10 +379,10 @@ public class TeliOpDrivetrain extends TankDriveTrain {
         BaseOpMode.addData("targh", targHeading);
     }
 
-    public void dumbDriveToPos(double x, double y, double power) {
+    public void dumbDriveToPos(double x, double y, double power, boolean moveAnyways) {
         double targetDistance = new Vector(x-loc.getPosX(), y-loc.getPosY()).magnitude();
         BaseOpMode.addData("Actual Distance", targetDistance);
-        if (targetDistance > 5) {
+        if (targetDistance > 3) {
             double targetHeading = Math.atan2(y - loc.getPosY(), x - loc.getPosX()) - Math.PI / 2;
 
             while (targetHeading - oldAngle > Math.PI) {
@@ -404,12 +405,18 @@ public class TeliOpDrivetrain extends TankDriveTrain {
             BaseOpMode.addData("Actual Heading", targetHeading);
 
             BaseOpMode.addData("Power scale", powscale);
-            if (Math.abs(loc.getPosH() - oldAngle) < Math.toRadians(20)) driveDumb(targetDistance, targetHeading, 0, true);
-            driveDumb(targetDistance, targetHeading, power * powscale * powscale * powscale, true);
+            if (Math.abs(loc.getPosH() - targetHeading) > 0.2 & !moveAnyways) driveDumb(targetDistance, targetHeading, 0, true);
+            else driveDumb(targetDistance, targetHeading, power * Math.pow(powscale,81), true);
 
         }
         else {
             move(new Vector(0,0));
         }
+
+
+    }
+
+    public void dumbDriveToPos(double x, double y, double power) {
+        dumbDriveToPos(x, y, power, false);
     }
 }

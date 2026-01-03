@@ -1,10 +1,6 @@
 // Primary Author: Kieran Mattingly
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Testing;
 
-import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.RedBackAuto.RedPositions.H0;
-import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.RedBackAuto.RedPositions.X0;
-import static org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.RedBackAuto.RedPositions.Y0;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -98,7 +94,6 @@ public class MPCTest extends BaseOpMode {
         loc.doTelemetry = true;
         test.setSensor(loc);
         drive = new TankDriveTrain();
-        loc.setPosition(X0, Y0, H0);
 
     }
 

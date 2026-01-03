@@ -116,6 +116,8 @@ public class Shooter extends Subsystem{
                 updateShooter();
                 break;
             case NOTACTIVE:
+                targetShooterRPM = 0;
+                updateShooter();
                 break;
             case OBELISK:
                 getPattern();
@@ -193,7 +195,7 @@ public class Shooter extends Subsystem{
             updateTargetTurretAngle();
         }
         BaseOpMode.addData("turretTargetAngle", turretTargetAngle);
-        if (!Double.isNaN(turretTargetAngle) && hv < 1){
+        if (!Double.isNaN(turretTargetAngle)){
             turret.setPositionInterpolated(turretTargetAngle);
             turret2.setPositionInterpolated(turretTargetAngle);
         }
@@ -269,11 +271,11 @@ public class Shooter extends Subsystem{
 
     public void aim(){
         if (!panic && !Double.isNaN(getHoodAngleMovingCase())){
-            hood.setPositionInterpolated(getHoodAngleMovingCase());
+            hood.setPositionInterpolated(Range.clip(getHoodAngle(),33,60));
         } else {
             hood.setPositionInterpolated(45);
         }
-        BaseOpMode.addData("hood Angle", getHoodAngleMovingCase());
+        BaseOpMode.addData("hood Angle", getHoodAngle());
 
         //This is the target angle relative to facing directly at the aprilTag
         //yaw is current angle of the aprilTag relative to the shooter
@@ -449,12 +451,8 @@ public class Shooter extends Subsystem{
             angle -= Math.PI * 2;
         }
 
-
-        //this gives me an angle between 0 and 2pi. In order to work nicely with kieran's code,
-        //I subtract pi/2 to make the angle be between -pi/2 and 3pi/2
-
         //ensures the angle is within the range the turret is capable of reaching
-        turretTargetAngle = Range.clip(angle, Math.toRadians(-135), Math.PI/2);
+        turretTargetAngle = Range.clip(angle, Math.toRadians(-135), Math.PI/4);
     }
 
 
@@ -465,7 +463,8 @@ public class Shooter extends Subsystem{
     Vector fieldRelativeVelocity;
 
     public void recieveOdoInputs(double x, double y, double h, Vector fieldRelativeVelocity, double hv){
-        this.x = x/100;
+        this.x = x / 100;
+
         this.y = y/100;
         this.h = -h;
         this.hv = hv;
@@ -516,7 +515,7 @@ public class Shooter extends Subsystem{
         //add fancy math (High Case)
         //This is for the not-moving case
         xPosition = distanceAway;
-        double ballSpeed = getTargetBallSpeed();
+        double ballSpeed = getBallSpeed();
         BaseOpMode.addData("ballSpeed", ballSpeed);
         double t1 = xPosition*Math.pow(ballSpeed,2);
         double t2 = Math.pow(t1,2);
@@ -607,7 +606,12 @@ public class Shooter extends Subsystem{
     }
 
     public void selectRPM(){
-        setTargetShooterRPM(Range.clip(333*distanceAway+867,0,1900));
+        if (!panic){
+            setTargetShooterRPM(Range.clip(333*distanceAway+867,0,1900));
+        } else {
+            setTargetShooterRPM(1200);
+        }
+
     }
     public boolean canRobotShoot(){
         return (hoodCanShoot && turretCanShoot);
@@ -667,7 +671,7 @@ public class Shooter extends Subsystem{
     }
 
     public enum ShooterStates{
-        ACTIVE, NOTACTIVE, OBELISK, SHOOTERTESTING, BALLFOLLOWING;
+            ACTIVE, NOTACTIVE, OBELISK, SHOOTERTESTING, BALLFOLLOWING;
     }
     public ShooterStates getState(){
         return shooterState;

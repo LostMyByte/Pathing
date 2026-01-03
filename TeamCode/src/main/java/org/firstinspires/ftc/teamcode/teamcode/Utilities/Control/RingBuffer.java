@@ -28,6 +28,13 @@ public class RingBuffer <T> {
 
     }
 
+    public T getValue() {
+        T retVal = list.get(index);
+
+        return retVal;
+
+    }
+
     public void fill(T overwriteVal){
         for (int i = 0; i < list.size(); i++) {
             list.set(i, overwriteVal);

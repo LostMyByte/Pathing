@@ -2,6 +2,8 @@
 
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.TeliOp.TestOpModes;
 
+import static org.firstinspires.ftc.teamcode.teamcode.Utilities.Dash.DashPositions.servoTest;
+
 import android.graphics.Color;
 import android.widget.BaseExpandableListAdapter;
 
@@ -20,6 +22,7 @@ import org.firstinspires.ftc.robotcontroller.external.samples.SensorColor;
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.IntakeMagazine;
+import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Servos;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.teamcode.Subsystems.TeliOpDrivetrain;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
@@ -40,15 +43,21 @@ public class TestOpMode extends BaseOpMode {
     Shooter shooter;
     boolean firstLoop = true;
     ElapsedTime timer;
+    Servos.Turret servo;
+    Servos.Turret2 servo2;
     @Override
     public void externalInit() {
         //sensor = hardwareMap.get(NormalizedColorSensor.class, "Color");
+        /*
         drive = new TeliOpDrivetrain(hardwareMap, 0);
         loc = new Location(0,300,0);
         intake = new IntakeMagazine(hardwareMap);
         shooter = new Shooter(hardwareMap, Constants.Team.RED);
         intake.setState(IntakeMagazine.IntakeMagazineStates.IDLE);
-        shooter.setState(Shooter.ShooterStates.ACTIVE);
+        shooter.setState(Shooter.ShooterStates.ACTIVE);*/
+        servo = new Servos.Turret();
+        servo2 = new Servos.Turret2();
+
     }
 
     @Override
@@ -57,6 +66,7 @@ public class TestOpMode extends BaseOpMode {
        /* NormalizedRGBA colors = sensor.getNormalizedColors();
         Color.colorToHSV(colors.toColor(), hsvValues);
         */
+        /*
         drive.updateOdo(loc.getPosX(), loc.getPosY(), loc.getPosH());
         shooter.recieveOdoInputs(loc.getPosX(), loc.getPosY(), loc.getPosH(), new Vector(0,0,0), loc.getVelH());
         BaseOpMode.addData("headingVelocity", loc.getVelH());
@@ -66,13 +76,15 @@ public class TestOpMode extends BaseOpMode {
         }
 
         if (driver1.cross.isToggled()){
-            drive.dumbDriveToPos(0,0,1);
+            drive.driveDumb(0,0,1,firstLoop);
             firstLoop = false;
         } else {
-            drive.dumbDriveToPos(0,200,0.2);
+            drive.driveDumb(0,Math.PI,1,firstLoop);
             //if (timer.seconds() > 5) drive.dumbDriveToPos(-120,120,0.2);
             firstLoop = false;
         }
-
+        */
+        //servo.setPositionInterpolated(servoTest);
+        servo2.setPositionInterpolated(servoTest);
     }
 }

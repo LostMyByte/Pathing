@@ -64,6 +64,8 @@ public class PID {
 //            return homedConstant;
 //        }
 
+        if (Double.isNaN(error)) error = prevErrorRingBuffer.getValue();
+
         double currentTime = runtime.milliseconds();
         double prevTime = timeRingBuffer.getValue(currentTime);
         double deltaTime = currentTime - prevTime;

@@ -81,8 +81,11 @@ public class IntakeMagazine extends Subsystem{
             case INTAKEREAR:
                 intakeRear();
                 break;
-            case CLEAR:
-                clearMagazine();
+            case CLEARFRONT:
+                clearFront();
+                break;
+            case CLEARREAR:
+                clearRear();
                 break;
             case DONOTHING:
                 break;
@@ -251,19 +254,17 @@ public class IntakeMagazine extends Subsystem{
 
     }
 
-    public void clearMagazine(){
+    public void clearFront(){
+        frontRamp.flat();
+        backRamp.flat();
+        frontIntake.setPower(-1);
+    }
+    public void clearRear(){
         frontRamp.flat();
         backRamp.flat();
         rearIntake.setPower(-1);
-        frontIntake.setPower(-1);
-        if (timer.seconds() > 0.2){
-            if (firstLoop1){
-                setIndexState(IndexStates.INDEX);
-                firstLoop1 = false;
-            }
-        }
-        resetBreakBeams();
     }
+
 
     public void resetBreakBeams(){
         breakBeamReads[0] = false;
@@ -325,7 +326,7 @@ public class IntakeMagazine extends Subsystem{
 
 
     public enum IntakeMagazineStates{
-        IDLE, INTAKEFRONT, INTAKEREAR, SHOOTING, CLEAR, LOADANDSHOOTUNINDEXED, DONOTHING, SEATBALLS
+        IDLE, INTAKEFRONT, INTAKEREAR, SHOOTING, CLEARFRONT, CLEARREAR, LOADANDSHOOTUNINDEXED, DONOTHING, SEATBALLS
     }
 
     public enum BallColors{

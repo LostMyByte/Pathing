@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Autonomous.TestAutos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Constants;
 
+@Disabled
 @Autonomous
 public class LocalizationTest extends BaseOpMode{
 
