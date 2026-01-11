@@ -199,6 +199,10 @@ public abstract class Matrix
         return result;
     }
 
+    public void add(int row, int col, double val){
+        this.put(row, col, this.get(row, col) + val);
+    }
+
     /**
      * Returns a vector containing data of a particular column of the receiver.
      * @param col the column to extract
