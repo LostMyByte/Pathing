@@ -9,10 +9,22 @@ import org.firstinspires.ftc.teamcode.teamcode.Motion.Controllers.PID;
 
 @Config
 public class DriveWheels {
+
+    public static class WheelParams {
+        public double x;
+        public double y;
+        public double h;
+
+        public WheelParams(double x, double y, double h) {
+            this.x = x;
+            this.y = y;
+            this.h = h;
+        }
+    }
     public static double maxVelocity = 50;
     // BackEMF constants
-    public static double Ex = 0.9;
-    public static double Ey = 0.7;
+    public static double Ex = -4;
+    public static double Ey = -2.5;
     public static double Eh = -1.8;
     public static double Ed = -2.2;
 
@@ -21,8 +33,8 @@ public class DriveWheels {
     public static double tsv = 0.25;
 
     // Loopback constants
-    public static double Lxk = 0.3;
-    public static double Lhk = -0.2;
+    public static double Lxk = 3;
+    public static double Lhk = -0.0;
     public static double Lml = 0.15;
     public static double Lmr = 0.15;
     public static double Lmk = 0.1;
@@ -33,7 +45,9 @@ public class DriveWheels {
     public static MPCPath.MPCParams defaultParams = new MPCPath.MPCParams();
 
     public static double driveAcceleration = 1200;
-    public static double angularAcceleration = 50;
+    public static double angularAcceleration = -100;
+    public static double XdriveAcceleration = 350;
+    public static double YdriveAcceleration = 500;
 
 
     public static double controlLimit = 0.7;
@@ -63,36 +77,10 @@ public class DriveWheels {
     For most cases, these will all be -1 or +1 because it's a square drive base with each wheel having equal torque.
     */
 
-    public static class FL {
-        public static double x = -1;
-        public static double y = -1;
-        public static double h = -1;
-
-    }
-
-
-    public static class FR {
-        public static double x = -1;
-        public static double y = 1;
-        public static double h = -1;
-
-    }
-
-
-    public static class BL {
-        public static double x = 1;
-        public static double y = -1;
-        public static double h = -1;
-
-    }
-
-
-    public static class BR {
-        public static double x = 1;
-        public static double y = 1;
-        public static double h = -1;
-
-    }
+    public static WheelParams FL = new WheelParams(-1, -1, -1);
+    public static WheelParams FR = new WheelParams(-1, 1, -1);
+    public static WheelParams BL = new WheelParams(1, -1, -1);
+    public static WheelParams BR = new WheelParams(1, 1, -1);
 
     public static PID.PIDCoefficients driveConstants = new PID.PIDCoefficients(0.03, 0.01, 0, 0.03, 0.01);
 

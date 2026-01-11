@@ -32,7 +32,7 @@ public class OdoTuning extends BaseOpMode {
     public void externalLoop() {
 
 
-        drive.drive(gamepad1.left_stick_y, gamepad1.right_stick_x);
+        drive.drive(-gamepad1.left_stick_y, gamepad1.right_stick_x);
 
         odos.updateOffsets();
 

@@ -315,13 +315,13 @@ public class TankDrive implements SystemModel{
     /**
      * Derivative of the state transition function with respect to the control.
      * @param state      Current state
-     * @param _control   Current Control
+     * @param control   Current Control
      * @param deltaTime  Timestep
      * @return  The derivative as a Jacobian
      */
     @Override
-    public Matrix dFdU(Vector state, Vector _control, double deltaTime) {
-        return h(state).multiplied(B).multiplied(deltaTime);
+    public Matrix dFdU(Vector state, Vector control, double deltaTime) {
+        return h(state).multiplied(B).multiplied(dSdU(control)).multiplied(deltaTime);
     }
 
 
@@ -422,7 +422,7 @@ public class TankDrive implements SystemModel{
      * @param pos   Current position in state space
      * @return      Loopback correction in control space
      */
-    public static Vector getLoopback(Vector pos) {
+    public Vector getLoopback(Vector pos) {
         Vector wheelVelocities = TankDrive.getWheelVelocity().multiplied(pos);
         Vector frictionCorrection = new Vector(0,0);
 

@@ -2,12 +2,19 @@
 package org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels;
 
 
+import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Signals.Signal;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.GeneralMatrix;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Matrix;
-import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.TrigAngle;
+
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
+
+
+import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.TrigAngle;
+
+//import org.flag4j.arrays.dense.Matrix;
+//import org.flag4j.arrays.dense.Vector;
 
 public class MechanumDrive implements SystemModel {
     // Uses a state-space of [x, y, h, vx, vy, vh]
@@ -16,8 +23,18 @@ public class MechanumDrive implements SystemModel {
     //      x is the state,
     //      u is the control input
 
+    // Converts from target powers to wheel powers
+    public static Matrix W = new GeneralMatrix(4, 3, new double[] {
+            DriveWheels.FR.y, DriveWheels.FR.x, DriveWheels.FR.h,
+            DriveWheels.FL.y, DriveWheels.FL.x, DriveWheels.FL.h,
+            DriveWheels.BR.y, DriveWheels.BR.x, DriveWheels.BR.h,
+            DriveWheels.BL.y, DriveWheels.BL.x, DriveWheels.BL.h,
+    });
+    // I got the 0.25 by math. It's almost orthagonal.
+    public static Matrix WL = W.transposed().multiplied(0.25);
+
     // Derivative of state due to current state.
-    private Matrix A = new GeneralMatrix(6, 6, new double[] {
+    private Matrix A = new GeneralMatrix(  6, 6, new double[] {
             // The velocity is the derivative of position.
             // Assumes when h=0, velocity in the direction the robot is facing is in the y direction. This is then fixed by the heading transform.
             0 ,0, 0, 1, 0, 0,
@@ -39,8 +56,8 @@ public class MechanumDrive implements SystemModel {
             // A control affects the PWM duty cycle, which is directly proportional to the torque by the motor.
             // Given that the mass and moment of inertia are (for the most part) constant, the acceleration is
             // directly proportional to motor powers. These values are the scalars that form that proportionality.
-            DriveWheels.driveAcceleration, 0, 0,
-            0, DriveWheels.driveAcceleration, 0,
+            0, DriveWheels.XdriveAcceleration, 0,
+            DriveWheels.YdriveAcceleration, 0, 0,
             0, 0, DriveWheels.angularAcceleration,
     });
 
@@ -160,7 +177,7 @@ public class MechanumDrive implements SystemModel {
      * @return  The derivative without the heading transform applied.
      */
     private Vector linearModel(Vector control, Vector state) {
-        Vector acceleration = B.multiplied(control);
+        Vector acceleration = B.multiplied(controlLimit(control));
         Vector linearModel = Vector.length(6);
         linearModel.add(A.multiplied(state));
         linearModel.add(acceleration);
@@ -175,6 +192,26 @@ public class MechanumDrive implements SystemModel {
     @Override
     public int getControls() {
         return 4;
+    }
+
+    @Override
+    public Vector getLoopback(Vector state) {
+
+        double angle = -state.get(2);
+        Matrix h = new GeneralMatrix(3,3, new double[] {
+                -Math.sin(angle), Math.cos(angle), 0,
+                Math.cos(angle), Math.sin(angle), 0,
+                0, 0, 1
+        });
+        Vector v = h.multiplied(new Vector(state.get(3), state.get(4), 0));
+        Vector correction = v.normalized().multiplied(DriveWheels.Lmk);
+        correction = correction.multiplied(Math.abs(Math.tanh(DriveWheels.tsv*correction.magnitude())));
+        correction.put(1, correction.get(1) * DriveWheels.Lxk);
+        correction.put(2, Math.tanh(DriveWheels.tsh*state.get(4)) * DriveWheels.Lhk);
+        BaseOpMode.addData("Loopback Drive", correction.get(0));
+        BaseOpMode.addData("Loopback Strafe", correction.get(1));
+        BaseOpMode.addData("Loopback Turn", correction.get(2));
+        return correction;
     }
 
     @Override
@@ -210,7 +247,13 @@ public class MechanumDrive implements SystemModel {
      */
     @Override
     public Vector controlLimit(Vector u) {
-        return u;
+        u = W.multiplied(u);
+
+        for (int i =0; i < 4; i++) {
+            u.put(i, DriveWheels.controlLimit* Math.tanh(u.get(i)));
+        }
+
+        return WL.multiplied(u);
     }
 
     /**
@@ -220,7 +263,16 @@ public class MechanumDrive implements SystemModel {
      */
     @Override
     public Matrix dSdU(Vector control) {
-        return Matrix.identityMatrix(4);
+        Matrix sprime = new GeneralMatrix(4,4);
+        control = W.multiplied(control);
+        sprime.put(0,0, 1/Math.pow(Math.cosh(control.get(0)), 2));
+        sprime.put(1,1, 1/Math.pow(Math.cosh(control.get(1)), 2));
+        sprime.put(2,2, 1/Math.pow(Math.cosh(control.get(2)), 2));
+        sprime.put(3,3, 1/Math.pow(Math.cosh(control.get(3)), 2));
+
+        sprime.multiplied(DriveWheels.controlLimit);
+
+        return WL.multiplied(sprime.multiplied(W));
     }
 
     /**
@@ -234,10 +286,6 @@ public class MechanumDrive implements SystemModel {
     @Override
     public Vector stateTransitionFunction(Vector currentState, Vector control, double deltatime) {
 
-        control = new Vector(control.getData().clone());
-        for (int i = 0; i < control.length(); i++) {
-            if (Math.abs(control.get(i)) > 1) control.put(i, Math.signum(control.get(i)));
-        }
         return currentState.added(h(currentState).multiplied(linearModel(control, currentState)).multiplied(deltatime));
     }
 
@@ -259,7 +307,7 @@ public class MechanumDrive implements SystemModel {
 
         // Row = a, Col = j = 2
         for (int a = 0; a < 6; a++) {
-            result.put(a, 2, result.get(a, 2) + linearModel.get(a));
+            result.add(a, 2, linearModel.get(a));
         }
 
         result.multiply(deltaTime);
@@ -271,13 +319,13 @@ public class MechanumDrive implements SystemModel {
     /**
      * Derivative of the state transition function with respect to the control.
      * @param state      Current state
-     * @param _control   Current Control
+     * @param control   Current Control
      * @param deltaTime  Timestep
      * @return  The derivative as a Jacobian
      */
     @Override
-    public Matrix dFdU(Vector state, Vector _control, double deltaTime) {
-        return h(state).multiplied(B).multiplied(deltaTime);
+    public Matrix dFdU(Vector state, Vector control, double deltaTime) {
+        return h(state).multiplied(B.multiplied(dSdU(control))).multiplied(deltaTime);
     }
 
     /**
@@ -292,16 +340,20 @@ public class MechanumDrive implements SystemModel {
      * @return The result of the operation
      */
     @Override
-    public Matrix VdF2dXdU(Vector state, Vector _control, Vector V, double deltaTime) {
-        Matrix result = new GeneralMatrix(3, 6);
+    public Matrix VdF2dXdU(Vector state, Vector control, Vector V, double deltaTime) {
+        Matrix result = new GeneralMatrix(4, 6);
 
-        Vector col2 = dhdtheta(state.get(2)).multiplied(B).transposed().multiplied(V);
+        Vector col2 = dhdtheta(state.get(2)).multiplied(B.multiplied(dSdU(control))).transposed().multiplied(V);
 
         for (int k = 0; k < 3; k++) {
                 result.put(k, 2, col2.get(k));
         }
         result.multiply(deltaTime);
         return result;
+    }
+
+    private double tanh2ndDerivative(double x) {
+        return -2*Math.tanh(x)*Math.pow(1/Math.cosh(x), 2);
     }
 
     /**
@@ -318,7 +370,15 @@ public class MechanumDrive implements SystemModel {
      */
     @Override
     public Matrix VdF2dUdU(Vector state, Vector control, Vector vx, double dt) {
-        return new GeneralMatrix(4, 4);
+        Matrix s1D = new GeneralMatrix(4,4, new double[] {
+                tanh2ndDerivative(control.get(0)), 0, 0, 0,
+                0, tanh2ndDerivative(control.get(1)), 0, 0,
+                0, 0, tanh2ndDerivative(control.get(2)), 0,
+                0, 0, 0, tanh2ndDerivative(control.get(3)),
+        }).multiplied(DriveWheels.controlLimit);
+        //Todo: This is probably wrong but I need better tensors to fix.
+        Matrix result = h(state).multiplied(B).multiplied(WL).multiplied(s1D).multiplied(W);
+        return result;
     }
 
     /**

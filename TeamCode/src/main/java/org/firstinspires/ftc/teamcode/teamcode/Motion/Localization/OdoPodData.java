@@ -21,20 +21,21 @@ public class OdoPodData extends Signal {
 
     public GoBildaPinpointDriver odoPods;
 
-    public static double yOffset = 85;
-    public static double xOffset = -8;
+    public static double yOffset = -92;
+    public static double xOffset = 0;
     public static double alpha = 0.9;
 
     double oldAngle;
 
-    double driveVelocity = 0;
+    //double driveVelocity = 0;
+    //Vector velocity = new Vector(0,0,0;)
 
     private void initialize() {
 
         odoPods = BaseOpMode.getHardwareMap().get(GoBildaPinpointDriver.class, Hardware.odoWheels);
         odoPods.setOffsets(xOffset,yOffset);
         odoPods.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        odoPods.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
+        odoPods.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
         odoPods.recalibrateIMU();
     }
 
@@ -52,7 +53,7 @@ public class OdoPodData extends Signal {
         odoPods.setOffsets(xOffset,yOffset);
         odoPods.update();
 
-        velocity = new Vector(odoPods.getVelX(DistanceUnit.CM), odoPods.getVelY(DistanceUnit.CM),odoPods.getHeadingVelocity());
+        Vector newvelocity = new Vector(odoPods.getVelX(DistanceUnit.CM), odoPods.getVelY(DistanceUnit.CM),odoPods.getHeadingVelocity());
 
         Pose2D pose = odoPods.getPosition();
         double angle = pose.getHeading(AngleUnit.RADIANS);
@@ -67,27 +68,23 @@ public class OdoPodData extends Signal {
 
         this.data = new Vector(pose.getX(DistanceUnit.CM), pose.getY(DistanceUnit.CM), oldAngle);
 
-        driveVelocity += alpha * (new Vector(Math.cos(-angle), Math.sin(-angle)).dotProduct(new Vector(velocity.get(1), velocity.get(0))) - driveVelocity);
+        velocity.add(newvelocity.subtracted(velocity).multiplied(alpha));
 
-        BaseOpMode.addData("Velocity Drive", driveVelocity);
+        //BaseOpMode.addData("Velocity Drive", driveVelocity);
     }
 
     @Override
     public Vector getGradient() {
-        return new Vector(
-                driveVelocity * -Math.sin(data.get(2)),
-                driveVelocity * Math.cos(data.get(2)),
-                odoPods.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS)
-        );
+        return velocity;
     }
 
 
     @Override
     public void telemetry() {
 
-        BaseOpMode.addData("Odo Velocity X", getDerivatives()[0]);
-        BaseOpMode.addData("Odo Velocity Y", getDerivatives()[1]);
-        BaseOpMode.addData("Odo Velocity H", getDerivatives()[2]);
+        BaseOpMode.addData("Odo Velocity X", velocity.get(0));
+        BaseOpMode.addData("Odo Velocity Y", velocity.get(1));
+        BaseOpMode.addData("Odo Velocity H", velocity.get(2));
 
         BaseOpMode.addData("Odo Position X", data.get(0));
         BaseOpMode.addData("Odo Position Y", data.get(1));

@@ -173,8 +173,8 @@ public class MPCPath extends Controller{
      * @param v velocity
      * @param vh angular velocity
      */
-    public void setTarget(double x, double y, double h, double v, double vh) {
-        this.referenceSignal = new ConstantSignal(new Vector(new double[] {x, y, h, v, vh}));
+    public void setTarget(double x, double y, double h, double vx, double vy, double vh) {
+        this.referenceSignal = new ConstantSignal(new Vector(new double[] {x, y, h, vx, vy, vh}));
     }
 
     /**
@@ -182,11 +182,12 @@ public class MPCPath extends Controller{
      * @param x x position
      * @param y y position
      * @param h heading
-     * @param v velocity
+     * @param vx  x velocity
+     * @param vy  y velocity
      * @param vh angular velocity
      */
-    public void setStart(double x, double y, double h, double v, double vh) {
-        this.start = new Vector(new double[] {x, y, h, v, vh});
+    public void setStart(double x, double y, double h, double vx, double vy, double vh) {
+        this.start = new Vector(new double[] {x, y, h, vx, vy, vh});
     }
 
     public void addObstacle(Obstacle obstacle) {
@@ -242,23 +243,25 @@ public class MPCPath extends Controller{
             this.start = continuationOf.controller.currentTrajectory[continuationOf.controller.currentTrajectory.length-1];
         }
 
-        Matrix Q = new GeneralMatrix(5, 5, new double[] {
-                params.QX, 0, 0, 0, 0,
-                0, params.QY, 0, 0, 0,
-                0, 0, params.QH, 0, 0,
-                0, 0, 0, params.QV, 0,
-                0, 0, 0, 0, params.QHV,
+        Matrix Q = new GeneralMatrix(6, 6, new double[] {
+                params.QX, 0, 0, 0, 0, 0,
+                0, params.QY, 0, 0, 0, 0,
+                0, 0, params.QH, 0, 0, 0,
+                0, 0, 0, params.QV, 0, 0,
+                0, 0, 0, 0, params.QV, 0,
+                0, 0, 0, 0, 0, params.QHV,
         });
 
-        Matrix QF = new GeneralMatrix(5, 5, new double[] {
-                params.QFX, 0, 0, 0, 0,
-                0, params.QFY, 0, 0, 0,
-                0, 0, params.QFH, 0, 0,
-                0, 0, 0, params.QFV, 0,
-                0, 0, 0, 0, params.QFHV,
+        Matrix QF = new GeneralMatrix(6, 6, new double[] {
+                params.QFX, 0, 0, 0, 0, 0,
+                0, params.QFY, 0, 0, 0, 0,
+                0, 0, params.QFH, 0, 0, 0,
+                0, 0, 0, params.QFV, 0, 0,
+                0, 0, 0, 0, params.QFV, 0,
+                0, 0, 0, 0, 0, params.QFHV,
         });
 
-        Matrix R = Matrix.identityMatrix(2).multiplied(params.R);
+        Matrix R = Matrix.identityMatrix(3).multiplied(params.R);
 
         this.state = ControllerStates.Ready;
 
@@ -335,12 +338,13 @@ public class MPCPath extends Controller{
             target = this.referenceSignal.target();
         }
 
-        if (doTelemetry) BaseOpMode.addData("Position Cost", controller.costFunction(target, referenceSignal.target(), new Vector(0,0), 1/resolution));
+        if (doTelemetry) BaseOpMode.addData("Position Cost", controller.costFunction(target, referenceSignal.target(), new Vector(0,0, 0), 1/resolution));
         if (doTelemetry) BaseOpMode.addData("TX", target.get(0));
         if (doTelemetry) BaseOpMode.addData("TY", target.get(1));
         if (doTelemetry) BaseOpMode.addData("TH", target.get(2));
-        if (doTelemetry) BaseOpMode.addData("TV", target.get(3));
-        if (doTelemetry) BaseOpMode.addData("TVH", target.get(4));
+        if (doTelemetry) BaseOpMode.addData("TVX", target.get(3));
+        if (doTelemetry) BaseOpMode.addData("TVY", target.get(4));
+        if (doTelemetry) BaseOpMode.addData("TVH", target.get(5));
 
         return position.subtracted(target);
     }
@@ -359,15 +363,15 @@ public class MPCPath extends Controller{
 
         if (time > horizonTime) this.state = ControllerStates.Finished;
 
-        // TODO: MAke work for not tank drive
-        Vector loopback = TankDrive.getLoopback(sensorData);
+
+        Vector loopback = model.getLoopback(sensorData);
 
         Vector error = getStateError(sensorData, time);
 
-        if (Math.abs(error.get(2)) > DriveWheels.Lhdp & Math.abs(sensorData.get(4)) < DriveWheels.Lhdv) {
+        /*if (Math.abs(error.get(2)) > DriveWheels.Lhdp & Math.abs(sensorData.get(4)) < DriveWheels.Lhdv) {
             loopback.add(0, DriveWheels.Lhs * Math.signum(error.get(2)));
             loopback.add(1, -DriveWheels.Lhs * Math.signum(error.get(2)));
-        }
+        }*/
 
         Vector correction = model.controlLimit(controller.getInterpolatedU(time));
 
@@ -380,18 +384,20 @@ public class MPCPath extends Controller{
                 error.put(0, posError.get(0));
                 error.put(1, posError.get(1));
             }
-            correction.add(new Vector(heading.dotProduct(posError) * DriveWheels.Kp, posError.magnitude() * DriveWheels.Kp));
+            //correction.add(new Vector(heading.dotProduct(posError) * DriveWheels.Kp, posError.magnitude() * DriveWheels.Kp));
         }
 
-        if (doTelemetry) BaseOpMode.addData("FH", correction.get(1)-correction.get(0));
-        if (doTelemetry) BaseOpMode.addData("FV", correction.get(1)+correction.get(0));
-        Matrix feedback = new GeneralMatrix(5, 2, new double[] {
+        if (doTelemetry) BaseOpMode.addData("FX", correction.get(0));
+        if (doTelemetry) BaseOpMode.addData("FY", correction.get(1));
+        if (doTelemetry) BaseOpMode.addData("FH", correction.get(2));
+        /*Matrix feedback = new GeneralMatrix(6, 2, new double[] {
+                0, 0,
                 0, 0,
                 0, 0,
                 DriveWheels.Kih, -DriveWheels.Kih,
                 DriveWheels.Kpv, DriveWheels.Kpv,
                 DriveWheels.Kvh, -DriveWheels.Kvh,
-        }).transposed();
+        }).transposed();*/
 
         Matrix K = model.dSdU(correction);
         if (MPCSettings.invertdSdU) K = K.inverted();
@@ -400,11 +406,11 @@ public class MPCPath extends Controller{
         error = model.h(error.multiplied(MPCSettings.invertHScale ? -1 : 1)).multiplied(error);
 
         Vector modelResponse = K.multiplied(DriveWheels.strength).multiplied(error);
-        if (doTelemetry) BaseOpMode.addData("MH", modelResponse.get(1)-modelResponse.get(0));
-        if (doTelemetry) BaseOpMode.addData("MV", modelResponse.get(1)+modelResponse.get(0));
+        //if (doTelemetry) BaseOpMode.addData("MH", modelResponse.get(1)-modelResponse.get(0));
+        //if (doTelemetry) BaseOpMode.addData("MV", modelResponse.get(1)+modelResponse.get(0));
         correction.add(modelResponse);
 
-        correction.add(feedback.multiplied(error).added(loopback));
+        correction.add(loopback);
 
         if (MPCSettings.voltageCorrection) correction.multiply(params.voltage/voltage.getVoltage());
 

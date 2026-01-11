@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.Testing;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.MechanumDrive;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.TankDriveTrain;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.TankDrive;
@@ -17,13 +18,13 @@ public class OnIce extends BaseOpMode {
 
     private Location sensorSignal;
 
-    TankDrive model;
+    MechanumDrive model;
 
     @Override
     public void externalInit() {
         drive = new TankDriveTrain();
         sensorSignal = new Location(0, 0, 0);
-        model = new TankDrive();
+        model = new MechanumDrive();
         sensorSignal.doTelemetry = true;
 
     }
@@ -31,10 +32,10 @@ public class OnIce extends BaseOpMode {
     @Override
     public void externalLoop() {
 
-        model = new TankDrive();
+        model = new MechanumDrive();
 
-        Vector sensorData = sensorSignal.getPositionForTankDrive();
-        Vector target = Vector.length(5);
+        Vector sensorData = model.toStateSpace(sensorSignal);
+        Vector target = Vector.length(6);
 
         Vector additional = new Vector(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x).multiplied(DriveWheels.driveAcceleration);
 
@@ -43,7 +44,7 @@ public class OnIce extends BaseOpMode {
         }
 
 
-        Vector powers = TankDrive.getBLeftInverse(sensorData).multiplied(target.subtracted(model.getAMatrix(sensorData).multiplied(sensorData))).added(TankDrive.getLoopback(target));
+        Vector powers = model.getBLeftInverse(sensorData).multiplied(target.subtracted(model.getAMatrix(sensorData).multiplied(sensorData))).added(model.getLoopback(target));
 
         BaseOpMode.addData("Correction L", powers.get(0));
         BaseOpMode.addData("Correction R", powers.get(1));
