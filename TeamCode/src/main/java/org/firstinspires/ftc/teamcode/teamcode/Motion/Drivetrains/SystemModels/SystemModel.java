@@ -10,6 +10,8 @@ public interface SystemModel {
     int getDimensions();
     int getControls();
 
+    Vector getLoopback(Vector state);
+
     /** Converts from a standard state into state space.
      * @param data Sensor data signal
      */

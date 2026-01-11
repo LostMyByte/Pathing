@@ -22,7 +22,7 @@ public class Location extends Signal {
     OdoPodData odoPods;
     //LimeLightData limeLight;
 
-    Vector oldData;
+    Vector oldOdoData;
 
 
 
@@ -31,7 +31,7 @@ public class Location extends Signal {
         super(3);
         odoPods = new OdoPodData(startx, starty, starth);
         //limeLight = new LimeLightData();
-        oldData = new Vector(startx,starty,starth);
+        oldOdoData = new Vector(startx,starty,starth);
         data = new Vector(startx,starty,starth);
     }
 
@@ -62,20 +62,35 @@ public class Location extends Signal {
         return angle;
     }
 
-    public double getVelDrive() {
+    /*public double getVelDrive() {
         return odoPods.driveVelocity;
+    }*/
+
+    private double getVelX() {
+        return odoPods.getGradient().get(0);
+    }
+    private double getVelY() {
+        return odoPods.getGradient().get(1);
     }
 
     public double getVelH() {
         return odoPods.getGradient().get(2);
     }
 
-    public Vector getTranslationalVelocity() {
-        return new Vector(odoPods.driveVelocity * -Math.sin(getPosH()), odoPods.driveVelocity * Math.cos(getPosH()));
+    @Override
+    public Vector getGradient() {
+        return odoPods.getGradient();
     }
 
+    public Vector getTranslationalVelocity() {
+        return new Vector(getVelX(), getVelY());
+    }
+
+
+
     public Vector getPositionForTankDrive() {
-        return new Vector(getPosX(), getPosY(), getPosH(), odoPods.driveVelocity, getVelH());
+        throw new RuntimeException("Dylan one of your classes wants a tank drive.");
+        ///return new Vector(getPosX(), getPosY(), getPosH(), 0, getVelH());
     }
 
     public Vector getPosition() {
@@ -84,7 +99,7 @@ public class Location extends Signal {
 
     public void setPosition(double x, double y, double h) {
         data = new Vector(x, y, h);
-        oldData = new Vector(x,y,h);
+        //oldData = new Vector(x,y,h);
         odoPods.setPosition(x, y, h);
 
     }
@@ -100,8 +115,8 @@ public class Location extends Signal {
     });
     @Override
     protected void update() {
-        data.add(odoPods.getDataVector().subtracted(oldData));
-        oldData = odoPods.getDataVector();
+        data.add(odoPods.getDataVector().subtracted(oldOdoData));
+        oldOdoData = odoPods.getDataVector();
         LimeLightData.botHeading = data.get(2);
         //if (limeLight.goodData) data.add(LLprojection.multiplied(limeLight.getDataVector().subtracted(data).multiplied(llAlpha)));
 
@@ -112,7 +127,7 @@ public class Location extends Signal {
         BaseOpMode.addData("Filtered X", getPosX());
         BaseOpMode.addData("Filtered Y", getPosY());
         BaseOpMode.addData("Filtered H", getPosH());
-        BaseOpMode.addData("Filtered V", getVelDrive());
+        //BaseOpMode.addData("Filtered V", getVelDrive());
         BaseOpMode.addData("Filtered HV", getVelH());
 
         odoPods.telemetry();

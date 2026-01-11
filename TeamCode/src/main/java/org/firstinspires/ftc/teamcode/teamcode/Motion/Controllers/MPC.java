@@ -73,7 +73,7 @@ public class MPC {
 
         this.lambda_max = lambda_max;
         this.dimensions = referenceSignal.getLength();
-        this.numControls = 2;
+        this.numControls = 3;
         this.horizon = time;
 
         this.lr = lr;
@@ -121,17 +121,16 @@ public class MPC {
 
         for (int i =0; i < N; i++) {
             // Add to cost function
-            // TODO: Handle non-constant reference signals
-            double scale = 1;
+            /*double scale = 1;
             for (Obstacle o : obstacles) {
-                scale += o.getCost(currentTrajectory[i]);
-            }
+                /scale += o.getCost(currentTrajectory[i]);
+            }*/
             currentCost += costFunction(currentTrajectory[i], referenceSignal.predict(i*dt), currentControls[i], dt);
         }
 
         // Add terminal cost
-        Vector finalState = currentTrajectory[currentTrajectory.length-1];
-        currentCost += finalState.dotProduct(QF.multiplied(referenceSignal.target().subtracted(finalState)));
+        Vector finalError = referenceSignal.target().subtracted(currentTrajectory[currentTrajectory.length-1]);
+        currentCost += finalError.dotProduct(QF.multiplied(finalError));
 
         return currentCost;
     }
@@ -223,8 +222,8 @@ public class MPC {
         for (int i = 0; i < N; i++) {
             currentControls[i] = Vector.withValue(0, numControls);
 
-            this.k[i] = Vector.length(2);
-            this.K[i] = new GeneralMatrix(2, 5);
+            this.k[i] = Vector.length(numControls);
+            this.K[i] = new GeneralMatrix(numControls, dimensions);
             if (i != N-1) {
                 currentTrajectory[i+1] = model.stateTransitionFunction(currentTrajectory[i], currentControls[i], dt);
             }
@@ -378,15 +377,15 @@ public class MPC {
                 }
             }
 
-            Vector dcdx = dcdxraw.multiplied(ocost).added(dodx.multiplied(pcost));
-            Vector dcdu = dcduraw.multiplied(ocost);
-            Matrix dcdx2 = dcdx2raw.multiplied(ocost).added(crossMatrix).added(crossMatrix.transposed()).added(dodxdx.multiplied(pcost));
-            Matrix dcdu2 = dcdu2raw.multiplied(ocost);
+            Vector dcdx = dcdxraw;//.multiplied(ocost).added(dodx.multiplied(pcost));
+            Vector dcdu = dcduraw;//.multiplied(ocost);
+            Matrix dcdx2 = dcdx2raw;//.multiplied(ocost).added(crossMatrix).added(crossMatrix.transposed()).added(dodxdx.multiplied(pcost));
+            Matrix dcdu2 = dcdu2raw;//.multiplied(ocost);
             Matrix dcdudx = new GeneralMatrix(numControls, dimensions);
 
             for (int j = 0; j < dimensions; j++) {
                 for (int k = 0; k < numControls; k++) {
-                    dcdudx.add(k, j, dcduraw.get(k) * dodx.get(j));
+                    //dcdudx.add(k, j, dcduraw.get(k) * dodx.get(j));
                 }
             }
 

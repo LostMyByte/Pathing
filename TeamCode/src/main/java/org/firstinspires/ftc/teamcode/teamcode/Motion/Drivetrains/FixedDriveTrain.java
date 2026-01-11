@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains;
 
 import org.firstinspires.ftc.teamcode.teamcode.AAAOpModes.BaseOpMode;
+import org.firstinspires.ftc.teamcode.teamcode.Motion.Drivetrains.SystemModels.MechanumDrive;
 import org.firstinspires.ftc.teamcode.teamcode.Motion.Localization.Location;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.DriveWheels;
 import org.firstinspires.ftc.teamcode.teamcode.Utilities.Configuration.Hardware;
@@ -17,29 +18,6 @@ import org.firstinspires.ftc.teamcode.teamcode.Utilities.Math.Vector;
 public class FixedDriveTrain extends Movement {
 
     protected Motor[] driveWheels;
-
-    // Converts from target powers to wheel powers
-    public static Matrix toPowers = new GeneralMatrix(4, 3, new double[] {
-            DriveWheels.FR.x, DriveWheels.FR.y, DriveWheels.FR.h,
-            DriveWheels.FL.x, DriveWheels.FL.y, DriveWheels.FL.h,
-            DriveWheels.BR.x, DriveWheels.BR.y, DriveWheels.BR.h,
-            DriveWheels.BL.x, DriveWheels.BL.y, DriveWheels.BL.h,
-    });
-
-
-    /**
-     * Position-only heading transform
-     * @param angle
-     * @return
-     */
-    public static Matrix h(double angle) {
-        return new GeneralMatrix(3, 3,new double[]{
-            Math.cos(angle), -Math.sin(angle), 0,
-            Math.sin(angle), Math.cos(angle), 0,
-            0, 0, 1
-        });
-    }
-
 
     Location loc;
     public FixedDriveTrain(Location loc) {
@@ -65,19 +43,13 @@ public class FixedDriveTrain extends Movement {
      */
     public void move(Vector target, boolean useFullPower, boolean scalePowers) {
 
-        double angle = loc.getPosition().get(2);
-        Matrix h = h(-angle);
-        Matrix Ph = toPowers.multiplied(h);
-        Vector wheelVelocities = Ph.multiplied(loc.getDataVector());
-        double xCorrection = DriveWheels.Lxk*Math.signum(h.multiplied(loc.getDataVector()).get(0));
-        Vector frictionCorrection = toPowers.multiplied(new Vector(xCorrection, 0, 0));
-
-        for (int i = 0; i < 4; i++) {
+        Vector powers = MechanumDrive.W.multiplied(target);
+        /*for (int i = 0; i < 4; i++) {
             frictionCorrection.put(i, frictionCorrection.get(i) + Math.signum(wheelVelocities.get(i)) * DriveWheels.Lmk);
-        }
+        }*/
 
-        Vector powers = Ph.multiplied(target);
-        powers.add(frictionCorrection);
+        //Vector powers = Ph.multiplied(target);
+        //powers.add(frictionCorrection);
 
         double maxPower = 0;
 
