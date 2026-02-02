@@ -46,6 +46,8 @@ A copy of the source code that we run on the robot can be found \href{https://gi
 
 \maketitle
 
+\setcounter{figure}{0}
+
 \section{Introduction}
 \label{sec:paper}
 \textbf{The FTC game} this year is a shooter game, where we have to intake wiffle balls from the field, sometimes autonomously. Our team originally decided to use a differential drivetrain, like a tank. As we can only move forwards/backwards and turn, a good pathing system is necessary to handle fast, precise movement along curved trajectories. For this design, five variables are needed to represent the robot state at a given time: $x$ and $y$ position, $\theta$, the robot heading, $v$, the one-dimensional velocity along the heading, and the angular velocity $\dot \theta$. We have two control parameters that correspond to the PWM duty cycle sent to the left and right motors.
